@@ -7,7 +7,6 @@ import {
   CheckCircle2, 
   TrendingDown, 
   Truck, 
-  BatteryCharging, 
   Info, 
   Edit3, 
   AlertCircle,
@@ -434,61 +433,128 @@ export const ResultsScreen: React.FC = () => {
       </div>
 
       {/* COMMERCIAL DISCOUNT & FREIGHT SUMMARY TABLE */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-xs space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-gray-600 border-b border-gray-100 pb-2">
-          Financial & Freight Settlement Breakdown
-        </h3>
+      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200 shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 gap-2">
+          <div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-700">
+              Financial & Freight Settlement Breakdown
+            </h3>
+            <p className="text-[11px] text-gray-500 mt-0.5">
+              Strict Single-Component Rule: Discount applies to ONE component only.
+            </p>
+          </div>
+          <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border self-start sm:self-auto ${
+            calculationResult.allocationOption === 'Scooty/Battery Discount'
+              ? 'bg-blue-50 text-blue-800 border-blue-200'
+              : calculationResult.allocationOption === 'Transport Support'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-gray-100 text-gray-800 border-gray-300'
+          }`}>
+            ● Active: {calculationResult.allocationOption}
+          </span>
+        </div>
 
+        {/* Interactive 3-Way Allocation Switcher */}
+        <div className="bg-gray-50/70 p-2.5 rounded-xl border border-gray-200/80 space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-bold text-gray-700 px-1">
+            <span>Switch Settlement Allocation:</span>
+            <span className="text-[10px] text-gray-500 font-normal">Immediate Recalculation</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
+              className={`py-2 px-2.5 rounded-lg border text-left transition-all ${
+                calculationResult.allocationOption === 'Scooty/Battery Discount'
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-2xs'
+                  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-[11px] font-bold block">1. Scooty/Battery Discount</span>
+              <span className={`text-[9px] block ${calculationResult.allocationOption === 'Scooty/Battery Discount' ? 'text-blue-100' : 'text-gray-500'}`}>
+                100% discount on invoice; ₹0 transport support
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
+              className={`py-2 px-2.5 rounded-lg border text-left transition-all ${
+                calculationResult.allocationOption === 'Transport Support'
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-2xs'
+                  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-[11px] font-bold block">2. Transport Support (50%)</span>
+              <span className={`text-[9px] block ${calculationResult.allocationOption === 'Transport Support' ? 'text-emerald-100' : 'text-gray-500'}`}>
+                50% freight support; ₹0 invoice discount
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
+              className={`py-2 px-2.5 rounded-lg border text-left transition-all ${
+                calculationResult.allocationOption === 'No Discount / Support'
+                  ? 'bg-gray-800 text-white border-gray-800 shadow-2xs'
+                  : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              <span className="text-[11px] font-bold block">3. No Discount / Support</span>
+              <span className={`text-[9px] block ${calculationResult.allocationOption === 'No Discount / Support' ? 'text-gray-300' : 'text-gray-500'}`}>
+                Full invoice & 100% freight payable
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* 11 Required Settlement Breakdown Items */}
         <div className="space-y-3 text-xs divide-y divide-gray-100">
           
-          {/* Scooter Discount Allowance */}
+          {/* 1. Total Scooter/Battery Invoice Amount */}
           <div className="flex items-center justify-between pt-2">
             <div>
-              <span className="font-bold text-gray-900">Scooter Discount Allowance</span>
+              <span className="font-bold text-gray-900">Total Scooter/Battery Invoice Amount</span>
               <div className="text-[11px] text-gray-500">
-                {calculationResult.totalDlScooters} DL + {calculationResult.totalOtherScooters} Other scooters
+                {calculationResult.totalProductInvoiceAmount !== null
+                  ? `${calculationResult.totalScooters} scooters (${formatINR(calculationResult.grossScooterAmount ?? 0)}) + ${calculationResult.totalBatteries} batteries (${formatINR(calculationResult.grossBatteryAmount ?? 0)})`
+                  : 'Gross amount before discounts (Enter unit prices to calculate)'}
               </div>
             </div>
             <span className="font-mono font-bold text-gray-900 text-sm">
-              {formatINR(calculationResult.scooterDiscountAllowance)}
+              {calculationResult.totalProductInvoiceAmount !== null
+                ? formatINR(calculationResult.totalProductInvoiceAmount)
+                : 'Prices Pending'}
             </span>
           </div>
 
-          {/* Actual Scooter Discount Applied */}
-          <div className="flex items-center justify-between pt-2 pl-3 border-l-2 border-emerald-500">
+          {/* 2. Scooter/Battery Discount */}
+          <div className={`flex items-center justify-between pt-2 pl-3 border-l-2 ${
+            calculationResult.allocationOption === 'Scooty/Battery Discount'
+              ? 'border-emerald-500 bg-emerald-50/20'
+              : 'border-gray-200 text-gray-400'
+          }`}>
             <div>
-              <span className="font-semibold text-emerald-900 flex items-center space-x-1">
-                <TrendingDown className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Actual Scooter Discount Applied to Invoice</span>
+              <span className={`font-semibold flex items-center space-x-1 ${
+                calculationResult.allocationOption === 'Scooty/Battery Discount' ? 'text-emerald-900' : 'text-gray-600'
+              }`}>
+                <TrendingDown className="w-3.5 h-3.5" />
+                <span>Scooter / Battery Discount</span>
               </span>
               <div className="text-[10px] text-gray-500">
-                {calculationResult.transportSharingApplied
-                  ? `Allowance (${formatINR(calculationResult.scooterDiscountAllowance)}) − 50% Transport Support (${formatINR(calculationResult.companyTransportSupport)})`
-                  : 'Full scooter discount allowance applied to vehicle invoice'}
+                {calculationResult.allocationOption === 'Scooty/Battery Discount'
+                  ? `Applied to Invoice (${formatINR(calculationResult.actualScooterDiscountApplied)} scooter + ${formatINR(calculationResult.actualBatteryDiscountApplied)} battery)`
+                  : '₹0 (Single-component rule: Transport Support active)'}
               </div>
             </div>
-            <span className="font-mono font-bold text-emerald-700 text-sm">
-              − {formatINR(calculationResult.actualScooterDiscountApplied)}
+            <span className={`font-mono font-bold text-sm ${
+              calculationResult.allocationOption === 'Scooty/Battery Discount' ? 'text-emerald-700' : 'text-gray-500'
+            }`}>
+              {calculationResult.scooterBatteryDiscountApplied > 0
+                ? `− ${formatINR(calculationResult.scooterBatteryDiscountApplied)}`
+                : '₹0'}
             </span>
           </div>
-
-          {/* Battery Discount Allowance & Applied */}
-          {calculationResult.batteryDiscountAllowance > 0 && (
-            <div className="flex items-center justify-between pt-2">
-              <div>
-                <span className="font-bold text-gray-900 flex items-center space-x-1">
-                  <BatteryCharging className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Battery Discount Allowance (Applied to Invoice)</span>
-                </span>
-                <div className="text-[10px] text-gray-500">
-                  {calculationResult.totalBatteries} eligible batteries @ ₹500 (Kept separate from transport)
-                </div>
-              </div>
-              <span className="font-mono font-bold text-emerald-700 text-sm">
-                − {formatINR(calculationResult.actualBatteryDiscountApplied)}
-              </span>
-            </div>
-          )}
 
           {/* Transport Charges Breakdown (5-Step Formula) */}
           <div className="pt-3 space-y-2.5">
@@ -496,7 +562,7 @@ export const ResultsScreen: React.FC = () => {
               <div>
                 <span className="font-bold text-gray-900 flex items-center space-x-1">
                   <Truck className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Transport Logistics Charges</span>
+                  <span>Transport Freight Charges</span>
                 </span>
                 <div className="text-[10px] text-gray-500">
                   {orderInput.transportDistanceKm} km • {calculationResult.truckSummary}
@@ -506,65 +572,126 @@ export const ResultsScreen: React.FC = () => {
 
             {/* 5 Distinct Transport Breakdown Values */}
             <div className="bg-gray-50/80 rounded-xl p-3 border border-gray-200/80 space-y-1.5 text-xs">
+              {/* 3. Base Transport Charge */}
               <div className="flex items-center justify-between text-gray-700">
-                <span>1. Base Transport Charge:</span>
+                <span>3. Base Transport Charge:</span>
                 <span className="font-mono font-medium">{formatINR(calculationResult.baseTransportCost)}</span>
               </div>
 
+              {/* 4. Additional Transport Charge (10%) */}
               <div className="flex items-center justify-between text-gray-700">
-                <span>2. Additional {calculationResult.transportExtraPercent}% Charge:</span>
+                <span>4. Additional {calculationResult.transportExtraPercent}% Charge:</span>
                 <span className="font-mono font-medium text-amber-700">+ {formatINR(calculationResult.transportExtraCharge)}</span>
               </div>
 
+              {/* Transport Subtotal */}
               <div className="flex items-center justify-between font-semibold text-gray-900 pt-1 border-t border-gray-200">
-                <span>3. Transport Subtotal:</span>
+                <span>Transport Subtotal:</span>
                 <span className="font-mono">{formatINR(calculationResult.transportSubtotal)}</span>
               </div>
 
+              {/* 5. Transport GST (5%) */}
               <div className="flex items-center justify-between text-gray-700">
-                <span>4. GST ({calculationResult.transportGstPercent}%):</span>
+                <span>5. Transport GST ({calculationResult.transportGstPercent}%):</span>
                 <span className="font-mono font-medium text-blue-700">+ {formatINR(calculationResult.transportGstAmount)}</span>
               </div>
 
+              {/* 6. Final Total Transport Cost */}
               <div className="flex items-center justify-between font-extrabold text-gray-950 pt-1.5 border-t border-gray-300 text-xs">
-                <span>5. Final Transport Cost:</span>
+                <span>6. Final Total Transport Cost:</span>
                 <span className="font-mono text-red-600 font-bold">{formatINR(calculationResult.totalTransportCost)}</span>
+              </div>
+
+              {/* 7. Transport Cost Per Scooty (NEW REQUIRED CALCULATION) */}
+              <div className="flex items-center justify-between bg-blue-50/80 px-2.5 py-2 rounded-lg border border-blue-200/80 font-bold text-blue-950 mt-1">
+                <div>
+                  <span className="block text-blue-900">7. Transport Cost Per Scooty:</span>
+                  <span className="text-[10px] text-blue-700 font-normal">
+                    {calculationResult.totalScooters > 0
+                      ? `Final Transport (${formatINR(calculationResult.totalTransportCost)}) ÷ ${calculationResult.totalScooters} Scooters`
+                      : 'Zero scooters in order'}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="font-mono text-blue-950 font-black text-sm block">
+                    {calculationResult.transportCostPerScooter !== null
+                      ? `${formatINR(calculationResult.transportCostPerScooter)} / scooty`
+                      : '—'}
+                  </span>
+                  {calculationResult.customerTransportPerScooter !== null && (
+                    <span className="text-[10px] font-mono text-blue-800 font-semibold block">
+                      Dealer pays: {formatINR(calculationResult.customerTransportPerScooter)}/scooty
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
-            {/* Company Support row */}
-            {calculationResult.companyTransportSupport > 0 && (
-              <div className="flex items-center justify-between pl-3 border-l-2 border-blue-400 text-blue-900 text-xs">
-                <div>
-                  <span className="font-semibold">Company 50% Transport Support</span>
-                  <div className="text-[10px] text-blue-700">
-                    Absorbed by Xidaa from scooter discount allowance
-                  </div>
-                </div>
-                <span className="font-mono font-bold text-blue-800">
-                  − {formatINR(calculationResult.companyTransportSupport)}
-                </span>
-              </div>
-            )}
-
-            {/* Customer Transport Payment */}
-            <div className="flex items-center justify-between pl-3 border-l-2 border-gray-400 font-bold text-gray-900 text-xs">
+            {/* 8. Company Transport Support */}
+            <div className={`flex items-center justify-between pl-3 border-l-2 text-xs py-1 ${
+              calculationResult.allocationOption === 'Transport Support'
+                ? 'border-blue-500 bg-blue-50/30 text-blue-950'
+                : 'border-gray-200 text-gray-500'
+            }`}>
               <div>
-                <span>Customer Transport Payment</span>
-                <div className="text-[10px] text-gray-500 font-normal">
-                  {calculationResult.transportSharingApplied ? 'Remaining 50% freight' : 'Full 100% freight'}
+                <span className="font-semibold block">8. Company Transport Support (50%)</span>
+                <div className="text-[10px] text-gray-500">
+                  {calculationResult.allocationOption === 'Transport Support'
+                    ? 'Absorbed by Xidaa Moto under Transport Support allocation'
+                    : '₹0 (Single-component rule: Scooty/Battery Discount active)'}
                 </div>
               </div>
-              <span className="font-mono">
+              <span className={`font-mono font-bold ${
+                calculationResult.allocationOption === 'Transport Support' ? 'text-blue-800' : 'text-gray-500'
+              }`}>
+                {calculationResult.companyTransportSupport > 0
+                  ? `− ${formatINR(calculationResult.companyTransportSupport)}`
+                  : '₹0'}
+              </span>
+            </div>
+
+            {/* 9. Customer Transport Payable */}
+            <div className="flex items-center justify-between pl-3 border-l-2 border-gray-400 font-bold text-gray-900 text-xs py-1">
+              <div>
+                <span>9. Customer Transport Payable</span>
+                <div className="text-[10px] text-gray-500 font-normal">
+                  {calculationResult.allocationOption === 'Transport Support'
+                    ? 'Remaining 50% freight payable by customer'
+                    : 'Full 100% freight payable by customer'}
+                </div>
+              </div>
+              <span className="font-mono font-black text-sm">
                 + {formatINR(calculationResult.customerTransportPayment)}
               </span>
             </div>
           </div>
 
-          {/* Total Dealership Benefit */}
-          <div className="flex items-center justify-between pt-3 font-extrabold text-sm text-gray-900 bg-gray-50/70 p-3 rounded-xl border border-gray-200">
-            <span className="text-gray-800">Total Dealership Benefit Received:</span>
-            <span className="font-mono text-emerald-700 text-base">
+          {/* 10. Total Customer Payable */}
+          <div className="flex items-center justify-between pt-3 font-extrabold text-sm text-gray-900 bg-gray-900 text-white p-3.5 rounded-xl shadow-xs">
+            <div>
+              <span className="block text-white">10. Total Customer Payable:</span>
+              <span className="text-[10px] text-gray-300 font-normal">
+                {calculationResult.finalPayableAmount !== null
+                  ? `Net Invoice + Customer Transport (${formatINR(calculationResult.customerTransportPayment)})`
+                  : 'Prices pending in order form'}
+              </span>
+            </div>
+            <span className="font-mono text-red-400 text-base font-black">
+              {calculationResult.finalPayableAmount !== null
+                ? formatINR(calculationResult.finalPayableAmount)
+                : 'Pending Prices'}
+            </span>
+          </div>
+
+          {/* 11. Total Dealership Benefit Received */}
+          <div className="flex items-center justify-between pt-3 font-extrabold text-sm text-gray-900 bg-emerald-50/70 p-3 rounded-xl border border-emerald-200">
+            <div>
+              <span className="text-gray-900 block">11. Total Dealership Benefit Received:</span>
+              <span className="text-[10px] text-emerald-800 font-normal">
+                Single non-duplicated benefit: {calculationResult.allocationOption}
+              </span>
+            </div>
+            <span className="font-mono text-emerald-700 text-base font-black">
               {formatINR(calculationResult.totalCustomerDiscountBenefit)}
             </span>
           </div>

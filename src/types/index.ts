@@ -5,7 +5,16 @@ export type BatteryVariant =
   | '60V 45Ah LFP'
   | '60V 55Ah pouch cell';
 
-export type TransportAllocationMode = 'Automatic' | 'Full Scooter Discount' | 'Share Transport';
+export type DiscountAllocationOption = 
+  | 'Scooty/Battery Discount' 
+  | 'Transport Support' 
+  | 'No Discount / Support';
+
+export type TransportAllocationMode = 
+  | DiscountAllocationOption
+  | 'Automatic' 
+  | 'Full Scooter Discount' 
+  | 'Share Transport';
 
 export type GstTreatment = 'None' | 'Exclusive' | 'Inclusive';
 
@@ -177,16 +186,20 @@ export interface CalculationResult {
   transportGstAmount: number;
   totalTransportCost: number; // Final Transport Cost = Subtotal + GST
   halfTransportCost: number;
+  transportCostPerScooter: number | null; // Final Transport Cost ÷ Total Scooters
+  customerTransportPerScooter: number | null; // Customer Transport Payment ÷ Total Scooters
   totalCapacity: number;
   truckSummary: string;
 
-  // Transport Sharing Engine
+  // Single-Component Discount / Transport Support Settlement
+  allocationOption: DiscountAllocationOption;
   transportSharingEligible: boolean;
   transportSharingApplied: boolean;
   companyTransportSupport: number;
   customerTransportPayment: number;
   actualScooterDiscountApplied: number;
   actualBatteryDiscountApplied: number;
+  scooterBatteryDiscountApplied: number; // Total Scooter + Battery Discount Applied
   remainingScooterDiscount: number;
   totalCustomerDiscountBenefit: number;
 
@@ -195,6 +208,7 @@ export interface CalculationResult {
   missingPriceReason?: string;
   grossScooterAmount: number | null;
   grossBatteryAmount: number | null;
+  totalProductInvoiceAmount: number | null; // Gross Scooter + Gross Battery Amount
   grossTotalAmount: number | null;
   subtotalBeforeTax: number | null;
   gstAmount: number | null;

@@ -188,11 +188,34 @@ export const PrintOrderSummary: React.FC = () => {
 
         {/* Transport & Commercial Summary */}
         <div className="space-y-2">
-          <h3 className="text-xs uppercase font-extrabold text-gray-800 tracking-wider">
-            3. Transport & Settlement Summary
-          </h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs uppercase font-extrabold text-gray-800 tracking-wider">
+              3. Financial & Freight Settlement Breakdown
+            </h3>
+            <span className="text-[10px] font-bold text-gray-700 bg-gray-100 px-2 py-0.5 rounded border border-gray-300">
+              Allocation: {calculationResult.allocationOption}
+            </span>
+          </div>
           <table className="w-full text-xs text-left border-collapse border border-gray-200">
             <tbody className="divide-y divide-gray-200 text-gray-800">
+              <tr>
+                <td className="py-2 px-3 font-medium text-gray-700">Gross Vehicle & Battery Invoice Amount</td>
+                <td className="py-2 px-3 text-right font-mono font-medium">
+                  {calculationResult.totalProductInvoiceAmount !== null
+                    ? formatINR(calculationResult.totalProductInvoiceAmount)
+                    : 'Prices Pending'}
+                </td>
+              </tr>
+              <tr className={calculationResult.allocationOption === 'Scooty/Battery Discount' ? 'bg-emerald-50/60 font-semibold text-emerald-950' : 'text-gray-500'}>
+                <td className="py-2 px-3">
+                  Scooter / Battery Invoice Discount {calculationResult.allocationOption !== 'Scooty/Battery Discount' && '(₹0 — Single-Component Rule)'}
+                </td>
+                <td className="py-2 px-3 text-right font-mono font-bold">
+                  {calculationResult.scooterBatteryDiscountApplied > 0
+                    ? `− ${formatINR(calculationResult.scooterBatteryDiscountApplied)}`
+                    : '₹0'}
+                </td>
+              </tr>
               <tr>
                 <td className="py-2 px-3 font-medium text-gray-700">1. Base Transport Charge ({orderInput.transportDistanceKm} km • {calculationResult.truckSummary})</td>
                 <td className="py-2 px-3 text-right font-mono">{formatINR(calculationResult.baseTransportCost)}</td>
@@ -210,33 +233,39 @@ export const PrintOrderSummary: React.FC = () => {
                 <td className="py-2 px-3 text-right font-mono">+ {formatINR(calculationResult.transportGstAmount)}</td>
               </tr>
               <tr className="bg-gray-100 font-extrabold text-gray-900">
-                <td className="py-2 px-3">5. Final Transport Cost</td>
-                <td className="py-2 px-3 text-right font-mono">{formatINR(calculationResult.totalTransportCost)}</td>
+                <td className="py-2 px-3">5. Final Total Transport Cost</td>
+                <td className="py-2 px-3 text-right font-mono text-red-600">{formatINR(calculationResult.totalTransportCost)}</td>
               </tr>
-              {calculationResult.companyTransportSupport > 0 && (
-                <tr className="bg-blue-50/60">
-                  <td className="py-2 px-3 font-semibold text-blue-900">
-                    Less: 50% Company Transport Support (Absorbed by Xidaa)
-                  </td>
-                  <td className="py-2 px-3 text-right font-mono font-bold text-blue-800">
-                    − {formatINR(calculationResult.companyTransportSupport)}
-                  </td>
-                </tr>
-              )}
-              <tr>
-                <td className="py-2 px-3 font-bold">Net Customer Transport Payment</td>
+              <tr className="bg-blue-50/70 font-bold text-blue-950">
+                <td className="py-2 px-3">
+                  Transport Cost Per Scooty (Final Transport ÷ {calculationResult.totalScooters} Scooters)
+                </td>
+                <td className="py-2 px-3 text-right font-mono font-black text-blue-900">
+                  {calculationResult.transportCostPerScooter !== null
+                    ? `${formatINR(calculationResult.transportCostPerScooter)} / scooty`
+                    : '—'}
+                </td>
+              </tr>
+              <tr className={calculationResult.allocationOption === 'Transport Support' ? 'bg-blue-50/60 font-semibold text-blue-950' : 'text-gray-500'}>
+                <td className="py-2 px-3">
+                  Company Transport Support (50%) {calculationResult.allocationOption !== 'Transport Support' && '(₹0 — Single-Component Rule)'}
+                </td>
+                <td className="py-2 px-3 text-right font-mono font-bold">
+                  {calculationResult.companyTransportSupport > 0
+                    ? `− ${formatINR(calculationResult.companyTransportSupport)}`
+                    : '₹0'}
+                </td>
+              </tr>
+              <tr className="font-bold">
+                <td className="py-2 px-3">Customer Transport Payable ({calculationResult.allocationOption === 'Transport Support' ? '50% share' : '100% full'})</td>
                 <td className="py-2 px-3 text-right font-mono font-bold">+ {formatINR(calculationResult.customerTransportPayment)}</td>
               </tr>
-              <tr className="bg-emerald-50/60 font-bold text-emerald-900">
-                <td className="py-2 px-3">Actual Scooter Invoice Discount Applied</td>
-                <td className="py-2 px-3 text-right font-mono text-emerald-800">− {formatINR(calculationResult.actualScooterDiscountApplied)}</td>
+              <tr className="bg-emerald-50/70 font-extrabold text-emerald-950">
+                <td className="py-2.5 px-3">Total Dealership Benefit Received</td>
+                <td className="py-2.5 px-3 text-right font-mono text-emerald-800 text-sm">
+                  {formatINR(calculationResult.totalCustomerDiscountBenefit)}
+                </td>
               </tr>
-              {calculationResult.actualBatteryDiscountApplied > 0 && (
-                <tr className="bg-emerald-50/60 font-bold text-emerald-900">
-                  <td className="py-2 px-3">Actual Battery Invoice Discount Applied</td>
-                  <td className="py-2 px-3 text-right font-mono text-emerald-800">− {formatINR(calculationResult.actualBatteryDiscountApplied)}</td>
-                </tr>
-              )}
               <tr className="bg-gray-900 text-white font-bold text-sm">
                 <td className="py-3 px-3 uppercase tracking-wider">Final Payable Amount</td>
                 <td className="py-3 px-3 text-right font-mono text-base text-red-400">

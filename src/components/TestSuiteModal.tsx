@@ -37,118 +37,122 @@ export const TestSuiteModal: React.FC = () => {
     setIsRunning(true);
 
     setTimeout(() => {
-      // Test Case 1: Prompt Specification Example (12-scooter truck, 1,000 km with 24 Other Model scooters)
-      const inputA: OrderInput = {
-        customerName: 'Aodn Motors Dealership',
-        orderRef: 'XD-EX-1000KM',
+      // Test 1: Transport Support (12 scooters, base ₹8,000, 10% extra, 5% GST, 50% support)
+      const input1: OrderInput = {
+        customerName: 'Aodn Motors (Transport Support)',
+        orderRef: 'XD-TEST-1-TRANS-SUPPORT',
         orderDate: '2026-10-23',
         scooterItems: [
-          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 24, unitPrice: 50000 },
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
         ],
         batteryIncluded: false,
         batteryItems: [],
-        transportDistanceKm: 1000,
-        truckAllocations: [
-          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
-        ],
-        allocationMode: 'Automatic',
-      };
-      const resA = calculateOrderFinancials(inputA, DEFAULT_APP_CONFIG);
-      const caseA: TestCaseResult = {
-        id: 'example-a',
-        title: 'Benchmark 1: 1,000 km 12-Truck 5-Step Formula Verification',
-        description: 'Verifies the prompt formula: Base ₹40,000 + 10% Extra ₹4,000 = ₹44,000 Subtotal + 5% GST ₹2,200 = ₹46,200 Final Transport Cost. S (₹24,000) >= H (₹23,100).',
-        orderInput: inputA,
-        passed: false,
-        checks: [
-          { label: '1. Base Transport Charge', expected: '₹40,000', actual: formatINR(resA.baseTransportCost), passed: resA.baseTransportCost === 40000 },
-          { label: '2. Additional 10% Charge', expected: '₹4,000', actual: formatINR(resA.transportExtraCharge), passed: resA.transportExtraCharge === 4000 },
-          { label: '3. Transport Subtotal', expected: '₹44,000', actual: formatINR(resA.transportSubtotal), passed: resA.transportSubtotal === 44000 },
-          { label: '4. Transport GST (5%)', expected: '₹2,200', actual: formatINR(resA.transportGstAmount), passed: resA.transportGstAmount === 2200 },
-          { label: '5. Final Transport Cost', expected: '₹46,200', actual: formatINR(resA.totalTransportCost), passed: resA.totalTransportCost === 46200 },
-          { label: 'Company 50% Transport Support (H)', expected: '₹23,100', actual: formatINR(resA.companyTransportSupport), passed: resA.companyTransportSupport === 23100 },
-          { label: 'Customer Transport Payment', expected: '₹23,100', actual: formatINR(resA.customerTransportPayment), passed: resA.customerTransportPayment === 23100 },
-          { label: 'Remaining Scooter Discount', expected: '₹900', actual: formatINR(resA.remainingScooterDiscount), passed: resA.remainingScooterDiscount === 900 },
-        ],
-      };
-      caseA.passed = caseA.checks.every(c => c.passed);
-
-      // Test Case 2: Example B (Ineligible Sharing: S < H)
-      const inputB: OrderInput = {
-        customerName: 'Shiv Shakti Electric',
-        orderRef: 'XD-EX-B',
-        orderDate: '2026-10-23',
-        scooterItems: [
-          { id: '1', modelId: 'x-double-light', modelName: 'X-Double Light', category: 'DL Model', quantity: 10 },
-        ],
-        batteryIncluded: false,
-        batteryItems: [],
-        transportDistanceKm: 1000,
-        truckAllocations: [
-          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
-        ],
-        allocationMode: 'Automatic',
-      };
-      const resB = calculateOrderFinancials(inputB, DEFAULT_APP_CONFIG);
-      const caseB: TestCaseResult = {
-        id: 'example-b',
-        title: 'Benchmark 2: 10 DL Scooters, 1,000 km (Ineligible for Sharing)',
-        description: 'Scooter allowance (₹5,000) < 50% final transport (₹23,100). Sharing rejected. Customer pays full ₹46,200 transport; ₹5,000 discount applied to scooter invoice.',
-        orderInput: inputB,
-        passed: false,
-        checks: [
-          { label: 'Scooter Discount Allowance (S)', expected: '₹5,000', actual: formatINR(resB.scooterDiscountAllowance), passed: resB.scooterDiscountAllowance === 5000 },
-          { label: 'Final Transport Cost (T)', expected: '₹46,200', actual: formatINR(resB.totalTransportCost), passed: resB.totalTransportCost === 46200 },
-          { label: '50% Transport Threshold (H)', expected: '₹23,100', actual: formatINR(resB.halfTransportCost), passed: resB.halfTransportCost === 23100 },
-          { label: 'Transport Sharing Eligible', expected: 'false', actual: String(resB.transportSharingEligible), passed: resB.transportSharingEligible === false },
-          { label: 'Company Transport Support', expected: '₹0', actual: formatINR(resB.companyTransportSupport), passed: resB.companyTransportSupport === 0 },
-          { label: 'Actual Scooter Invoice Discount', expected: '₹5,000', actual: formatINR(resB.actualScooterDiscountApplied), passed: resB.actualScooterDiscountApplied === 5000 },
-          { label: 'Customer Transport Payment', expected: '₹46,200', actual: formatINR(resB.customerTransportPayment), passed: resB.customerTransportPayment === 46200 },
-        ],
-      };
-      caseB.passed = caseB.checks.every(c => c.passed);
-
-      // Test Case 3: Example C (200 km, With Battery)
-      const inputC: OrderInput = {
-        customerName: 'Apex EV World',
-        orderRef: 'XD-EX-C',
-        orderDate: '2026-10-23',
-        scooterItems: [
-          { id: '1', modelId: 'x-cs3', modelName: 'X-CS3', category: 'Other Model', quantity: 10, unitPrice: 37500 },
-        ],
-        batteryIncluded: true,
-        batteryItems: [
-          { id: 'b1', variant: '60V 30Ah LFP', quantity: 10, eligibleDiscountQuantity: 10 },
-        ],
         transportDistanceKm: 200,
         truckAllocations: [
           { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
         ],
-        allocationMode: 'Automatic',
+        allocationMode: 'Transport Support',
       };
-      const resC = calculateOrderFinancials(inputC, DEFAULT_APP_CONFIG);
-      const caseC: TestCaseResult = {
-        id: 'example-c',
-        title: 'Benchmark 3: 200 km, 12-truck, With Battery: Base ₹8,000 -> Final ₹9,240',
-        description: 'Base ₹8,000 + 10% (₹800) = ₹8,800 + 5% GST (₹440) = ₹9,240 Final. Scooter allowance (₹10,000) covers 50% (₹4,620). Battery discount (₹5,000) stays separate.',
-        orderInput: inputC,
+      const res1 = calculateOrderFinancials(input1, DEFAULT_APP_CONFIG);
+      const case1: TestCaseResult = {
+        id: 'test-1-transport-support',
+        title: 'Test 1: Transport Support Allocation (Option B)',
+        description: '12 scooters, base transport ₹8,000, additional charge 10%, GST 5%, company support 50%. Invoice discount is strictly ₹0.',
+        orderInput: input1,
         passed: false,
         checks: [
-          { label: 'Base Transport Charge', expected: '₹8,000', actual: formatINR(resC.baseTransportCost), passed: resC.baseTransportCost === 8000 },
-          { label: '10% Extra Charge', expected: '₹800', actual: formatINR(resC.transportExtraCharge), passed: resC.transportExtraCharge === 800 },
-          { label: 'Transport Subtotal', expected: '₹8,800', actual: formatINR(resC.transportSubtotal), passed: resC.transportSubtotal === 8800 },
-          { label: '5% Transport GST', expected: '₹440', actual: formatINR(resC.transportGstAmount), passed: resC.transportGstAmount === 440 },
-          { label: 'Final Transport Cost (T)', expected: '₹9,240', actual: formatINR(resC.totalTransportCost), passed: resC.totalTransportCost === 9240 },
-          { label: 'Half-Transport Support (H)', expected: '₹4,620', actual: formatINR(resC.companyTransportSupport), passed: resC.companyTransportSupport === 4620 },
-          { label: 'Remaining Scooter Discount', expected: '₹5,380', actual: formatINR(resC.remainingScooterDiscount), passed: resC.remainingScooterDiscount === 5380 },
-          { label: 'Battery Discount on Invoice', expected: '₹5,000', actual: formatINR(resC.actualBatteryDiscountApplied), passed: resC.actualBatteryDiscountApplied === 5000 },
-          { label: 'Customer Transport Payment', expected: '₹4,620', actual: formatINR(resC.customerTransportPayment), passed: resC.customerTransportPayment === 4620 },
-          { label: 'Total Dealership Benefit', expected: '₹15,000', actual: formatINR(resC.totalCustomerDiscountBenefit), passed: resC.totalCustomerDiscountBenefit === 15000 },
+          { label: 'Transport Subtotal', expected: '₹8,800', actual: formatINR(res1.transportSubtotal), passed: res1.transportSubtotal === 8800 },
+          { label: 'Transport GST (5%)', expected: '₹440', actual: formatINR(res1.transportGstAmount), passed: res1.transportGstAmount === 440 },
+          { label: 'Final Transport Cost', expected: '₹9,240', actual: formatINR(res1.totalTransportCost), passed: res1.totalTransportCost === 9240 },
+          { label: 'Transport Cost Per Scooty', expected: '₹770', actual: formatINR(res1.transportCostPerScooter ?? 0), passed: res1.transportCostPerScooter === 770 },
+          { label: 'Company Transport Support (50%)', expected: '₹4,620', actual: formatINR(res1.companyTransportSupport), passed: res1.companyTransportSupport === 4620 },
+          { label: 'Customer Transport Payable', expected: '₹4,620', actual: formatINR(res1.customerTransportPayment), passed: res1.customerTransportPayment === 4620 },
+          { label: 'Scooter/Battery Discount Applied', expected: '₹0', actual: formatINR(res1.scooterBatteryDiscountApplied), passed: res1.scooterBatteryDiscountApplied === 0 },
         ],
       };
-      caseC.passed = caseC.checks.every(c => c.passed);
+      case1.passed = case1.checks.every(c => c.passed);
 
-      setTestResults([caseA, caseB, caseC]);
+      // Test 2: Scooty/Battery Discount (Same shipment)
+      const input2: OrderInput = {
+        ...input1,
+        orderRef: 'XD-TEST-2-SCOOTER-DISC',
+        allocationMode: 'Scooty/Battery Discount',
+      };
+      const res2 = calculateOrderFinancials(input2, DEFAULT_APP_CONFIG);
+      const case2: TestCaseResult = {
+        id: 'test-2-scooter-discount',
+        title: 'Test 2: Scooty/Battery Discount Allocation (Option A)',
+        description: 'Same shipment. Scooter discount applies once (₹12,000). Company transport support is strictly ₹0; customer pays full ₹9,240 freight.',
+        orderInput: input2,
+        passed: false,
+        checks: [
+          { label: 'Final Transport Cost', expected: '₹9,240', actual: formatINR(res2.totalTransportCost), passed: res2.totalTransportCost === 9240 },
+          { label: 'Transport Cost Per Scooty', expected: '₹770', actual: formatINR(res2.transportCostPerScooter ?? 0), passed: res2.transportCostPerScooter === 770 },
+          { label: 'Scooter Discount Applied to Invoice', expected: '₹12,000', actual: formatINR(res2.scooterBatteryDiscountApplied), passed: res2.scooterBatteryDiscountApplied === 12000 },
+          { label: 'Company Transport Support', expected: '₹0', actual: formatINR(res2.companyTransportSupport), passed: res2.companyTransportSupport === 0 },
+          { label: 'Customer Transport Payable', expected: '₹9,240', actual: formatINR(res2.customerTransportPayment), passed: res2.customerTransportPayment === 9240 },
+        ],
+      };
+      case2.passed = case2.checks.every(c => c.passed);
+
+      // Test 3: No Discount / Support (Same shipment)
+      const input3: OrderInput = {
+        ...input1,
+        orderRef: 'XD-TEST-3-NO-DISCOUNT',
+        allocationMode: 'No Discount / Support',
+      };
+      const res3 = calculateOrderFinancials(input3, DEFAULT_APP_CONFIG);
+      const case3: TestCaseResult = {
+        id: 'test-3-no-discount',
+        title: 'Test 3: No Discount / Support Allocation (Option C)',
+        description: 'No discount applied. Scooter/battery discount ₹0, company transport support ₹0, customer pays full ₹9,240 freight.',
+        orderInput: input3,
+        passed: false,
+        checks: [
+          { label: 'Final Transport Cost', expected: '₹9,240', actual: formatINR(res3.totalTransportCost), passed: res3.totalTransportCost === 9240 },
+          { label: 'Per-Scooty Transport Cost', expected: '₹770', actual: formatINR(res3.transportCostPerScooter ?? 0), passed: res3.transportCostPerScooter === 770 },
+          { label: 'Scooter/Battery Discount', expected: '₹0', actual: formatINR(res3.scooterBatteryDiscountApplied), passed: res3.scooterBatteryDiscountApplied === 0 },
+          { label: 'Company Transport Support', expected: '₹0', actual: formatINR(res3.companyTransportSupport), passed: res3.companyTransportSupport === 0 },
+          { label: 'Customer Transport Payable', expected: '₹9,240', actual: formatINR(res3.customerTransportPayment), passed: res3.customerTransportPayment === 9240 },
+        ],
+      };
+      case3.passed = case3.checks.every(c => c.passed);
+
+      // Test 4: 1,000 km 12-Truck 5-Step Formula Benchmark
+      const input4: OrderInput = {
+        customerName: '1,000 KM Benchmark',
+        orderRef: 'XD-TEST-4-1000KM',
+        orderDate: '2026-10-23',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 1000,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Scooty/Battery Discount',
+      };
+      const res4 = calculateOrderFinancials(input4, DEFAULT_APP_CONFIG);
+      const case4: TestCaseResult = {
+        id: 'test-4-1000km-benchmark',
+        title: 'Test 4: 1,000 km 12-Truck Transport Formula Exact Conformance',
+        description: 'Base ₹40,000 + 10% Extra ₹4,000 = ₹44,000 Subtotal + 5% GST ₹2,200 = ₹46,200 Final Transport Cost. Per-Scooty: ₹3,850.',
+        orderInput: input4,
+        passed: false,
+        checks: [
+          { label: '1. Base Transport Charge', expected: '₹40,000', actual: formatINR(res4.baseTransportCost), passed: res4.baseTransportCost === 40000 },
+          { label: '2. Additional 10% Charge', expected: '₹4,000', actual: formatINR(res4.transportExtraCharge), passed: res4.transportExtraCharge === 4000 },
+          { label: '3. Transport Subtotal', expected: '₹44,000', actual: formatINR(res4.transportSubtotal), passed: res4.transportSubtotal === 44000 },
+          { label: '4. Transport GST (5%)', expected: '₹2,200', actual: formatINR(res4.transportGstAmount), passed: res4.transportGstAmount === 2200 },
+          { label: '5. Final Transport Cost', expected: '₹46,200', actual: formatINR(res4.totalTransportCost), passed: res4.totalTransportCost === 46200 },
+          { label: 'Per-Scooty Transport Cost', expected: '₹3,850', actual: formatINR(res4.transportCostPerScooter ?? 0), passed: res4.transportCostPerScooter === 3850 },
+        ],
+      };
+      case4.passed = case4.checks.every(c => c.passed);
+
+      setTestResults([case1, case2, case3, case4]);
       setIsRunning(false);
       setHasRun(true);
       addToast('success', 'All verification tests executed successfully!');

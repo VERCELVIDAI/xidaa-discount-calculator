@@ -630,66 +630,80 @@ export const OrderForm: React.FC = () => {
         )}
       </div>
 
-      {/* SECTION: DISCOUNT ALLOCATION SELECTOR (Smart Sharing Engine) */}
+      {/* SECTION: DISCOUNT ALLOCATION SELECTOR (Single-Component Discount / Support Rule) */}
       <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
         <div>
-          <h2 className="text-base font-bold text-gray-900">Discount Allocation Mode</h2>
+          <h2 className="text-base font-bold text-gray-900">Discount / Support Allocation</h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Scooter discount allowance can optionally cover 50% of transport freight.
+            Strict Single-Component Rule: Company support or discount applies to <strong>one component only</strong>, never both vehicle invoice and transport simultaneously.
           </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {/* Automatic */}
+          {/* Option A: Scooty/Battery Discount */}
           <button
             type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'Automatic' })}
-            className={`p-3 rounded-xl border text-left transition-all relative ${
-              orderInput.allocationMode === 'Automatic'
-                ? 'bg-red-50 border-red-500 text-red-950 shadow-2xs'
+            onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
+            className={`p-3 rounded-xl border text-left transition-all ${
+              calculationResult.allocationOption === 'Scooty/Battery Discount'
+                ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/30'
                 : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
-              <span className="text-xs font-bold">Automatic</span>
-              <span className="text-[9px] bg-red-600 text-white font-bold px-1.5 py-0.2 rounded">Recommended</span>
+              <span className="text-xs font-bold">Scooty/Battery Discount</span>
+              <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">Option A</span>
             </div>
             <p className="text-[11px] text-gray-500">
-              Absorbs 50% freight if scooter discount covers it; applies full discount to price if not.
+              Apply approved discount to scooter & battery invoice only. Customer pays 100% transport freight.
             </p>
           </button>
 
-          {/* Full Scooter Discount */}
+          {/* Option B: Transport Support */}
           <button
             type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'Full Scooter Discount' })}
+            onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
             className={`p-3 rounded-xl border text-left transition-all ${
-              orderInput.allocationMode === 'Full Scooter Discount'
-                ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs'
+              calculationResult.allocationOption === 'Transport Support'
+                ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs ring-1 ring-emerald-500/30'
                 : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
             }`}
           >
-            <span className="text-xs font-bold block mb-0.5">Discount on Price</span>
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs font-bold">Transport Support (50%)</span>
+              <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded">Option B</span>
+            </div>
             <p className="text-[11px] text-gray-500">
-              Apply 100% of discount to scooter invoice. Customer pays 100% freight.
+              Company absorbs 50% of final transport cost. Scooter and battery invoice discounts are strictly ₹0.
             </p>
           </button>
 
-          {/* Share Transport */}
+          {/* Option C: No Discount / Support */}
           <button
             type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'Share Transport' })}
+            onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
             className={`p-3 rounded-xl border text-left transition-all ${
-              orderInput.allocationMode === 'Share Transport'
-                ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs'
+              calculationResult.allocationOption === 'No Discount / Support'
+                ? 'bg-gray-100 border-gray-500 text-gray-950 shadow-2xs ring-1 ring-gray-400'
                 : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
             }`}
           >
-            <span className="text-xs font-bold block mb-0.5">Share Transport (50/50)</span>
+            <div className="flex items-center justify-between mb-0.5">
+              <span className="text-xs font-bold">No Discount / Support</span>
+              <span className="text-[9px] bg-gray-600 text-white font-bold px-1.5 py-0.2 rounded">Option C</span>
+            </div>
             <p className="text-[11px] text-gray-500">
-              Company absorbs 50% transport from scooter discount allowance.
+              Customer pays full vehicle invoice and 100% transport cost. No company support or discount applied.
             </p>
           </button>
+        </div>
+
+        {/* Selected Allocation Active Callout */}
+        <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 text-xs text-gray-700 flex items-center justify-between">
+          <span className="font-medium text-gray-600">Active Allocation:</span>
+          <span className="font-bold text-gray-900 bg-white px-2.5 py-1 rounded-md border border-gray-200 shadow-2xs">
+            {calculationResult.allocationOption}
+          </span>
         </div>
 
         {/* Ineligible Warning Callout */}
@@ -701,10 +715,10 @@ export const OrderForm: React.FC = () => {
             </div>
             <button
               type="button"
-              onClick={() => updateOrderInput({ allocationMode: 'Full Scooter Discount' })}
+              onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
               className="text-[11px] font-bold text-amber-900 underline hover:text-black"
             >
-              Switch to "Discount on Price" mode
+              Switch to "Scooty/Battery Discount" mode
             </button>
           </div>
         )}

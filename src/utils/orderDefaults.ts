@@ -45,7 +45,7 @@ export function createDefaultOrderInput(config: AppConfig): OrderInput {
         count: 1,
       },
     ],
-    allocationMode: 'Automatic',
+    allocationMode: 'Scooty/Battery Discount',
     notes: '',
     profitabilityInput: {
       minProfitType: config.profitProtectionConfig?.defaultMinProfitType ?? 'margin_percent',
