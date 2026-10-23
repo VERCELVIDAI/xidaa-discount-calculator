@@ -1,83 +1,74 @@
-# Xidaa Discount Calculator
+# Xidaa Discount Calculator & Commercial Quotation Engine
 
 > **"RIDE THE ELECTRIC THUNDER"** — Official Commercial Discount, Freight Logistics & B2B Settlement Calculation Engine for **Xidaa Moto Pvt. Ltd.**
 
-A full-stack, enterprise-grade automotive calculation and quotation application built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Vitest**.
+A full-stack, enterprise-grade automotive calculation and quotation application built with **React 19**, **TypeScript**, **Tailwind CSS v4**, **Supabase PostgreSQL (RLS)**, and **Vitest**.
 
 ---
 
-## ⚡ Core Business Capabilities
+## ⚡ Core Capabilities & Architecture
 
-### 1. Smart Transport-Sharing Engine
-- **Business Rule**: The scooter discount allowance can optionally cover **50% of the transport charge** if $S \ge H$ ($H = T \times 0.50$).
-- **Battery Separation**: Battery discounts are strictly segregated and are **never** utilized to qualify or fund transport sharing.
-- **Budget Integrity**: The total customer discount benefit is strictly capped by the authorized discount budget ($S + B$). No discount amount is ever counted twice.
-- **Three Allocation Modes**:
-  1. **Automatic Mode (Recommended)**: Automatically detects if $S \ge H$. If eligible, company absorbs 50% freight and applies remaining scooter discount $(S - H)$ to the vehicle invoice. If $S < H$, falls back safely to Full Scooter Discount on the invoice with the customer paying 100% transport.
-  2. **Full Scooter Discount**: 100% of the scooter discount allowance is applied to the vehicle invoice; customer pays 100% of freight.
-  3. **Share Transport**: Explicit sharing mode with live validation. If selected when $S < H$, displays an alert detailing the exact monetary deficit and offers a 1-click fallback.
+### 1. Touch-Friendly Fast Quantity Selectors
+- **Keyboard-Free Operation**: Eliminates the requirement to open a mobile virtual keyboard for routine order entry.
+- **Tactile Steppers**: Large, accessible `−` and `+` buttons for quick incremental adjustments.
+- **Automotive Preset Trays**: Tapping the count badge opens a quick-preset drawer with standard truck-friendly numbers: `0`, `1`, `2`, `5`, `10`, `12` (1 small truck), `15`, `20`, `24` (2 trucks), `25`, `32` (1 large truck), `50`, `55` (1 max truck), `100`.
+- **Bulk Fleet Option**: "Custom Large Quantity (>100)..." option for massive distributor consignments.
+- Applied uniformly across **scooter model entries** and **battery line items**.
 
-### 2. Complete Catalogue Model Lineup
-Populated directly from official Xidaa product literature and authorized price lists:
-- **DL Models** (default ₹500 max discount):
-  - `X-Single Light`
-  - `X-Double Light`
-- **Other Models** (default ₹1,000 max discount):
-  - `X-Torvo`
-  - `X-E4`
-  - `X-FH (Big Activa)`
-  - `X-Ozone`
-  - `X-CS3`
-  - `X-ORL Cheetah`
-  - `X-Robox`
-  - `X-Ambretta (X-Lambretta)`
-  - `X-Tank`
-  - `X-Yokozuna`
-  - `X-Boston (X-Beta)`
-  - `X-ZL-9`
-  - `X-2 Wheel Loader`
-  - `X-3 Wheel Loader`
-  - `X-FX-K195 (CKD)`
-  - `X-FS-K051 (CKD)`
+### 2. Automatic Discount Recommendation Engine
+- Automatically evaluates and compares all permitted commercial settlement strategies:
+  1. **Option A: Scooty/Battery Discount**: Approved discount applied strictly to vehicle invoice; ₹0 company transport support; customer pays 100% freight.
+  2. **Option B: Transport Support (50%)**: Company absorbs 50% of the final transport cost; ₹0 vehicle invoice discount.
+  3. **Option C: No Discount / Baseline**: Zero company support; customer pays full invoice and full freight.
+- **Smart Profit Protection**: Automatically identifies the strategy yielding the highest corporate profit while checking configured minimum margin requirements.
+- **One-Click Apply**: Direct 1-tap activation of the recommended strategy onto the active order.
+- Embedded in both **Step 3 (Review & Calculate)** and the **Results Screen**.
 
-### 3. Battery Variants & Separate Discount Quota
-- `Without Battery` (zero battery discount)
-- `60V 30Ah LFP` (additional ₹500/battery discount allowance)
-- `60V 45Ah LFP` (additional ₹500/battery discount allowance)
-- `60V 55Ah pouch cell` (additional ₹500/battery discount allowance)
-- Strict validation ensures orders "Without Battery" never receive battery discounts.
-
-### 4. Transport & Fleet Optimizer
-- **Default Fleet Rates**:
+### 3. Strict 5-Step Transport Freight Formula
+- **Step 1**: $\text{Base Transport} = \text{Distance (km)} \times \text{Applicable Truck Rate}$
   - 12-Scooter Truck: ₹40 / km
   - 32-Scooter Truck: ₹55 / km
   - 55-Scooter Truck: ₹65 / km
-- **Smart Fleet Planner**: Automatically computes optimal multi-truck combinations for large distributor orders (e.g. 60+ scooters). Prevents distance double-counting.
+- **Step 2**: $\text{Additional 10\% Surcharge} = \text{Base Transport} \times 0.10$
+- **Step 3**: $\text{Transport Subtotal} = \text{Base Transport} + \text{Surcharge}$
+- **Step 4**: $\text{Transport GST (5\%)} = \text{Transport Subtotal} \times 0.05$
+- **Step 5**: $\text{Final Transport Payable} = \text{Transport Subtotal} + \text{GST} = \text{Base} \times 1.10 \times 1.05$
+- **Per-Scooty Metric**: Displays actual freight cost per delivered vehicle ($\text{Final Freight} \div \text{Total Scooters}$).
 
-### 5. Automated Verification Test Suite
-- Built-in test runner for the specification scenarios:
-  - **Example A**: 20 scooters, Other Model, ₹50,000 unit price, 1,000 km, 12-truck, no batteries -> ₹10,20,000 final payable.
-  - **Example B**: 10 scooters, DL Model, 1,000 km, 12-truck -> $S = ₹5,000 < H = ₹20,000$, sharing ineligible, customer pays full transport.
-  - **Example C**: 10 scooters, Other Model, with 10 batteries, 200 km, 12-truck -> $S = ₹10,000 \ge H = ₹4,000$, company support ₹4,000, remaining scooter discount ₹6,000, battery discount ₹5,000.
-  - **Edge cases**: Zero distance, battery exclusion, strict validation.
+### 4. Supabase Permanent Data Store & Row Level Security (RLS)
+- Permanent cloud persistence backed by Supabase PostgreSQL.
+- **Database Schema**:
+  - `profiles`: User roles (`admin`, `manager`, `sales_rep`), force-change password flag.
+  - `customers`: Dealership and partner registry.
+  - `orders`: Core order header with automatic order reference.
+  - `order_scooter_items`: Model-wise quantities and prices.
+  - `order_battery_items`: Variant-wise battery quantities and allowances.
+  - `transport_allocations`: Fleet truck allocation records.
+  - `calculation_snapshots`: Complete, immutable JSON financial snapshot.
+  - `discount_recommendations`: Recommended strategy and rationale.
+  - `app_settings`: Global discount rates and transport parameters.
+  - `audit_history`: Financial change and security logs.
+- **Row Level Security (RLS)**: Anonymous public access is denied. Authenticated commercial staff can read/write orders, while Admins/Managers control settings and deletions.
+- **Fail-Safe Integrity**: Failed saves trigger explicit error notices (`saveError`), ensuring users are never misled into believing an unsaved order was persisted.
+- **Local-to-Cloud Migration**: One-click "Sync to Cloud" button in Order History safely migrates pre-existing local orders to Supabase.
 
-### 6. Order History & Export
-- Local persistent storage with search, filters (date, model, reference).
-- Duplicate, reopen, edit, and delete saved calculations.
-- One-click JSON export and import.
-- Print-ready official commercial quote sheet with brand watermark: **"Internal Calculation / Subject to Approval — Not a Tax Invoice"**.
+### 5. Secure Authentication & Role-Based Access Control (RBAC)
+- **Login Screen**: Styled with official Xidaa branding, racing-red accents, show/hide password, session persistence, and demo credential filler for offline testing.
+- **Forced Password Change**: Forces administrators and users to change temporary passwords on their first login.
+- **Server-Side Admin Setup**: Secure provisioning script (`scripts/setup-admin.mjs`) provisions initial admins using server environment variables (`SUPABASE_SERVICE_ROLE_KEY`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`). Privileged secrets are never embedded in React code.
 
-### 7. Protected Admin Rules Panel
-- Passcode-protected admin settings (PIN: `9999` or `admin`).
-- Configurable per-scooter discount limits, per-battery discount limits, truck capacities & rates, DL model mappings, custom base prices, and GST rules (Exclusive / Inclusive / None).
+### 6. Typeset A4 Portrait PDF Export
+- Tailored specifically for `@media print` with zero layout distortion.
+- Official Xidaa header, Indian tricolour precision line, itemized scooter & battery tables, 11-point financial settlement table, automatic recommendation strategy summary, triple signature blocks, and the compliance footer: `Internal Calculation / Subject to Approval — Not a Tax Invoice`.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Framework**: React 19 + TypeScript + Vite 8
+- **Frontend**: React 19 + TypeScript + Vite 8
 - **Styling**: Tailwind CSS v4 + Lucide Icons + Canvas Confetti
-- **Testing**: Vitest (`npm test`)
+- **Backend / Database**: Supabase (PostgreSQL + RLS + GoTrue Auth)
+- **Testing**: Vitest (`npm test`) + Oxlint (`npm run lint`) + Selenium WebDriver E2E
 - **Arithmetic**: Pure integer-paise calculations preventing floating-point rounding errors.
 
 ---
@@ -89,18 +80,43 @@ Populated directly from official Xidaa product literature and authorized price l
 npm install --legacy-peer-deps
 ```
 
-### 2. Run Development Server
+### 2. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Populate with your Supabase credentials:
+```env
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### 3. Apply Supabase Database Migration
+In your **Supabase Dashboard $\to$ SQL Editor**, execute:
+`supabase/migrations/20261023_init_xidaa_schema.sql`
+
+### 4. Provision Initial Administrator (Server-Side)
+```bash
+SUPABASE_URL="https://your-project-id.supabase.co" \
+SUPABASE_SERVICE_ROLE_KEY="your-service-role-secret-key" \
+ADMIN_EMAIL="admin@xidaamoto.com" \
+ADMIN_PASSWORD="TemporarySecurePassword#2026" \
+node scripts/setup-admin.mjs
+```
+
+### 5. Run Development Server
 ```bash
 npm run dev
 ```
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-### 3. Run Automated Tests
+### 6. Run Automated Tests & Linter
 ```bash
-npm test
+npm test -- --run
+npm run lint
 ```
 
-### 4. Production Build
+### 7. Production Build
 ```bash
 npm run build
 ```
