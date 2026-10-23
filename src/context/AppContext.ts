@@ -31,6 +31,12 @@ export interface AppContextType {
   toasts: ToastMessage[];
   isCalculating: boolean;
   calculationError: string | null;
+  isSaving: boolean;
+  saveError: string | null;
+  clearSaveError: () => void;
+  isSyncingWithCloud: boolean;
+  cloudSyncStatus: 'synced' | 'local_only' | 'error' | 'syncing';
+  syncLocalOrdersToCloud: () => Promise<{ migrated: number; failed: number }>;
   setActiveView: (view: AppView) => void;
   updateOrderInput: (patch: Partial<OrderInput>) => void;
   startNewOrder: (skipConfirm?: boolean) => void;
@@ -50,8 +56,8 @@ export interface AppContextType {
   updateTruckCount: (truckId: string, count: number) => void;
   autoOptimizeFleet: () => void;
   // Order Persistence
-  saveCurrentOrder: () => SavedOrder;
-  deleteSavedOrder: (id: string) => void;
+  saveCurrentOrder: () => Promise<SavedOrder | null>;
+  deleteSavedOrder: (id: string) => Promise<void>;
   loadSavedOrder: (id: string) => void;
   duplicateSavedOrder: (id: string) => void;
   // Settings & JSON

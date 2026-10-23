@@ -8,7 +8,10 @@ import { PrintOrderSummary } from './components/PrintOrderSummary';
 import { AdminSettingsModal } from './components/AdminSettingsModal';
 import { ToastContainer } from './components/ToastContainer';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LoginScreen } from './components/LoginScreen';
+import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { useApp } from './context/AppContext';
+import { useAuth } from './context/AuthContext';
 
 export const MainContent: React.FC = () => {
   const { activeView } = useApp();
@@ -28,6 +31,28 @@ export const MainContent: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F5F6F8] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-3">
+          <div className="w-8 h-8 border-3 border-[#E53935] border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-bold text-gray-500">Loading Xidaa Commercial Portal...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <>
+        <LoginScreen />
+        <ToastContainer />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F5F6F8] text-[#191A1D] flex flex-col font-sans selection:bg-[#E53935] selection:text-white">
       <Header />
@@ -51,6 +76,7 @@ export const App: React.FC = () => {
         </div>
       </footer>
 
+      <ChangePasswordModal />
       <ToastContainer />
     </div>
   );

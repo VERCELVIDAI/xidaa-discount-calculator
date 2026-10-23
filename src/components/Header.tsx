@@ -4,9 +4,14 @@ import {
   Bookmark, 
   Settings,
   Calculator,
-  ChevronRight
+  ChevronRight,
+  LogOut,
+  User,
+  Cloud,
+  CloudOff
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 
 export const Header: React.FC = () => {
   const { 
@@ -14,8 +19,11 @@ export const Header: React.FC = () => {
     setActiveView, 
     startNewOrder, 
     savedOrders,
-    orderInput
+    orderInput,
+    cloudSyncStatus
   } = useApp();
+
+  const { user, logout, isConfigured } = useAuth();
 
   return (
     <header className="no-print glass-header sticky top-0 z-40 transition-all duration-200">
@@ -119,6 +127,46 @@ export const Header: React.FC = () => {
             >
               <Settings className="w-4 h-4" />
             </button>
+
+            {/* User Session & Logout */}
+            {user && (
+              <div className="flex items-center space-x-1 pl-1 border-l border-gray-200">
+                <div 
+                  title={`Signed in as ${user.email} (${user.role.toUpperCase()}) | Cloud: ${cloudSyncStatus}`}
+                  className="hidden lg:flex items-center space-x-1.5 py-1 px-2 bg-gray-50 rounded-xl border border-gray-200 text-xs"
+                >
+                  <User className="w-3.5 h-3.5 text-gray-500" />
+                  <span className="font-bold text-gray-800 text-[11px] truncate max-w-[90px]">
+                    {user.username}
+                  </span>
+                  <span className={`text-[9px] uppercase font-black px-1.5 py-0.2 rounded ${
+                    user.role === 'admin' 
+                      ? 'bg-red-100 text-[#E53935]' 
+                      : 'bg-blue-100 text-blue-700'
+                  }`}>
+                    {user.role}
+                  </span>
+                  {isConfigured ? (
+                    <span title="Supabase Connected">
+                      <Cloud className="w-3 h-3 text-emerald-600 ml-0.5" />
+                    </span>
+                  ) : (
+                    <span title="Local Sandbox">
+                      <CloudOff className="w-3 h-3 text-amber-500 ml-0.5" />
+                    </span>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={logout}
+                  title="Sign Out of Commercial Portal"
+                  className="p-2 text-gray-400 hover:text-[#E53935] hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
           </nav>
 

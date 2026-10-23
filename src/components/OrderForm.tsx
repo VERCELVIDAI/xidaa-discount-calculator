@@ -24,6 +24,8 @@ import { CATALOGUE_SCOOTER_MODELS } from '../data/catalogueModels';
 import type { BatteryVariant } from '../types';
 import { formatINR } from '../utils/currency';
 import { AnimatedNumber } from './AnimatedNumber';
+import { TouchQuantitySelector } from './TouchQuantitySelector';
+import { DiscountRecommendationCard } from './DiscountRecommendationCard';
 
 export const OrderForm: React.FC = () => {
   const { 
@@ -377,35 +379,17 @@ export const OrderForm: React.FC = () => {
 
                     {/* Quantity & Unit Price */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Quantity Stepper */}
+                      {/* Fast Touch Quantity Selector (No Keyboard Required) */}
                       <div>
                         <label className="block text-[11px] font-semibold text-gray-700 mb-1">
                           Quantity (Units) *
                         </label>
-                        <div className="flex items-center space-x-1">
-                          <button
-                            type="button"
-                            onClick={() => updateScooterItem(item.id, { quantity: Math.max(1, item.quantity - 1) })}
-                            className="w-9 h-9 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center font-black text-base shadow-2xs active:scale-95 cursor-pointer"
-                          >
-                            −
-                          </button>
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min="1"
-                            value={item.quantity || ''}
-                            onChange={(e) => updateScooterItem(item.id, { quantity: Math.max(0, parseInt(e.target.value) || 0) })}
-                            className="w-full bg-white border border-gray-300 rounded-xl px-2 py-1.5 text-center text-sm font-mono font-black text-gray-900 focus:outline-none focus:border-[#E53935]"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => updateScooterItem(item.id, { quantity: item.quantity + 1 })}
-                            className="w-9 h-9 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center font-black text-base shadow-2xs active:scale-95 cursor-pointer"
-                          >
-                            +
-                          </button>
-                        </div>
+                        <TouchQuantitySelector
+                          value={item.quantity}
+                          min={0}
+                          onChange={(newQty) => updateScooterItem(item.id, { quantity: newQty })}
+                          unitLabel="scooters"
+                        />
                       </div>
 
                       {/* Unit Price (Optional) */}
@@ -571,21 +555,19 @@ export const OrderForm: React.FC = () => {
                         </select>
                       </div>
 
-                      {/* Quantity */}
+                      {/* Fast Touch Quantity Selector (No Keyboard Required) */}
                       <div>
                         <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                          Quantity *
+                          Quantity (Units) *
                         </label>
-                        <input
-                          type="number"
-                          inputMode="numeric"
-                          min="1"
-                          value={bItem.quantity || ''}
-                          onChange={(e) => updateBatteryItem(bItem.id, {
-                            quantity: Math.max(0, parseInt(e.target.value) || 0),
-                            eligibleDiscountQuantity: Math.max(0, parseInt(e.target.value) || 0),
+                        <TouchQuantitySelector
+                          value={bItem.quantity}
+                          min={0}
+                          onChange={(newQty) => updateBatteryItem(bItem.id, {
+                            quantity: newQty,
+                            eligibleDiscountQuantity: newQty,
                           })}
-                          className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                          unitLabel="batteries"
                         />
                       </div>
 
@@ -843,6 +825,14 @@ export const OrderForm: React.FC = () => {
       {(showAllSteps || currentStep === 3) && (
         <div className="space-y-5 animate-fade-in">
           
+          {/* AUTOMATIC DISCOUNT STRATEGY RECOMMENDATION CARD */}
+          <DiscountRecommendationCard
+            calculationResult={calculationResult}
+            onApplyRecommendation={(mode, scenarioId) => {
+              updateOrderInput({ allocationMode: mode, selectedScenarioId: scenarioId });
+            }}
+          />
+
           {/* SECTION: STRICT SINGLE-COMPONENT DISCOUNT ALLOCATION */}
           <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
             <div>

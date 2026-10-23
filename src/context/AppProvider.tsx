@@ -12,6 +12,8 @@ import type {
 } from '../types';
 import { calculateOrderFinancials, recommendTruckAllocation } from '../utils/calculations';
 import { AppContext, type AppView, type ToastMessage } from './AppContext';
+import { supabaseService } from '../services/supabaseService';
+import { isSupabaseConfigured } from '../lib/supabase';
 
 const LOCAL_STORAGE_ORDERS_KEY = 'xidaa_discount_calculator_orders_v2';
 const LOCAL_STORAGE_CONFIG_KEY = 'xidaa_discount_calculator_config_v2';
@@ -93,6 +95,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const [isCalculating, setIsCalculating] = useState(false);
   const [calculationError, setCalculationError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isSyncingWithCloud, setIsSyncingWithCloud] = useState(false);
+  const [cloudSyncStatus, setCloudSyncStatus] = useState<'synced' | 'local_only' | 'error' | 'syncing'>(() => 
+    isSupabaseConfigured() ? 'syncing' : 'local_only'
+  );
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = (type: 'success' | 'info' | 'warning' | 'error', message: string) => {
@@ -110,6 +118,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const clearCalculationError = () => {
     setCalculationError(null);
   };
+
+  const clearSaveError = () => {
+    setSaveError(null);
+  };
+
+  // Hydrate orders from Supabase on mount if configured
+  useEffect(() => {
+    if (!isSupabaseConfigured()) {
+      return;
+    }
+
+    let isMounted = true;
+    async function loadCloudOrders() {
+      setCloudSyncStatus('syncing');
+      const res = await supabaseService.fetchOrders();
+      if (!isMounted) return;
+
+      if (res.data) {
+        if (res.data.length > 0) {
+          setSavedOrders(res.data);
+        }
+        setCloudSyncStatus('synced');
+      } else {
+        setCloudSyncStatus('error');
+        console.warn('Supabase fetchOrders failed:', res.error);
+      }
+    }
+
+    loadCloudOrders();
+    return () => { isMounted = false; };
+  }, []);
 
   // Persist config
   useEffect(() => {
@@ -387,10 +426,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     addToast('success', `Optimized fleet allocated: ${rec.totalCapacity} capacity for ${totalScooters} scooters`);
   };
 
-  // Order Persistence
-  const saveCurrentOrder = (): SavedOrder => {
+  // Order Persistence (with Supabase Cloud Store integration)
+  const saveCurrentOrder = async (): Promise<SavedOrder | null> => {
+    setIsSaving(true);
+    setSaveError(null);
+
     const existingIndex = savedOrders.findIndex((o) => o.orderInput.orderRef === orderInput.orderRef);
     const now = new Date().toISOString();
+
+    // If Supabase is configured, persist to database
+    if (isSupabaseConfigured()) {
+      const res = await supabaseService.saveOrder(orderInput, calculationResult);
+      setIsSaving(false);
+
+      if (res.error || !res.data) {
+        const errorMsg = res.error || 'Failed to persist order to Supabase database.';
+        setSaveError(errorMsg);
+        addToast('error', errorMsg);
+        return null;
+      }
+
+      const saved = res.data;
+      if (existingIndex >= 0) {
+        setSavedOrders((prev) => {
+          const copy = [...prev];
+          copy[existingIndex] = saved;
+          return copy;
+        });
+        addToast('success', `Order ${orderInput.orderRef} updated in Supabase cloud`);
+      } else {
+        setSavedOrders((prev) => [saved, ...prev]);
+        addToast('success', `Order ${orderInput.orderRef} saved permanently to Supabase`);
+      }
+      return saved;
+    }
+
+    // Local Sandbox Mode (when Supabase .env keys are not yet provided)
+    setIsSaving(false);
     const newSavedOrder: SavedOrder = {
       id: existingIndex >= 0 ? savedOrders[existingIndex].id : `ord-${Date.now()}`,
       createdAt: existingIndex >= 0 ? savedOrders[existingIndex].createdAt : now,
@@ -405,18 +477,45 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         copy[existingIndex] = newSavedOrder;
         return copy;
       });
-      addToast('success', `Order ${orderInput.orderRef} updated`);
+      addToast('success', `Order ${orderInput.orderRef} updated (Local Sandbox)`);
     } else {
       setSavedOrders((prev) => [newSavedOrder, ...prev]);
-      addToast('success', `Order ${orderInput.orderRef} saved to history`);
+      addToast('success', `Order ${orderInput.orderRef} saved (Local Sandbox)`);
     }
 
     return newSavedOrder;
   };
 
-  const deleteSavedOrder = (id: string) => {
+  const deleteSavedOrder = async (id: string) => {
+    if (isSupabaseConfigured()) {
+      const res = await supabaseService.deleteOrder(id);
+      if (res.error) {
+        addToast('error', `Failed to delete order from Supabase: ${res.error}`);
+        return;
+      }
+    }
     setSavedOrders((prev) => prev.filter((o) => o.id !== id));
     addToast('info', 'Order deleted');
+  };
+
+  const syncLocalOrdersToCloud = async (): Promise<{ migrated: number; failed: number }> => {
+    if (!isSupabaseConfigured()) {
+      addToast('warning', 'Supabase credentials not configured in environment.');
+      return { migrated: 0, failed: 0 };
+    }
+    setIsSyncingWithCloud(true);
+    const res = await supabaseService.migrateLocalOrders(savedOrders);
+    setIsSyncingWithCloud(false);
+    if (res.migrated > 0) {
+      addToast('success', `Successfully migrated ${res.migrated} order(s) to Supabase cloud!`);
+      const fresh = await supabaseService.fetchOrders();
+      if (fresh.data) setSavedOrders(fresh.data);
+    } else if (res.failed > 0) {
+      addToast('error', `Failed to migrate ${res.failed} order(s). Check connection.`);
+    } else {
+      addToast('info', 'All orders are already in sync.');
+    }
+    return res;
   };
 
   const loadSavedOrder = (id: string) => {
@@ -510,6 +609,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         isCalculating,
         calculationError,
         clearCalculationError,
+        isSaving,
+        saveError,
+        clearSaveError,
+        isSyncingWithCloud,
+        cloudSyncStatus,
+        syncLocalOrdersToCloud,
         setActiveView,
         updateOrderInput,
         startNewOrder,

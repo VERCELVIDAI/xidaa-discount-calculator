@@ -10,12 +10,14 @@ import {
   Info, 
   Edit3, 
   AlertCircle,
-  ShieldCheck
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
 import { formatINR, formatINRWords } from '../utils/currency';
 import { AnimatedNumber } from './AnimatedNumber';
+import { DiscountRecommendationCard } from './DiscountRecommendationCard';
 
 export const ResultsScreen: React.FC = () => {
   const { 
@@ -25,6 +27,9 @@ export const ResultsScreen: React.FC = () => {
     editCurrentOrder, 
     startNewOrder, 
     saveCurrentOrder, 
+    isSaving,
+    saveError,
+    clearSaveError,
     setActiveView 
   } = useApp();
 
@@ -32,16 +37,19 @@ export const ResultsScreen: React.FC = () => {
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(true);
   const [isProfitExpanded, setIsProfitExpanded] = useState(false);
 
-  const handleSaveOrder = () => {
-    saveCurrentOrder();
-    setJustSaved(true);
-    confetti({
-      particleCount: 80,
-      spread: 70,
-      origin: { y: 0.6 },
-      colors: ['#E53935', '#16a34a', '#2563eb', '#ffffff'],
-    });
-    setTimeout(() => setJustSaved(false), 2500);
+  const handleSaveOrder = async () => {
+    clearSaveError();
+    const result = await saveCurrentOrder();
+    if (result) {
+      setJustSaved(true);
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#E53935', '#16a34a', '#2563eb', '#ffffff'],
+      });
+      setTimeout(() => setJustSaved(false), 2500);
+    }
   };
 
   return (
@@ -224,6 +232,14 @@ export const ResultsScreen: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* AUTOMATIC DISCOUNT STRATEGY RECOMMENDATION CARD */}
+      <DiscountRecommendationCard
+        calculationResult={calculationResult}
+        onApplyRecommendation={(mode, scenarioId) => {
+          updateOrderInput({ allocationMode: mode, selectedScenarioId: scenarioId });
+        }}
+      />
 
       {/* ========================================================================= */}
       {/* 3. FINANCIAL & FREIGHT SETTLEMENT BREAKDOWN (11 DISTINCT VALUES)         */}
@@ -594,6 +610,26 @@ export const ResultsScreen: React.FC = () => {
         </p>
       </div>
 
+      {/* Save Error Alert */}
+      {saveError && (
+        <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start justify-between gap-2 animate-fade-in">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <strong className="block font-bold">Failed to Save to Database</strong>
+              <p className="mt-0.5">{saveError}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={clearSaveError}
+            className="text-[11px] font-bold text-red-700 hover:text-red-900 underline cursor-pointer"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* 5. PRIMARY ACTION BUTTONS                                                 */}
       {/* ========================================================================= */}
@@ -612,13 +648,19 @@ export const ResultsScreen: React.FC = () => {
         <button
           type="button"
           onClick={handleSaveOrder}
-          className={`py-3 px-3 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95 ${
+          disabled={isSaving}
+          className={`py-3 px-3 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50 ${
             justSaved
               ? 'bg-emerald-600 text-white'
               : 'bg-[#E53935] hover:bg-[#D32F2F] text-white shadow-xs'
           }`}
         >
-          {justSaved ? (
+          {isSaving ? (
+            <>
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              <span>Saving...</span>
+            </>
+          ) : justSaved ? (
             <>
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>Saved!</span>

@@ -314,12 +314,21 @@ export const PrintOrderSummary: React.FC = () => {
           )}
         </div>
 
-        {/* Profit Protection Feasibility (Internal Audit Line) */}
-        <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-600 flex items-center justify-between">
-          <span>Profit Protection Audit:</span>
-          <span className="font-semibold text-gray-800">
-            Status: {calculationResult.profitProtection.status} • Active Strategy: {calculationResult.profitProtection.activeScenario.name}
-          </span>
+        {/* Commercial Discount Strategy Recommendation & Profit Audit Line */}
+        <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-700 space-y-1.5 print-avoid-break">
+          <div className="flex items-center justify-between">
+            <span className="font-bold text-gray-900">Commercial Recommendation Strategy:</span>
+            <span className="font-mono font-bold text-[#E53935]">
+              {calculationResult.profitProtection.scenarios.find(s => s.id === calculationResult.profitProtection.recommendedScenarioId)?.name || 'Standard Baseline'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-[10px] text-gray-600">
+            <span>Profitability Audit Status: <strong className="text-gray-900">{calculationResult.profitProtection.status}</strong></span>
+            <span>Applied Allocation: <strong className="text-gray-900">{calculationResult.allocationOption}</strong></span>
+          </div>
+          <p className="text-[10px] text-gray-500 italic pt-0.5 border-t border-gray-200">
+            {calculationResult.profitProtection.recommendationReason}
+          </p>
         </div>
 
         {/* Triple Signature Block for Official Dealership Acceptance */}

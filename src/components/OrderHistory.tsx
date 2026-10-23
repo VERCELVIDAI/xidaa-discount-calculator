@@ -9,7 +9,10 @@ import {
   Upload, 
   PlusCircle,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  Cloud,
+  CloudOff,
+  RefreshCw
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatINR } from '../utils/currency';
@@ -23,6 +26,9 @@ export const OrderHistory: React.FC = () => {
     startNewOrder,
     exportOrdersToJSON, 
     importOrdersFromJSON,
+    cloudSyncStatus,
+    isSyncingWithCloud,
+    syncLocalOrdersToCloud,
     setActiveView 
   } = useApp();
 
@@ -83,16 +89,50 @@ export const OrderHistory: React.FC = () => {
       {/* Title & Import/Export Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-base sm:text-lg font-black text-[#191A1D] flex items-center space-x-2">
-            <Bookmark className="w-5 h-5 text-[#E53935]" />
-            <span>Saved Order Calculations</span>
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-base sm:text-lg font-black text-[#191A1D] flex items-center space-x-2">
+              <Bookmark className="w-5 h-5 text-[#E53935]" />
+              <span>Saved Order Calculations</span>
+            </h1>
+
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 border ${
+              cloudSyncStatus === 'synced'
+                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                : 'bg-amber-50 text-amber-800 border-amber-200'
+            }`}>
+              {cloudSyncStatus === 'synced' ? (
+                <>
+                  <Cloud className="w-3 h-3 text-emerald-600" />
+                  <span>Supabase Persistent</span>
+                </>
+              ) : (
+                <>
+                  <CloudOff className="w-3 h-3 text-amber-600" />
+                  <span>Local Sandbox</span>
+                </>
+              )}
+            </span>
+          </div>
+
           <p className="text-xs text-gray-500 mt-0.5">
-            {savedOrders.length} quotation records in local persistence.
+            {savedOrders.length} quotation records in database.
           </p>
         </div>
 
         <div className="flex items-center space-x-2">
+          {cloudSyncStatus !== 'synced' && savedOrders.length > 0 && (
+            <button
+              type="button"
+              onClick={syncLocalOrdersToCloud}
+              disabled={isSyncingWithCloud}
+              className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95 disabled:opacity-50"
+              title="Sync local orders to Supabase cloud"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isSyncingWithCloud ? 'animate-spin' : ''}`} />
+              <span>Sync to Cloud</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={exportOrdersToJSON}
