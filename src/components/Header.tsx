@@ -1,8 +1,10 @@
 import React from 'react';
 import { 
   PlusCircle, 
-  History, 
-  Settings
+  Bookmark, 
+  Settings,
+  Calculator,
+  ChevronRight
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
@@ -11,78 +13,114 @@ export const Header: React.FC = () => {
     activeView, 
     setActiveView, 
     startNewOrder, 
-    savedOrders 
+    savedOrders,
+    orderInput
   } = useApp();
 
   return (
-    <header className="no-print bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16 sm:h-18">
+    <header className="no-print glass-header sticky top-0 z-40 transition-all duration-200">
+      {/* Subtle Indian Tricolour Precision Brand Accent Line */}
+      <div className="h-0.5 w-full bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#128807]" />
+
+      <div className="max-w-5xl mx-auto px-3 sm:px-6">
+        <div className="flex items-center justify-between h-15 sm:h-16">
           
           {/* Logo & Brand Identity */}
           <div 
-            className="flex items-center space-x-3 cursor-pointer py-1"
+            className="flex items-center space-x-3 cursor-pointer py-1 group select-none"
             onClick={() => setActiveView('home')}
+            title="Xidaa Discount Calculator - Home"
           >
-            <img 
-              src="/assets/xidaa-logo-dark.png" 
-              alt="Xidaa Moto" 
-              className="h-7 sm:h-8 w-auto object-contain"
-            />
-            <div className="hidden xs:flex flex-col border-l border-gray-200 pl-3">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-red-600">
+            <div className="relative flex items-center">
+              <img 
+                src="/assets/xidaa-logo-dark.png" 
+                alt="Xidaa Moto" 
+                className="h-7 sm:h-8 w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+              />
+            </div>
+            
+            <div className="hidden sm:flex flex-col border-l border-gray-200/90 pl-3">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#191A1D]">
                 Discount Calculator
               </span>
-              <span className="text-[9px] uppercase tracking-wider text-gray-500 font-semibold">
-                Ride the Electric Thunder
+              <span className="text-[9px] uppercase tracking-widest text-[#E53935] font-extrabold flex items-center space-x-1">
+                <span>RIDE THE ELECTRIC THUNDER</span>
               </span>
             </div>
           </div>
 
-          {/* Quick Actions Header Navigation */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2">
-            {activeView !== 'order-form' && (
+          {/* Primary Navigation Items */}
+          <nav className="flex items-center space-x-1 sm:space-x-2">
+            
+            {/* Home / New Order Button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (activeView === 'home') {
+                  startNewOrder(false);
+                } else if (activeView === 'order-form') {
+                  // already in order form
+                } else {
+                  setActiveView('order-form');
+                }
+              }}
+              className={`flex items-center space-x-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all ${
+                activeView === 'order-form' || activeView === 'home'
+                  ? 'bg-[#E53935] text-white shadow-xs shadow-red-500/20 active:scale-[0.98]'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 active:scale-[0.98]'
+              }`}
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>{activeView === 'order-form' ? 'Order Form' : 'New Order'}</span>
+            </button>
+
+            {/* Quick Results Shortcut (When in calculation flow) */}
+            {(activeView === 'results' || activeView === 'print-summary') && (
               <button
                 type="button"
-                onClick={() => startNewOrder(false)}
-                className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
+                onClick={() => setActiveView('results')}
+                className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-900 text-white shadow-xs"
               >
-                <PlusCircle className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">New Order</span>
+                <Calculator className="w-3.5 h-3.5 text-red-400" />
+                <span className="truncate max-w-[120px]">{orderInput.orderRef}</span>
+                <ChevronRight className="w-3 h-3 text-gray-400" />
               </button>
             )}
 
+            {/* Saved Orders */}
             <button
               type="button"
               onClick={() => setActiveView('history')}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`flex items-center space-x-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] ${
                 activeView === 'history'
-                  ? 'bg-red-50 text-red-700 border border-red-200'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  ? 'bg-red-50 text-[#E53935] border border-red-200/80 font-bold'
+                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/80'
               }`}
             >
-              <History className="w-4 h-4 text-gray-500" />
-              <span className="hidden sm:inline">Saved</span>
+              <Bookmark className="w-3.5 h-3.5" />
+              <span className="hidden xs:inline">Saved Orders</span>
               {savedOrders.length > 0 && (
-                <span className="ml-0.5 px-1.5 py-0.2 bg-gray-200 text-gray-800 text-[10px] rounded-full font-bold">
+                <span className="px-1.5 py-0.2 bg-gray-200 text-gray-800 text-[10px] rounded-full font-bold ml-0.5">
                   {savedOrders.length}
                 </span>
               )}
             </button>
 
+            {/* Settings */}
             <button
               type="button"
               onClick={() => setActiveView('admin-settings')}
-              title="Admin Settings"
-              className={`p-2 rounded-lg text-xs transition-colors ${
+              title="Application Settings"
+              className={`p-2 rounded-xl text-xs transition-all active:scale-[0.98] ${
                 activeView === 'admin-settings'
-                  ? 'bg-red-50 text-red-700 border border-red-200'
-                  : 'text-gray-500 hover:text-gray-800 hover:bg-gray-100'
+                  ? 'bg-red-50 text-[#E53935] border border-red-200/80 font-bold'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80'
               }`}
             >
               <Settings className="w-4 h-4" />
             </button>
-          </div>
+
+          </nav>
 
         </div>
       </div>

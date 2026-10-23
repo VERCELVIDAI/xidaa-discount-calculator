@@ -73,16 +73,16 @@ export const AdminSettingsModal: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pb-20">
+    <div className="max-w-2xl mx-auto space-y-6 pb-20 animate-fade-in">
       
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-gray-200">
         <button
           onClick={() => setActiveView('home')}
-          className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-red-600 transition-colors py-1"
+          className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-[#E53935] transition-colors py-1 cursor-pointer active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>← Back to Dashboard</span>
+          <span>← Back to Home</span>
         </button>
 
         <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -91,8 +91,8 @@ export const AdminSettingsModal: React.FC = () => {
       </div>
 
       {!isUnlocked ? (
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 shadow-xs text-center space-y-4">
-          <div className="w-12 h-12 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto border border-red-200">
+        <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-xs text-center space-y-4">
+          <div className="w-12 h-12 bg-red-50 text-[#E53935] rounded-full flex items-center justify-center mx-auto border border-red-200">
             <Lock className="w-6 h-6" />
           </div>
           <div>
@@ -107,12 +107,12 @@ export const AdminSettingsModal: React.FC = () => {
               placeholder="Enter PIN (e.g. 9999)"
               value={adminPin}
               onChange={(e) => setAdminPin(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-2.5 text-center text-sm font-mono tracking-widest text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+              className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-center text-sm font-mono tracking-widest text-gray-900 focus:outline-none focus:border-[#E53935]"
               autoFocus
             />
             <button
               type="submit"
-              className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+              className="w-full py-2.5 bg-[#E53935] hover:bg-[#D32F2F] text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
             >
               Unlock Settings
             </button>
@@ -120,46 +120,46 @@ export const AdminSettingsModal: React.FC = () => {
           </form>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-xs overflow-hidden space-y-5 p-5 sm:p-6">
+        <div className="glass-card rounded-2xl shadow-xs overflow-hidden space-y-5 p-5 sm:p-6">
           
           {/* Sub Navigation */}
           <div className="flex items-center border-b border-gray-200 overflow-x-auto text-xs font-bold pb-2 space-x-2">
             <button
               onClick={() => setActiveTab('discounts')}
-              className={`py-1.5 px-3 rounded-lg transition-colors ${
-                activeTab === 'discounts' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'discounts' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Discount Ceilings
             </button>
             <button
               onClick={() => setActiveTab('models')}
-              className={`py-1.5 px-3 rounded-lg transition-colors ${
-                activeTab === 'models' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'models' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               DL Category Mapping
             </button>
             <button
               onClick={() => setActiveTab('trucks')}
-              className={`py-1.5 px-3 rounded-lg transition-colors ${
-                activeTab === 'trucks' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'trucks' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Transport Rates
             </button>
             <button
               onClick={() => setActiveTab('taxes')}
-              className={`py-1.5 px-3 rounded-lg transition-colors ${
-                activeTab === 'taxes' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'taxes' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Tax & GST
             </button>
             <button
               onClick={() => setActiveTab('profit')}
-              className={`py-1.5 px-3 rounded-lg transition-colors ${
-                activeTab === 'profit' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
+                activeTab === 'profit' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
               }`}
             >
               Profit Rules

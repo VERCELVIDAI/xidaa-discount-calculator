@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { 
   Building2, 
   Calendar, 
-  Hash, 
   Plus, 
   Trash2, 
   Truck, 
@@ -13,14 +12,18 @@ import {
   RotateCw, 
   Sparkles,
   ArrowRight,
+  ArrowLeft,
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  CheckCircle2,
+  FileText
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { generateOrderRef } from '../utils/orderDefaults';
 import { CATALOGUE_SCOOTER_MODELS } from '../data/catalogueModels';
 import type { BatteryVariant } from '../types';
 import { formatINR } from '../utils/currency';
+import { AnimatedNumber } from './AnimatedNumber';
 
 export const OrderForm: React.FC = () => {
   const { 
@@ -28,6 +31,7 @@ export const OrderForm: React.FC = () => {
     updateOrderInput, 
     calculationResult, 
     appConfig,
+    updateConfig,
     addScooterItem,
     updateScooterItem,
     removeScooterItem,
@@ -42,8 +46,12 @@ export const OrderForm: React.FC = () => {
     clearCalculationError
   } = useApp();
 
-  // Collapsible state for Transport & Advanced details
-  const [isTransportOpen, setIsTransportOpen] = useState(false);
+  // Active step in 3-step workflow (1: Scooters, 2: Batteries & Transport, 3: Review & Calculate)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [showAllSteps, setShowAllSteps] = useState(false);
+
+  // Collapsible state for advanced details
+  const [isAdvancedTransportOpen, setIsAdvancedTransportOpen] = useState(false);
   const [isProfitProtectionOpen, setIsProfitProtectionOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
@@ -71,12 +79,14 @@ export const OrderForm: React.FC = () => {
     count: 1,
   };
 
+  const hasItems = calculationResult.totalScooters > 0 || calculationResult.totalBatteries > 0;
+
   return (
-    <form onSubmit={handleSubmit} noValidate className="max-w-2xl mx-auto space-y-5 pb-28 sm:pb-12">
+    <form onSubmit={handleSubmit} noValidate className="max-w-2xl mx-auto space-y-5 pb-32 sm:pb-24 animate-fade-in">
       
       {/* Calculation Error Alert if any */}
       {calculationError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start justify-between text-xs text-red-800 shadow-xs">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start justify-between text-xs text-red-800 shadow-xs animate-scale-in">
           <div className="flex items-start space-x-2.5">
             <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
             <div>
@@ -87,435 +97,568 @@ export const OrderForm: React.FC = () => {
           <button
             type="button"
             onClick={clearCalculationError}
-            className="text-red-500 hover:text-red-800 font-bold ml-2 text-base leading-none"
+            className="text-red-500 hover:text-red-800 font-bold ml-2 text-base leading-none cursor-pointer"
           >
             ×
           </button>
         </div>
       )}
 
-      {/* Top Card: Order & Customer Information */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h2 className="text-base font-bold text-gray-900">Customer & Order Details</h2>
-          <div className="flex items-center space-x-1">
-            <span className="text-[11px] font-mono bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-semibold">
-              {orderInput.orderRef}
-            </span>
-            <button
-              type="button"
-              onClick={handleRegenerateRef}
-              title="New Reference"
-              className="p-1 text-gray-400 hover:text-gray-700 rounded transition-colors"
-            >
-              <RotateCw className="w-3.5 h-3.5" />
-            </button>
-          </div>
+      {/* 3-STEP INTERACTIVE WORKFLOW HEADER */}
+      <div className="glass-card rounded-2xl p-2.5 sm:p-3 space-y-2">
+        <div className="flex items-center justify-between px-1">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">
+            Order Entry Workflow
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowAllSteps(!showAllSteps)}
+            className="text-[11px] font-semibold text-[#E53935] hover:underline cursor-pointer"
+          >
+            {showAllSteps ? 'Switch to Step-by-Step' : 'View All Steps on One Page'}
+          </button>
         </div>
 
-        <div className="space-y-3.5">
-          {/* Customer / Dealer Name */}
-          <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
-              <Building2 className="w-3.5 h-3.5 text-red-600" />
-              <span>Customer / Dealer Name *</span>
-            </label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. Aodn Motors, Pune"
-              value={orderInput.customerName}
-              onChange={(e) => updateOrderInput({ customerName: e.target.value })}
-              className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all font-medium"
-            />
-          </div>
-
-          {/* Date and Ref Grid */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1 flex items-center space-x-1">
-                <Calendar className="w-3 h-3 text-red-600" />
-                <span>Order Date</span>
-              </label>
-              <input
-                type="date"
-                value={orderInput.orderDate}
-                onChange={(e) => updateOrderInput({ orderDate: e.target.value })}
-                className="w-full bg-gray-50/60 border border-gray-300 rounded-lg px-3 py-2 text-xs text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-              />
+        <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
+          {/* Step 1 Pill */}
+          <button
+            type="button"
+            onClick={() => setCurrentStep(1)}
+            className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
+              currentStep === 1 || showAllSteps
+                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className={`text-[10px] font-black uppercase tracking-wider ${
+                currentStep === 1 || showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+              }`}>
+                Step 1
+              </span>
+              <span className="text-[10px] font-mono font-bold text-gray-800">
+                {calculationResult.totalScooters} units
+              </span>
             </div>
-
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-600 mb-1 flex items-center space-x-1">
-                <Hash className="w-3 h-3 text-red-600" />
-                <span>Order Reference</span>
-              </label>
-              <input
-                type="text"
-                value={orderInput.orderRef}
-                onChange={(e) => updateOrderInput({ orderRef: e.target.value })}
-                className="w-full bg-gray-50/60 border border-gray-300 rounded-lg px-3 py-2 text-xs font-mono text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-              />
+            <div className="text-[11px] sm:text-xs font-bold truncate">
+              Customer & Scooters
             </div>
-          </div>
+          </button>
+
+          {/* Step 2 Pill */}
+          <button
+            type="button"
+            onClick={() => setCurrentStep(2)}
+            className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
+              currentStep === 2 && !showAllSteps
+                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className={`text-[10px] font-black uppercase tracking-wider ${
+                currentStep === 2 && !showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+              }`}>
+                Step 2
+              </span>
+              <span className="text-[10px] font-mono font-bold text-gray-800">
+                {orderInput.transportDistanceKm} km
+              </span>
+            </div>
+            <div className="text-[11px] sm:text-xs font-bold truncate">
+              Battery & Transport
+            </div>
+          </button>
+
+          {/* Step 3 Pill */}
+          <button
+            type="button"
+            onClick={() => setCurrentStep(3)}
+            className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
+              currentStep === 3 && !showAllSteps
+                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-0.5">
+              <span className={`text-[10px] font-black uppercase tracking-wider ${
+                currentStep === 3 && !showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+              }`}>
+                Step 3
+              </span>
+              <span className="text-[10px] font-bold text-emerald-700">
+                Ready
+              </span>
+            </div>
+            <div className="text-[11px] sm:text-xs font-bold truncate">
+              Review & Calculate
+            </div>
+          </button>
         </div>
       </div>
 
-      {/* SECTION: SCOOTER ORDER ITEMS (Repeatable List) */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <div>
-            <h2 className="text-base font-bold text-gray-900">Scooter Order Items</h2>
-            <p className="text-xs text-gray-500 mt-0.5">
-              Add multiple scooter models and assign quantities per model.
-            </p>
-          </div>
-
-          <span className="text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded-full border border-red-100">
-            {calculationResult.totalScooters} Units Total
-          </span>
-        </div>
-
-        {/* Scooter Items List */}
-        <div className="space-y-4">
-          {orderInput.scooterItems.map((item, idx) => (
-            <div 
-              key={item.id} 
-              className="p-4 rounded-xl bg-gray-50/70 border border-gray-200 space-y-3 relative transition-all"
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-700 flex items-center space-x-1.5">
-                  <span className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] font-bold">
-                    {idx + 1}
-                  </span>
-                  <span>Model Item</span>
+      {/* ========================================================================= */}
+      {/* STEP 1: CUSTOMER & SCOOTER ORDER ITEMS                                    */}
+      {/* ========================================================================= */}
+      {(showAllSteps || currentStep === 1) && (
+        <div className="space-y-5 animate-fade-in">
+          
+          {/* Customer & Order Details Card */}
+          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div>
+                <h2 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                  Step 1: Customer & Order Details
+                </h2>
+                <p className="text-[11px] text-gray-500">
+                  Dealer identity and commercial quotation reference
+                </p>
+              </div>
+              <div className="flex items-center space-x-1.5 bg-gray-50 px-2.5 py-1 rounded-xl border border-gray-200">
+                <span className="text-[10px] font-mono font-bold text-gray-700">
+                  {orderInput.orderRef}
                 </span>
-
-                {orderInput.scooterItems.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeScooterItem(item.id)}
-                    className="p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
-                    title="Remove Model"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* Model Select */}
-              <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                  Scooter Model
-                </label>
-                <select
-                  value={item.modelId}
-                  onChange={(e) => updateScooterItem(item.id, { modelId: e.target.value })}
-                  className="w-full bg-white border border-gray-300 rounded-lg px-3 py-2 text-xs font-semibold text-gray-900 focus:outline-none focus:border-red-600 shadow-2xs"
+                <button
+                  type="button"
+                  onClick={handleRegenerateRef}
+                  title="Generate New Reference"
+                  className="p-1 text-gray-400 hover:text-[#E53935] rounded transition-colors cursor-pointer"
                 >
-                  {CATALOGUE_SCOOTER_MODELS.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.name} ({m.defaultCategory})
-                    </option>
-                  ))}
-                </select>
+                  <RotateCw className="w-3.5 h-3.5" />
+                </button>
               </div>
+            </div>
 
-              {/* Category Toggle (DL Model vs Other Model) */}
+            <div className="space-y-3.5">
+              {/* Customer / Dealer Name */}
               <div>
-                <label className="block text-[11px] font-semibold text-gray-600 mb-1">
-                  Model Category (Discount Limit)
+                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-[#E53935]" />
+                  <span>Customer / Dealership Name</span>
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => updateScooterItem(item.id, { category: 'DL Model' })}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${
-                      item.category === 'DL Model'
-                        ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-2xs'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    <span>DL Model</span>
-                    <span className="block text-[10px] font-normal opacity-80">₹500 / scooter</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => updateScooterItem(item.id, { category: 'Other Model' })}
-                    className={`py-2 px-3 rounded-lg text-xs font-bold border transition-all ${
-                      item.category === 'Other Model'
-                        ? 'bg-amber-50 border-amber-500 text-amber-800 shadow-2xs'
-                        : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
-                    }`}
-                  >
-                    <span>Other Model</span>
-                    <span className="block text-[10px] font-normal opacity-80">₹1,000 / scooter</span>
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  placeholder="e.g. Aodn Motors Dealership"
+                  value={orderInput.customerName}
+                  onChange={(e) => updateOrderInput({ customerName: e.target.value })}
+                  className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#E53935] focus:ring-1 focus:ring-[#E53935] transition-all"
+                />
               </div>
 
-              {/* Quantity & Unit Price Grid */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
-                {/* Quantity with touch-friendly steppers */}
+              {/* Order Date */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                    Quantity *
-                  </label>
-                  <div className="flex items-center space-x-1">
-                    <button
-                      type="button"
-                      onClick={() => updateScooterItem(item.id, { quantity: Math.max(1, item.quantity - 1) })}
-                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold text-sm shadow-2xs active:bg-gray-200"
-                    >
-                      −
-                    </button>
-                    <input
-                      type="number"
-                      min="1"
-                      value={item.quantity || ''}
-                      onChange={(e) => updateScooterItem(item.id, { quantity: Math.max(0, parseInt(e.target.value) || 0) })}
-                      className="w-full bg-white border border-gray-300 rounded-lg px-2 py-1.5 text-center text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-red-600"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => updateScooterItem(item.id, { quantity: item.quantity + 1 })}
-                      className="w-8 h-8 rounded-lg bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 flex items-center justify-center font-bold text-sm shadow-2xs active:bg-gray-200"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-
-                {/* Unit Price (Optional) */}
-                <div>
-                  <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                    Unit Price (₹) <span className="text-[10px] text-gray-400 font-normal">Optional</span>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                    <span>Order Date</span>
                   </label>
                   <input
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 40000"
-                    value={item.unitPrice !== undefined ? item.unitPrice : ''}
-                    onChange={(e) => {
-                      const val = e.target.value === '' ? undefined : Number(e.target.value);
-                      updateScooterItem(item.id, { unitPrice: val });
-                    }}
-                    className="w-full bg-white border border-gray-300 rounded-lg px-3 py-1.5 text-xs font-mono text-gray-900 focus:outline-none focus:border-red-600 placeholder-gray-400"
+                    type="date"
+                    value={orderInput.orderDate}
+                    onChange={(e) => updateOrderInput({ orderDate: e.target.value })}
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:border-[#E53935] focus:ring-1 focus:ring-[#E53935] transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                    Commercial Reference
+                  </label>
+                  <input
+                    type="text"
+                    value={orderInput.orderRef}
+                    onChange={(e) => updateOrderInput({ orderRef: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-gray-800 focus:outline-none focus:border-[#E53935] transition-all"
                   />
                 </div>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Add Another Model Button */}
-        <button
-          type="button"
-          onClick={addScooterItem}
-          className="w-full py-2.5 border-2 border-dashed border-red-300 hover:border-red-500 bg-red-50/50 hover:bg-red-50 text-red-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors"
-        >
-          <Plus className="w-4 h-4" />
-          <span>+ Add Another Model</span>
-        </button>
-
-        {/* Live Automatic Calculation Summary for Scooters */}
-        <div className="p-3 bg-gray-100/80 rounded-xl text-xs space-y-1.5 border border-gray-200">
-          <div className="flex items-center justify-between font-semibold text-gray-800">
-            <span>Scooters Summary</span>
-            <span className="font-mono">{calculationResult.totalScooters} Units Total</span>
-          </div>
-          <div className="flex items-center justify-between text-gray-600 text-[11px]">
-            <span>DL Scooters: <strong>{calculationResult.totalDlScooters}</strong> (× ₹500 = {formatINR(calculationResult.totalDlScooters * appConfig.discountRates.dlModelMaxDiscount)})</span>
-            <span>Other: <strong>{calculationResult.totalOtherScooters}</strong> (× ₹1,000 = {formatINR(calculationResult.totalOtherScooters * appConfig.discountRates.otherModelMaxDiscount)})</span>
-          </div>
-          <div className="flex items-center justify-between pt-1 border-t border-gray-200 text-xs font-bold text-gray-900">
-            <span>Total Scooter Discount Allowance:</span>
-            <span className="font-mono text-emerald-700">{formatINR(calculationResult.scooterDiscountAllowance)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* SECTION: BATTERY ORDER SECTION */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <div className="flex items-center space-x-2">
-            <BatteryCharging className="w-4 h-4 text-emerald-600" />
-            <h2 className="text-base font-bold text-gray-900">Battery Order</h2>
           </div>
 
-          {/* Battery Included Toggle */}
-          <div className="inline-flex rounded-lg border border-gray-300 p-0.5 bg-gray-100">
-            <button
-              type="button"
-              onClick={() => updateOrderInput({ batteryIncluded: false })}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                !orderInput.batteryIncluded
-                  ? 'bg-white text-gray-900 shadow-2xs'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              No
-            </button>
-            <button
-              type="button"
-              onClick={() => updateOrderInput({ batteryIncluded: true })}
-              className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
-                orderInput.batteryIncluded
-                  ? 'bg-emerald-600 text-white shadow-2xs'
-                  : 'text-gray-500 hover:text-gray-900'
-              }`}
-            >
-              Yes
-            </button>
-          </div>
-        </div>
+          {/* Scooter Order Items Card */}
+          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                  Scooter Model Order Items
+                </h3>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  Add multiple catalogue models with DL / Other limits
+                </p>
+              </div>
 
-        {orderInput.batteryIncluded ? (
-          <div className="space-y-4">
-            <div className="text-xs text-gray-500">
-              Each eligible battery receives an additional <strong>₹500 discount allowance</strong>, kept strictly separate from scooter transport sharing.
+              {/* Live Scooter Counter Badge */}
+              <div className="text-right">
+                <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Scooters</span>
+                <span className="text-sm font-black font-mono text-[#191A1D]">
+                  <AnimatedNumber value={calculationResult.totalScooters} formatFn={(n) => `${n}`} /> units
+                </span>
+              </div>
             </div>
 
-            {/* Battery Items */}
-            {orderInput.batteryItems.map((bItem, bIdx) => (
-              <div 
-                key={bItem.id} 
-                className="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200/80 space-y-3 relative"
+            {/* List of Scooter Items */}
+            <div className="space-y-3.5">
+              {orderInput.scooterItems.map((item, index) => {
+                const rowTotal = item.quantity && item.unitPrice ? item.quantity * item.unitPrice : null;
+                const isDl = item.category === 'DL Model';
+
+                return (
+                  <div
+                    key={item.id}
+                    className="p-4 bg-white rounded-xl border border-gray-200/90 shadow-2xs space-y-3 transition-all hover:border-gray-300"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-wider text-gray-500">
+                        Item #{index + 1}
+                      </span>
+                      {orderInput.scooterItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeScooterItem(item.id)}
+                          title="Remove item"
+                          className="text-gray-400 hover:text-red-600 p-1 rounded transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Model Dropdown */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Scooter Model *
+                      </label>
+                      <select
+                        value={item.modelId}
+                        onChange={(e) => updateScooterItem(item.id, { modelId: e.target.value })}
+                        className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                      >
+                        {CATALOGUE_SCOOTER_MODELS.map((model) => (
+                          <option key={model.id} value={model.id}>
+                            {model.name} — ({appConfig.modelCategoryOverrides[model.id] || model.defaultCategory})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Category Toggle: DL Model vs Other Model */}
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Model Category (Discount Limit)
+                      </label>
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => updateScooterItem(item.id, { category: 'DL Model' })}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            isDl
+                              ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-2xs ring-1 ring-blue-500/20'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="block font-black">DL Model</span>
+                          <span className="block text-[10px] font-medium text-blue-700">₹500 / scooter discount</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => updateScooterItem(item.id, { category: 'Other Model' })}
+                          className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            !isDl
+                              ? 'bg-amber-50 border-amber-500 text-amber-950 shadow-2xs ring-1 ring-amber-500/20'
+                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                          }`}
+                        >
+                          <span className="block font-black">Other Model</span>
+                          <span className="block text-[10px] font-medium text-amber-700">₹1,000 / scooter discount</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quantity & Unit Price */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      {/* Quantity Stepper */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                          Quantity (Units) *
+                        </label>
+                        <div className="flex items-center space-x-1">
+                          <button
+                            type="button"
+                            onClick={() => updateScooterItem(item.id, { quantity: Math.max(1, item.quantity - 1) })}
+                            className="w-9 h-9 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center font-black text-base shadow-2xs active:scale-95 cursor-pointer"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="number"
+                            inputMode="numeric"
+                            min="1"
+                            value={item.quantity || ''}
+                            onChange={(e) => updateScooterItem(item.id, { quantity: Math.max(0, parseInt(e.target.value) || 0) })}
+                            className="w-full bg-white border border-gray-300 rounded-xl px-2 py-1.5 text-center text-sm font-mono font-black text-gray-900 focus:outline-none focus:border-[#E53935]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => updateScooterItem(item.id, { quantity: item.quantity + 1 })}
+                            className="w-9 h-9 rounded-xl bg-white border border-gray-300 text-gray-700 hover:bg-gray-100 flex items-center justify-center font-black text-base shadow-2xs active:scale-95 cursor-pointer"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Unit Price (Optional) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="block text-[11px] font-semibold text-gray-700">
+                            Unit Price (₹)
+                          </label>
+                          <span className="text-[10px] text-gray-400">Optional</span>
+                        </div>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min="0"
+                          placeholder="e.g. 48500"
+                          value={item.unitPrice ?? ''}
+                          onChange={(e) => updateScooterItem(item.id, {
+                            unitPrice: e.target.value === '' ? undefined : Number(e.target.value)
+                          })}
+                          className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-1.5 text-sm font-mono font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#E53935]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Row subtotal preview if price provided */}
+                    {rowTotal !== null && (
+                      <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
+                        <span>Row Subtotal ({item.quantity} × {formatINR(item.unitPrice ?? 0)}):</span>
+                        <strong className="font-mono text-gray-900">{formatINR(rowTotal)}</strong>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* + Add Another Model Button */}
+            <button
+              type="button"
+              onClick={addScooterItem}
+              className="w-full py-3 border-2 border-dashed border-gray-300 hover:border-[#E53935] hover:text-[#E53935] hover:bg-red-50/20 text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.99]"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ Add Another Model</span>
+            </button>
+
+            {/* Step 1 Scooter Live Summary Card */}
+            <div className="bg-gray-50/80 rounded-xl p-3.5 border border-gray-200/80 grid grid-cols-3 gap-2 text-center text-xs">
+              <div>
+                <span className="text-[10px] uppercase font-bold text-blue-700 block">DL Models</span>
+                <span className="text-base font-black font-mono text-blue-950 mt-0.5 block">
+                  <AnimatedNumber value={calculationResult.totalDlScooters} formatFn={(n) => `${n}`} />
+                </span>
+                <span className="text-[10px] text-blue-600 font-medium">₹500 limit</span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-bold text-amber-700 block">Other Models</span>
+                <span className="text-base font-black font-mono text-amber-950 mt-0.5 block">
+                  <AnimatedNumber value={calculationResult.totalOtherScooters} formatFn={(n) => `${n}`} />
+                </span>
+                <span className="text-[10px] text-amber-600 font-medium">₹1,000 limit</span>
+              </div>
+
+              <div>
+                <span className="text-[10px] uppercase font-bold text-emerald-700 block">Scooter Allowance</span>
+                <span className="text-base font-black font-mono text-emerald-950 mt-0.5 block">
+                  <AnimatedNumber value={calculationResult.scooterDiscountAllowance} />
+                </span>
+                <span className="text-[10px] text-emerald-600 font-medium">Total budget</span>
+              </div>
+            </div>
+
+            {!showAllSteps && (
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(2)}
+                  className="py-2.5 px-5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <span>Continue to Step 2: Batteries & Transport</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* STEP 2: BATTERY ORDERS & TRANSPORT LOGISTICS                               */}
+      {/* ========================================================================= */}
+      {(showAllSteps || currentStep === 2) && (
+        <div className="space-y-5 animate-fade-in">
+          
+          {/* Battery Order Section */}
+          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-100">
+                  <BatteryCharging className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                    Battery Order (Separate Quota)
+                  </h3>
+                  <p className="text-[11px] text-gray-500">
+                    Separate ₹500 discount allowance per eligible battery
+                  </p>
+                </div>
+              </div>
+
+              {/* Toggle Batteries Included */}
+              <button
+                type="button"
+                onClick={() => updateOrderInput({ batteryIncluded: !orderInput.batteryIncluded })}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  orderInput.batteryIncluded
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
               >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-900">
-                    Battery Variant #{bIdx + 1}
-                  </span>
-                  {orderInput.batteryItems.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => removeBatteryItem(bItem.id)}
-                      className="p-1 text-gray-400 hover:text-red-600"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                {orderInput.batteryIncluded ? '✓ Batteries Included' : 'No Batteries'}
+              </button>
+            </div>
+
+            {orderInput.batteryIncluded ? (
+              <div className="space-y-3.5">
+                {orderInput.batteryItems.map((bItem, idx) => (
+                  <div
+                    key={bItem.id}
+                    className="p-3.5 bg-white rounded-xl border border-gray-200 space-y-3 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-gray-700">
+                        Battery #{idx + 1}
+                      </span>
+                      {orderInput.batteryItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeBatteryItem(bItem.id)}
+                          className="text-gray-400 hover:text-red-600 p-1 rounded transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {/* Variant */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                          Battery Variant *
+                        </label>
+                        <select
+                          value={bItem.variant}
+                          onChange={(e) => updateBatteryItem(bItem.id, { variant: e.target.value as BatteryVariant })}
+                          className="w-full bg-white border border-gray-300 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                        >
+                          {batteryVariants.map((v) => (
+                            <option key={v} value={v}>{v}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Quantity */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                          Quantity *
+                        </label>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          min="1"
+                          value={bItem.quantity || ''}
+                          onChange={(e) => updateBatteryItem(bItem.id, {
+                            quantity: Math.max(0, parseInt(e.target.value) || 0),
+                            eligibleDiscountQuantity: Math.max(0, parseInt(e.target.value) || 0),
+                          })}
+                          className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                        />
+                      </div>
+
+                      {/* Unit Price (Optional) */}
+                      <div>
+                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                          Unit Price (₹)
+                        </label>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min="0"
+                          placeholder="e.g. 24000"
+                          value={bItem.unitPrice ?? ''}
+                          onChange={(e) => updateBatteryItem(bItem.id, {
+                            unitPrice: e.target.value === '' ? undefined : Number(e.target.value)
+                          })}
+                          className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addBatteryItem}
+                  className="w-full py-2.5 border-2 border-dashed border-gray-300 hover:border-emerald-600 hover:text-emerald-700 text-gray-600 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Add Battery Variant</span>
+                </button>
+              </div>
+            ) : (
+              <div className="p-3 bg-gray-50/70 rounded-xl border border-gray-200/80 text-xs text-gray-500 text-center">
+                No separate battery units ordered. Tap "No Batteries" above if adding batteries.
+              </div>
+            )}
+          </div>
+
+          {/* Transport & Truck Allocation Section */}
+          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center space-x-2.5">
+                <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-100">
+                  <Truck className="w-4 h-4" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Variant */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                      Variant
-                    </label>
-                    <select
-                      value={bItem.variant}
-                      onChange={(e) => updateBatteryItem(bItem.id, { variant: e.target.value as BatteryVariant })}
-                      className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs text-gray-900 focus:outline-none focus:border-red-600"
-                    >
-                      {batteryVariants.map((v) => (
-                        <option key={v} value={v}>
-                          {v}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Quantity */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                      Quantity
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={bItem.quantity || ''}
-                      onChange={(e) => {
-                        const q = Math.max(1, parseInt(e.target.value) || 1);
-                        updateBatteryItem(bItem.id, { quantity: q, eligibleDiscountQuantity: q });
-                      }}
-                      className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-red-600"
-                    />
-                  </div>
-
-                  {/* Optional Unit Price */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                      Unit Price (₹) <span className="text-[10px] text-gray-400 font-normal">Optional</span>
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      placeholder="e.g. 25000"
-                      value={bItem.unitPrice !== undefined ? bItem.unitPrice : ''}
-                      onChange={(e) => {
-                        const p = e.target.value === '' ? undefined : Number(e.target.value);
-                        updateBatteryItem(bItem.id, { unitPrice: p });
-                      }}
-                      className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-mono text-gray-900 focus:outline-none focus:border-red-600 placeholder-gray-400"
-                    />
-                  </div>
-                </div>
-
-                <div className="text-[11px] text-emerald-800 font-medium">
-                  Eligible Discount: {bItem.eligibleDiscountQuantity} × ₹500 = <strong>{formatINR(bItem.eligibleDiscountQuantity * 500)}</strong>
+                <div>
+                  <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                    Transport Logistics & Trucks
+                  </h3>
+                  <p className="text-[11px] text-gray-500">
+                    5-step formula: Base × 1.10 (10% extra) × 1.05 (5% GST)
+                  </p>
                 </div>
               </div>
-            ))}
 
-            <button
-              type="button"
-              onClick={addBatteryItem}
-              className="w-full py-2 border border-emerald-300 hover:border-emerald-500 bg-white hover:bg-emerald-50 text-emerald-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-1 transition-colors"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>+ Add Battery Type</span>
-            </button>
-
-            {/* Total Battery Discount Pill */}
-            <div className="flex items-center justify-between p-2.5 bg-emerald-50 rounded-lg text-xs font-bold text-emerald-900 border border-emerald-200">
-              <span>Total Battery Discount Allowance:</span>
-              <span className="font-mono text-emerald-700">{formatINR(calculationResult.batteryDiscountAllowance)}</span>
+              <button
+                type="button"
+                onClick={autoOptimizeFleet}
+                title="Optimize fleet for current scooters"
+                className="text-[11px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-lg border border-blue-200 transition-colors cursor-pointer flex items-center space-x-1"
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>Auto-Optimize</span>
+              </button>
             </div>
-          </div>
-        ) : (
-          <div className="text-xs text-gray-500 italic">
-            No batteries included in this order. Battery discount is ₹0.
-          </div>
-        )}
-      </div>
 
-      {/* SECTION: TRANSPORT LOGISTICS (Collapsible) */}
-      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setIsTransportOpen(!isTransportOpen)}
-          className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Truck className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="text-base font-bold text-gray-900">Transport & Truck Allocation</h2>
-              <div className="text-xs text-gray-500 mt-0.5">
-                {orderInput.transportDistanceKm} km • {selectedPrimaryTruck.capacity}-scooter truck • Total Freight: <strong className="text-gray-900 font-mono">{formatINR(calculationResult.totalTransportCost)}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold text-blue-600 hidden sm:inline">
-              {isTransportOpen ? 'Hide' : 'Configure'}
-            </span>
-            {isTransportOpen ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-          </div>
-        </button>
-
-        {isTransportOpen && (
-          <div className="p-5 sm:p-6 pt-0 border-t border-gray-100 space-y-4">
-            
-            {/* Distance input */}
+            {/* Distance Input with Quick Chips */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                  Transport Distance (km)
+                  Delivery Distance (km) *
                 </label>
                 <div className="flex items-center space-x-1">
                   {[100, 200, 350, 500, 1000].map((d) => (
@@ -523,9 +666,9 @@ export const OrderForm: React.FC = () => {
                       key={d}
                       type="button"
                       onClick={() => updateOrderInput({ transportDistanceKm: d })}
-                      className={`text-[10px] font-semibold px-2 py-0.5 rounded transition-colors ${
+                      className={`text-[10px] font-semibold px-2 py-0.5 rounded transition-colors cursor-pointer ${
                         orderInput.transportDistanceKm === d
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-blue-600 text-white font-bold'
                           : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
@@ -536,485 +679,439 @@ export const OrderForm: React.FC = () => {
               </div>
               <input
                 type="number"
+                inputMode="decimal"
                 min="0"
                 value={orderInput.transportDistanceKm || ''}
                 onChange={(e) => updateOrderInput({ transportDistanceKm: Math.max(0, Number(e.target.value) || 0) })}
-                className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
               />
             </div>
 
-            {/* Truck Selector: 12, 32, 55 */}
+            {/* Truck Selector Cards */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                  Truck Capacity & Rate
-                </label>
-                <button
-                  type="button"
-                  onClick={autoOptimizeFleet}
-                  className="text-[11px] font-bold text-blue-600 hover:text-blue-800 flex items-center space-x-1"
-                >
-                  <Sparkles className="w-3 h-3" />
-                  <span>Auto-Fit Fleet ({calculationResult.totalScooters} scooters)</span>
-                </button>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2.5">
-                {appConfig.transportRates.map((t) => {
-                  const isSelected = orderInput.truckAllocations.some((a) => a.truckId === t.id && a.count > 0);
+              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                Primary Truck Type
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {appConfig.transportRates.map((truck) => {
+                  const isSelected = selectedPrimaryTruck.truckId === truck.id;
                   return (
                     <button
-                      key={t.id}
+                      key={truck.id}
                       type="button"
-                      onClick={() => setSingleTruck(t.id)}
-                      className={`p-2.5 rounded-xl border text-center transition-all ${
+                      onClick={() => setSingleTruck(truck.id)}
+                      className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-2xs'
+                          ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/20'
                           : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      <div className="font-extrabold text-sm">{t.capacity} Units</div>
-                      <div className="text-[10px] text-gray-500 mt-0.5">₹{t.ratePerKm} / km</div>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs font-black">{truck.name}</span>
+                        {isSelected && (
+                          <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">
+                            Active
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[11px] text-gray-500">
+                        Cap: <strong>{truck.capacity}</strong> • <strong>₹{truck.ratePerKm}/km</strong>
+                      </div>
                     </button>
                   );
                 })}
               </div>
             </div>
 
-            {/* 5-Step Transport Breakdown */}
-            <div className="p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 text-xs space-y-2">
-              <div className="font-bold text-blue-950 flex items-center justify-between border-b border-blue-200/60 pb-1.5">
-                <span>Transport Cost Breakdown</span>
-                <span className="text-[10px] text-blue-700 font-semibold">{calculationResult.truckSummary}</span>
-              </div>
+            {/* Advanced Transport Collapsible */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={() => setIsAdvancedTransportOpen(!isAdvancedTransportOpen)}
+                className="text-xs font-semibold text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+              >
+                <span>{isAdvancedTransportOpen ? '− Hide Advanced Surcharges' : '+ Configure Transport Extra & GST'}</span>
+              </button>
 
-              <div className="space-y-1.5 text-blue-900 font-medium">
-                {/* 1. Base Transport Charge */}
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">1. Base Transport Charge:</span>
-                  <span className="font-mono font-semibold text-gray-900">{formatINR(calculationResult.baseTransportCost)}</span>
-                </div>
+              {isAdvancedTransportOpen && (
+                <div className="mt-2.5 p-3.5 bg-gray-50 rounded-xl border border-gray-200 space-y-3 text-xs">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Additional Surcharge (%)
+                      </label>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        value={appConfig.transportSettings.extraChargePercent}
+                        onChange={(e) => updateConfig({
+                          transportSettings: {
+                            ...appConfig.transportSettings,
+                            extraChargePercent: Number(e.target.value) || 0,
+                          }
+                        })}
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-900"
+                      />
+                    </div>
 
-                {/* 2. Additional 10% Charge */}
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">2. Additional {calculationResult.transportExtraPercent}% Charge:</span>
-                  <span className="font-mono font-semibold text-gray-900">+ {formatINR(calculationResult.transportExtraCharge)}</span>
-                </div>
-
-                {/* 3. Transport Subtotal */}
-                <div className="flex items-center justify-between pt-1 border-t border-blue-200/40 font-semibold">
-                  <span className="text-blue-950">3. Transport Subtotal:</span>
-                  <span className="font-mono text-blue-950">{formatINR(calculationResult.transportSubtotal)}</span>
-                </div>
-
-                {/* 4. GST (5%) */}
-                <div className="flex items-center justify-between">
-                  <span className="text-gray-600">4. GST ({calculationResult.transportGstPercent}%):</span>
-                  <span className="font-mono font-semibold text-gray-900">+ {formatINR(calculationResult.transportGstAmount)}</span>
-                </div>
-
-                {/* 5. Final Transport Cost */}
-                <div className="flex items-center justify-between pt-1.5 border-t border-blue-200 text-sm font-extrabold text-blue-950">
-                  <span>5. Final Transport Cost:</span>
-                  <span className="font-mono text-red-600">{formatINR(calculationResult.totalTransportCost)}</span>
-                </div>
-              </div>
-
-              <div className="pt-1.5 border-t border-blue-200/60 flex items-center justify-between text-[11px] text-blue-800">
-                <span>50% Transport Sharing Value:</span>
-                <strong className="font-mono">{formatINR(calculationResult.halfTransportCost)}</strong>
-              </div>
-            </div>
-
-          </div>
-        )}
-      </div>
-
-      {/* SECTION: DISCOUNT ALLOCATION SELECTOR (Single-Component Discount / Support Rule) */}
-      <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
-        <div>
-          <h2 className="text-base font-bold text-gray-900">Discount / Support Allocation</h2>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Strict Single-Component Rule: Company support or discount applies to <strong>one component only</strong>, never both vehicle invoice and transport simultaneously.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          {/* Option A: Scooty/Battery Discount */}
-          <button
-            type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
-            className={`p-3 rounded-xl border text-left transition-all ${
-              calculationResult.allocationOption === 'Scooty/Battery Discount'
-                ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/30'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-xs font-bold">Scooty/Battery Discount</span>
-              <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">Option A</span>
-            </div>
-            <p className="text-[11px] text-gray-500">
-              Apply approved discount to scooter & battery invoice only. Customer pays 100% transport freight.
-            </p>
-          </button>
-
-          {/* Option B: Transport Support */}
-          <button
-            type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
-            className={`p-3 rounded-xl border text-left transition-all ${
-              calculationResult.allocationOption === 'Transport Support'
-                ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs ring-1 ring-emerald-500/30'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-xs font-bold">Transport Support (50%)</span>
-              <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded">Option B</span>
-            </div>
-            <p className="text-[11px] text-gray-500">
-              Company absorbs 50% of final transport cost. Scooter and battery invoice discounts are strictly ₹0.
-            </p>
-          </button>
-
-          {/* Option C: No Discount / Support */}
-          <button
-            type="button"
-            onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
-            className={`p-3 rounded-xl border text-left transition-all ${
-              calculationResult.allocationOption === 'No Discount / Support'
-                ? 'bg-gray-100 border-gray-500 text-gray-950 shadow-2xs ring-1 ring-gray-400'
-                : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-            }`}
-          >
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-xs font-bold">No Discount / Support</span>
-              <span className="text-[9px] bg-gray-600 text-white font-bold px-1.5 py-0.2 rounded">Option C</span>
-            </div>
-            <p className="text-[11px] text-gray-500">
-              Customer pays full vehicle invoice and 100% transport cost. No company support or discount applied.
-            </p>
-          </button>
-        </div>
-
-        {/* Selected Allocation Active Callout */}
-        <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 text-xs text-gray-700 flex items-center justify-between">
-          <span className="font-medium text-gray-600">Active Allocation:</span>
-          <span className="font-bold text-gray-900 bg-white px-2.5 py-1 rounded-md border border-gray-200 shadow-2xs">
-            {calculationResult.allocationOption}
-          </span>
-        </div>
-
-        {/* Ineligible Warning Callout */}
-        {calculationResult.warningMessage && (
-          <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 space-y-2">
-            <div className="flex items-start space-x-2">
-              <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0 mt-0.5" />
-              <span>{calculationResult.warningMessage}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
-              className="text-[11px] font-bold text-amber-900 underline hover:text-black"
-            >
-              Switch to "Scooty/Battery Discount" mode
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* SECTION: PROFIT PROTECTION INPUTS (Cost & Margin Verification) */}
-      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setIsProfitProtectionOpen(!isProfitProtectionOpen)}
-          className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center flex-shrink-0">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                <h2 className="text-base font-bold text-gray-900">Profit Protection Engine</h2>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
-                  Optional
-                </span>
-                {calculationResult.profitProtection.status === 'Verified' ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Verified
-                  </span>
-                ) : calculationResult.profitProtection.status === 'Below Target' ? (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200">
-                    Below Target
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
-                    Not Verified
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Verify actual company costs and safeguard minimum profit margins before applying discounts.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <span className="text-xs font-semibold text-purple-600 hidden sm:inline">
-              {isProfitProtectionOpen ? 'Hide' : 'Configure'}
-            </span>
-            {isProfitProtectionOpen ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
-          </div>
-        </button>
-
-        {isProfitProtectionOpen && (
-          <div className="p-5 sm:p-6 pt-0 border-t border-gray-100 space-y-4">
-            
-            <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100 text-xs text-purple-900">
-              <p>
-                <strong>Safeguard Policy:</strong> If manufacturing cost or approved selling price is not provided, profitability will be labeled <strong>"Profitability not verified"</strong> without inventing manufacturing numbers.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {/* Actual Company Cost per Scooter */}
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
-                  Company Cost per Scooter (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 35000"
-                  value={orderInput.profitabilityInput?.scooterUnitCost ?? ''}
-                  onChange={(e) => updateOrderInput({
-                    profitabilityInput: {
-                      ...orderInput.profitabilityInput,
-                      scooterUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
-                    }
-                  })}
-                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                />
-                <span className="text-[10px] text-gray-400 mt-0.5 block">
-                  Total Scooter Cost: {calculationResult.profitProtection.totalScooterCost ? formatINR(calculationResult.profitProtection.totalScooterCost) : 'Pending entry'}
-                </span>
-              </div>
-
-              {/* Approved Selling Price per Scooter */}
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
-                  Approved Scooter Selling Price (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 50000 (if not set per row)"
-                  value={orderInput.profitabilityInput?.defaultScooterSellingPrice ?? ''}
-                  onChange={(e) => updateOrderInput({
-                    profitabilityInput: {
-                      ...orderInput.profitabilityInput,
-                      defaultScooterSellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
-                    }
-                  })}
-                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                />
-                <span className="text-[10px] text-gray-400 mt-0.5 block">
-                  Applies to all scooters without individual item price
-                </span>
-              </div>
-
-              {/* Company Cost per Battery */}
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
-                  Company Cost per Battery (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 18000"
-                  value={orderInput.profitabilityInput?.batteryUnitCost ?? ''}
-                  onChange={(e) => updateOrderInput({
-                    profitabilityInput: {
-                      ...orderInput.profitabilityInput,
-                      batteryUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
-                    }
-                  })}
-                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                />
-                <span className="text-[10px] text-gray-400 mt-0.5 block">
-                  {orderInput.batteryIncluded ? 'Total Battery Cost: ' + (calculationResult.profitProtection.totalBatteryCost ? formatINR(calculationResult.profitProtection.totalBatteryCost) : 'Pending') : 'Batteries not included in order'}
-                </span>
-              </div>
-
-              {/* Approved Battery Selling Price */}
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
-                  Approved Battery Selling Price (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 24000"
-                  value={orderInput.profitabilityInput?.defaultBatterySellingPrice ?? ''}
-                  onChange={(e) => updateOrderInput({
-                    profitabilityInput: {
-                      ...orderInput.profitabilityInput,
-                      defaultBatterySellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
-                    }
-                  })}
-                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                />
-                <span className="text-[10px] text-gray-400 mt-0.5 block">
-                  Applies to all batteries without individual item price
-                </span>
-              </div>
-
-              {/* Other Company-Borne Costs */}
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
-                  Other Company-Borne Costs (₹)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="e.g. 2500 (packaging, transit insurance...)"
-                  value={orderInput.profitabilityInput?.otherCompanyCosts ?? ''}
-                  onChange={(e) => updateOrderInput({
-                    profitabilityInput: {
-                      ...orderInput.profitabilityInput,
-                      otherCompanyCosts: e.target.value === '' ? undefined : Number(e.target.value),
-                    }
-                  })}
-                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                />
-              </div>
-
-              {/* Minimum Profit Target Configuration */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
-                    Target Requirement
-                  </label>
-                  <div className="flex items-center space-x-1">
-                    <button
-                      type="button"
-                      onClick={() => updateOrderInput({
-                        profitabilityInput: {
-                          ...orderInput.profitabilityInput,
-                          minProfitType: 'margin_percent',
-                        }
-                      })}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
-                        (orderInput.profitabilityInput?.minProfitType ?? 'margin_percent') === 'margin_percent'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      % Margin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => updateOrderInput({
-                        profitabilityInput: {
-                          ...orderInput.profitabilityInput,
-                          minProfitType: 'amount',
-                        }
-                      })}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
-                        orderInput.profitabilityInput?.minProfitType === 'amount'
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                      }`}
-                    >
-                      ₹ Amount
-                    </button>
+                    <div>
+                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        Transport GST (%)
+                      </label>
+                      <input
+                        type="number"
+                        inputMode="decimal"
+                        min="0"
+                        value={appConfig.transportSettings.transportGstPercent}
+                        onChange={(e) => updateConfig({
+                          transportSettings: {
+                            ...appConfig.transportSettings,
+                            transportGstPercent: Number(e.target.value) || 0,
+                          }
+                        })}
+                        className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-900"
+                      />
+                    </div>
                   </div>
                 </div>
+              )}
+            </div>
 
-                {(orderInput.profitabilityInput?.minProfitType ?? 'margin_percent') === 'margin_percent' ? (
-                  <div className="relative">
+            {/* Live Transport 5-Step Breakdown Summary Card */}
+            <div className="bg-gray-50/90 rounded-xl p-3.5 border border-gray-200/90 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between text-gray-700">
+                <span>1. Base Transport:</span>
+                <span className="font-mono font-medium">{formatINR(calculationResult.baseTransportCost)}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-700">
+                <span>2. Additional {calculationResult.transportExtraPercent}% Charge:</span>
+                <span className="font-mono font-medium text-amber-700">+ {formatINR(calculationResult.transportExtraCharge)}</span>
+              </div>
+              <div className="flex items-center justify-between font-semibold text-gray-900 pt-1 border-t border-gray-200">
+                <span>3. Transport Subtotal:</span>
+                <span className="font-mono">{formatINR(calculationResult.transportSubtotal)}</span>
+              </div>
+              <div className="flex items-center justify-between text-gray-700">
+                <span>4. GST ({calculationResult.transportGstPercent}%):</span>
+                <span className="font-mono font-medium text-blue-700">+ {formatINR(calculationResult.transportGstAmount)}</span>
+              </div>
+              <div className="flex items-center justify-between font-black text-gray-950 pt-1.5 border-t border-gray-300 text-xs">
+                <span>5. Final Transport Cost:</span>
+                <span className="font-mono text-red-600 font-bold">{formatINR(calculationResult.totalTransportCost)}</span>
+              </div>
+
+              {/* Per-Scooty Freight Highlight */}
+              <div className="flex items-center justify-between bg-blue-50/90 px-2.5 py-1.5 rounded-lg border border-blue-200 text-blue-950 font-bold mt-1">
+                <span>Transport Cost Per Scooty:</span>
+                <span className="font-mono font-black">
+                  {calculationResult.transportCostPerScooter !== null
+                    ? `${formatINR(calculationResult.transportCostPerScooter)} / scooty`
+                    : '—'}
+                </span>
+              </div>
+            </div>
+
+            {!showAllSteps && (
+              <div className="pt-2 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(1)}
+                  className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back to Step 1</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentStep(3)}
+                  className="py-2.5 px-5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs"
+                >
+                  <span>Continue to Step 3: Review</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* STEP 3: REVIEW, ALLOCATION & CALCULATE                                    */}
+      {/* ========================================================================= */}
+      {(showAllSteps || currentStep === 3) && (
+        <div className="space-y-5 animate-fade-in">
+          
+          {/* SECTION: STRICT SINGLE-COMPONENT DISCOUNT ALLOCATION */}
+          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+            <div>
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                  Discount & Freight Allocation Mode
+                </h3>
+                <span className="text-[10px] uppercase font-bold text-[#E53935] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+                  Strict Rule
+                </span>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Company support applies to <strong>one component only</strong>, never both vehicle invoice and transport simultaneously.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              {/* Option A: Scooty/Battery Discount */}
+              <button
+                type="button"
+                onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
+                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                  calculationResult.allocationOption === 'Scooty/Battery Discount'
+                    ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/30'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-bold">Scooty/Battery Discount</span>
+                  <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">Option A</span>
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  Apply approved discount to vehicle invoice only. Customer pays 100% transport freight.
+                </p>
+              </button>
+
+              {/* Option B: Transport Support */}
+              <button
+                type="button"
+                onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
+                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                  calculationResult.allocationOption === 'Transport Support'
+                    ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs ring-1 ring-emerald-500/30'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-bold">Transport Support (50%)</span>
+                  <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded">Option B</span>
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  Company absorbs 50% of final transport cost. Vehicle & battery invoice discounts are strictly ₹0.
+                </p>
+              </button>
+
+              {/* Option C: No Discount / Support */}
+              <button
+                type="button"
+                onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
+                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
+                  calculationResult.allocationOption === 'No Discount / Support'
+                    ? 'bg-gray-100 border-gray-500 text-gray-950 shadow-2xs ring-1 ring-gray-400'
+                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-xs font-bold">No Discount / Support</span>
+                  <span className="text-[9px] bg-gray-600 text-white font-bold px-1.5 py-0.2 rounded">Option C</span>
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  Customer pays full vehicle invoice and 100% transport cost. No company support applied.
+                </p>
+              </button>
+            </div>
+
+            {/* Active Allocation Bar */}
+            <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 text-xs text-gray-700 flex items-center justify-between">
+              <span className="font-medium text-gray-600">Active Allocation:</span>
+              <span className="font-bold text-gray-900 bg-white px-2.5 py-1 rounded-md border border-gray-200 shadow-2xs">
+                {calculationResult.allocationOption}
+              </span>
+            </div>
+          </div>
+
+          {/* SECTION: PROFIT PROTECTION ENGINE (Optional) */}
+          <div className="glass-card rounded-2xl border border-gray-200/90 shadow-xs overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setIsProfitProtectionOpen(!isProfitProtectionOpen)}
+              className="w-full p-4 sm:p-5 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <h4 className="text-sm font-bold text-gray-900">Profit Protection Engine</h4>
+                    <span className="text-[10px] font-bold px-2 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                      Optional Safeguard
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500">
+                    Verify company procurement costs & minimum margin compliance
+                  </p>
+                </div>
+              </div>
+
+              {isProfitProtectionOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+            </button>
+
+            {isProfitProtectionOpen && (
+              <div className="p-4 sm:p-5 pt-0 border-t border-gray-100 space-y-3.5 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      Company Cost per Scooter (₹)
+                    </label>
                     <input
                       type="number"
+                      inputMode="decimal"
                       min="0"
-                      max="100"
-                      step="0.5"
-                      placeholder="e.g. 10"
-                      value={orderInput.profitabilityInput?.minProfitMarginPercent ?? 10}
+                      placeholder="e.g. 35000"
+                      value={orderInput.profitabilityInput?.scooterUnitCost ?? ''}
                       onChange={(e) => updateOrderInput({
                         profitabilityInput: {
                           ...orderInput.profitabilityInput,
-                          minProfitMarginPercent: Number(e.target.value),
+                          scooterUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
                         }
                       })}
-                      className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600 pr-8"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
                     />
-                    <span className="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
                   </div>
-                ) : (
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 30000"
-                    value={orderInput.profitabilityInput?.minProfitAmount ?? 30000}
-                    onChange={(e) => updateOrderInput({
-                      profitabilityInput: {
-                        ...orderInput.profitabilityInput,
-                        minProfitAmount: Number(e.target.value),
-                      }
-                    })}
-                    className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-                  />
-                )}
-                <span className="text-[10px] text-gray-400 mt-0.5 block">
-                  Orders below this threshold trigger an automated profit protection alert
-                </span>
-              </div>
 
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      Approved Scooter Selling Price (₹)
+                    </label>
+                    <input
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      placeholder="e.g. 50000"
+                      value={orderInput.profitabilityInput?.defaultScooterSellingPrice ?? ''}
+                      onChange={(e) => updateOrderInput({
+                        profitabilityInput: {
+                          ...orderInput.profitabilityInput,
+                          defaultScooterSellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
+                        }
+                      })}
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Delivery Notes (Optional) */}
+          <div className="text-xs text-gray-500">
+            <button
+              type="button"
+              onClick={() => setIsNotesOpen(!isNotesOpen)}
+              className="text-gray-600 hover:text-gray-900 font-semibold flex items-center space-x-1 cursor-pointer"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>{isNotesOpen ? 'Hide Delivery Remarks' : '+ Add Optional Delivery Remarks'}</span>
+            </button>
+
+            {isNotesOpen && (
+              <textarea
+                rows={2}
+                value={orderInput.notes || ''}
+                onChange={(e) => updateOrderInput({ notes: e.target.value })}
+                placeholder="Special dealership remarks, delivery instructions, billing notes..."
+                className="w-full mt-2 bg-white border border-gray-300 rounded-xl p-3 text-xs text-gray-900 focus:outline-none focus:border-[#E53935]"
+              />
+            )}
+          </div>
+
+          {/* Pre-Calculation Review Summary */}
+          <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                Live Order Pre-Check
+              </span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
+                hasItems
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-amber-50 text-amber-700 border border-amber-200'
+              }`}>
+                {hasItems ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Ready for Settlement</span>
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-3 h-3" />
+                    <span>Enter Scooter Units</span>
+                  </>
+                )}
+              </span>
             </div>
 
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <span className="text-[10px] text-gray-500 block">Total Scooters</span>
+                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+                  {calculationResult.totalScooters}
+                </strong>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <span className="text-[10px] text-gray-500 block">Batteries</span>
+                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+                  {calculationResult.totalBatteries}
+                </strong>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <span className="text-[10px] text-gray-500 block">Final Freight</span>
+                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+                  {formatINR(calculationResult.totalTransportCost)}
+                </strong>
+              </div>
+
+              <div className="p-2 bg-gray-50 rounded-lg">
+                <span className="text-[10px] text-gray-500 block">Freight / Scooty</span>
+                <strong className="font-mono text-blue-900 text-sm block mt-0.5">
+                  {calculationResult.transportCostPerScooter !== null ? formatINR(calculationResult.transportCostPerScooter) : '—'}
+                </strong>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
 
-      {/* Optional Commercial Notes */}
-      <div className="text-xs text-gray-500">
-        <button
-          type="button"
-          onClick={() => setIsNotesOpen(!isNotesOpen)}
-          className="text-gray-600 hover:text-gray-900 font-semibold flex items-center space-x-1"
-        >
-          <span>{isNotesOpen ? '− Hide Delivery Notes' : '+ Add Optional Delivery Notes'}</span>
-        </button>
+          {!showAllSteps && (
+            <div className="pt-2 flex justify-start">
+              <button
+                type="button"
+                onClick={() => setCurrentStep(2)}
+                className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back to Step 2</span>
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
-        {isNotesOpen && (
-          <textarea
-            rows={2}
-            value={orderInput.notes || ''}
-            onChange={(e) => updateOrderInput({ notes: e.target.value })}
-            placeholder="Special commercial terms, transport remarks..."
-            className="w-full mt-2 bg-gray-50 border border-gray-300 rounded-xl p-3 text-xs text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
-          />
-        )}
-      </div>
-
-      {/* STICKY BOTTOM ACTION BAR (Mobile-First) */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-xl z-20">
+      {/* ========================================================================= */}
+      {/* STICKY BOTTOM ACTION BAR (Mobile-First, Always Accessible)               */}
+      {/* ========================================================================= */}
+      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 glass-floating z-30 safe-bottom">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
           <div className="flex flex-col">
             <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
-              {calculationResult.totalScooters} Scooters • {calculationResult.totalBatteries} Batteries
+              {calculationResult.totalScooters} Scooters • {orderInput.transportDistanceKm} km
             </span>
             <span className="text-xs font-bold text-gray-900">
-              Total Discount: <strong className="text-emerald-700 font-mono">{formatINR(calculationResult.totalDiscountAllowance)}</strong>
+              Eligible Discount: <strong className="text-emerald-700 font-mono"><AnimatedNumber value={calculationResult.totalDiscountAllowance} /></strong>
             </span>
           </div>
 
           <button
             type="submit"
             disabled={isCalculating}
-            className={`py-3 px-6 sm:px-8 bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-extrabold text-sm rounded-xl shadow-md shadow-red-600/30 flex items-center space-x-2 transition-all ${
+            className={`py-3.5 px-6 sm:px-9 bg-[#E53935] hover:bg-[#D32F2F] active:scale-[0.98] text-white font-black text-sm rounded-xl shadow-lg shadow-red-600/30 flex items-center space-x-2 transition-all cursor-pointer ${
               isCalculating ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
