@@ -23,7 +23,7 @@ export const AdminSettingsModal: React.FC = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [adminPin, setAdminPin] = useState('');
   const [tempConfig, setTempConfig] = useState(() => JSON.parse(JSON.stringify(appConfig)));
-  const [activeTab, setActiveTab] = useState<'discounts' | 'models' | 'trucks' | 'taxes'>('discounts');
+  const [activeTab, setActiveTab] = useState<'discounts' | 'models' | 'trucks' | 'taxes' | 'profit'>('discounts');
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,6 +155,14 @@ export const AdminSettingsModal: React.FC = () => {
               }`}
             >
               Tax & GST
+            </button>
+            <button
+              onClick={() => setActiveTab('profit')}
+              className={`py-1.5 px-3 rounded-lg transition-colors ${
+                activeTab === 'profit' ? 'bg-red-600 text-white' : 'text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              Profit Rules
             </button>
           </div>
 
@@ -426,6 +434,101 @@ export const AdminSettingsModal: React.FC = () => {
                     <option value="None">None (Net Internal Estimate)</option>
                     <option value="Exclusive">GST Exclusive (Add GST on top)</option>
                     <option value="Inclusive">GST Inclusive (Prices include embedded GST)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Tab 5: Profit Protection */}
+          {activeTab === 'profit' && (
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-gray-600">
+                Profit Protection Defaults
+              </h4>
+              <p className="text-xs text-gray-500">
+                Configure baseline thresholds used by the Smart Profit Protection Engine to safeguard deal profitability.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
+                  <label className="block text-[11px] font-bold text-gray-700">
+                    Default Metric Type
+                  </label>
+                  <select
+                    value={tempConfig.profitProtectionConfig?.defaultMinProfitType ?? 'margin_percent'}
+                    onChange={(e) => setTempConfig((prev: any) => ({
+                      ...prev,
+                      profitProtectionConfig: {
+                        ...(prev.profitProtectionConfig || {}),
+                        defaultMinProfitType: e.target.value,
+                      }
+                    }))}
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900"
+                  >
+                    <option value="margin_percent">Minimum Profit Margin (%)</option>
+                    <option value="amount">Minimum Profit Amount (₹)</option>
+                  </select>
+                </div>
+
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
+                  <label className="block text-[11px] font-bold text-gray-700">
+                    Default Margin Target (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    value={tempConfig.profitProtectionConfig?.defaultMinProfitMarginPercent ?? 10}
+                    onChange={(e) => setTempConfig((prev: any) => ({
+                      ...prev,
+                      profitProtectionConfig: {
+                        ...(prev.profitProtectionConfig || {}),
+                        defaultMinProfitMarginPercent: Number(e.target.value) || 0,
+                      }
+                    }))}
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-900"
+                  />
+                </div>
+
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
+                  <label className="block text-[11px] font-bold text-gray-700">
+                    Default Profit Floor Amount (₹)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1000"
+                    value={tempConfig.profitProtectionConfig?.defaultMinProfitAmount ?? 30000}
+                    onChange={(e) => setTempConfig((prev: any) => ({
+                      ...prev,
+                      profitProtectionConfig: {
+                        ...(prev.profitProtectionConfig || {}),
+                        defaultMinProfitAmount: Number(e.target.value) || 0,
+                      }
+                    }))}
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs font-mono font-bold text-gray-900"
+                  />
+                </div>
+
+                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl space-y-1">
+                  <label className="block text-[11px] font-bold text-gray-700">
+                    Transport Freight GST Treatment
+                  </label>
+                  <select
+                    value={tempConfig.profitProtectionConfig?.gstRecoverable ? 'recoverable' : 'cost'}
+                    onChange={(e) => setTempConfig((prev: any) => ({
+                      ...prev,
+                      profitProtectionConfig: {
+                        ...(prev.profitProtectionConfig || {}),
+                        gstRecoverable: e.target.value === 'recoverable',
+                      }
+                    }))}
+                    className="w-full bg-white border border-gray-300 rounded-lg p-2 text-xs text-gray-900"
+                  >
+                    <option value="recoverable">Input Tax Credit (Recoverable - standard B2B)</option>
+                    <option value="cost">Company Expense (Non-recoverable)</option>
                   </select>
                 </div>
               </div>

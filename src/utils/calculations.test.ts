@@ -345,3 +345,233 @@ describe('Xidaa Discount Calculator - Updated Transport Formula & Sharing Tests'
     expect(res.finalPayableAmount).toBe(519120);
   });
 });
+
+describe('Smart Profit Protection Engine Tests', () => {
+  it('Missing costs or selling prices: correctly returns Not Verified without inventing data', () => {
+    const input: OrderInput = {
+      customerName: 'No Cost Dealership',
+      orderRef: 'XD-NO-COST',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 10 },
+      ],
+      batteryIncluded: false,
+      batteryItems: [],
+      transportDistanceKm: 200,
+      truckAllocations: [
+        { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+      ],
+      allocationMode: 'Automatic',
+      // No profitabilityInput provided
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const pp = res.profitProtection;
+
+    expect(pp.status).toBe('Not Verified');
+    expect(pp.hasCostData).toBe(false);
+    expect(pp.missingDataReasons.length).toBeGreaterThan(0);
+    expect(pp.activeScenario.companyProfit).toBeNull();
+    expect(pp.recommendationReason).toContain('Provisional');
+    expect(pp.recommendationReason).toContain('Profitability not verified');
+  });
+
+  it('Scooter discount is more profitable than transport sharing (S < H ineligible)', () => {
+    // 10 Other Model scooters: S = ₹10,000.
+    // 1000 km on 12-truck: Base ₹40,000 + 10% (4,000) = 44,000 + 5% GST (2,200) = ₹46,200. H = ₹23,100.
+    // S (10,000) < H (23,100): Transport sharing is ineligible.
+    const input: OrderInput = {
+      customerName: 'High Distance Dealership',
+      orderRef: 'XD-PP-SCOOT-BEST',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 10, unitPrice: 50000 },
+      ],
+      batteryIncluded: false,
+      batteryItems: [],
+      transportDistanceKm: 1000,
+      truckAllocations: [
+        { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+      ],
+      allocationMode: 'Automatic',
+      profitabilityInput: {
+        scooterUnitCost: 35000, // 10 * 35,000 = ₹3,50,000 cost
+        minProfitType: 'margin_percent',
+        minProfitMarginPercent: 10, // 10% target
+      },
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const pp = res.profitProtection;
+
+    expect(pp.hasCostData).toBe(true);
+    expect(pp.recommendedScenarioId).toBe('scenario-a');
+    expect(pp.recommendationReason).toContain('Recommended: Apply the discount to scooter prices');
+    // Scenario A: Revenue = 5,00,000 - 10,000 = 4,90,000. Cost = 3,50,000. Company profit = 1,40,000. Margin = 1,40,000 / (4,90,000 + 44,000) = 26.22%
+    expect(pp.scenarios[0].companyProfit).toBe(140000);
+    expect(pp.scenarios[0].meetsProfitTarget).toBe(true);
+    // Scenario B is ineligible because S < H
+    expect(pp.scenarios[1].isValid).toBe(false);
+  });
+
+  it('Transport sharing is more profitable than scooter discount when freight ITC saves money', () => {
+    // 20 Other Model scooters: S = ₹20,000.
+    // 100 km on 12-truck: Base ₹4,000, Subtotal ₹4,400, Final ₹4,620. H = ₹2,310.
+    // S (20,000) >= H (2,310): Transport sharing is eligible!
+    // In Scenario B:
+    // Support H = 2,310. Company freight cost excluding 5% GST = 2,200.
+    // Remaining scooter discount = 20,000 - 2,310 = ₹17,690.
+    // Net discount + company freight = 17,690 + 2,200 = ₹19,890.
+    // In Scenario A:
+    // Full discount = ₹20,000.
+    // Company profit in Scenario B is ₹110 HIGHER than Scenario A (19,890 < 20,000 expense)!
+    const input: OrderInput = {
+      customerName: 'Short Distance Partner',
+      orderRef: 'XD-PP-SHARING-BEST',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 20, unitPrice: 50000 },
+      ],
+      batteryIncluded: false,
+      batteryItems: [],
+      transportDistanceKm: 100,
+      truckAllocations: [
+        { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+      ],
+      allocationMode: 'Automatic',
+      profitabilityInput: {
+        scooterUnitCost: 35000,
+        minProfitType: 'margin_percent',
+        minProfitMarginPercent: 10,
+      },
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const pp = res.profitProtection;
+
+    expect(pp.hasCostData).toBe(true);
+    // Scenario B preserves higher profit than Scenario A!
+    expect(pp.scenarios[1].companyProfit).toBeGreaterThan(pp.scenarios[0].companyProfit!);
+    expect(pp.recommendedScenarioId).toBe('scenario-b');
+    expect(pp.recommendationReason).toContain('Recommended: 50/50 Transport Sharing');
+  });
+
+  it('Neither discount option meets minimum profit requirement: recommends Scenario D (No Discount)', () => {
+    // 10 DL scooters: S = 10 * 500 = ₹5,000.
+    // Selling price: ₹38,000. Cost: ₹36,000.
+    // Gross margin without discount = 10 * (38,000 - 36,000) = ₹20,000.
+    // Target minimum profit = ₹18,000.
+    // With discount S (₹5,000): profit is ₹15,000, falling ₹3,000 below target!
+    const input: OrderInput = {
+      customerName: 'Low Margin Dealership',
+      orderRef: 'XD-PP-LOW-MARGIN',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 10, unitPrice: 38000 },
+      ],
+      batteryIncluded: false,
+      batteryItems: [],
+      transportDistanceKm: 100,
+      truckAllocations: [
+        { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+      ],
+      allocationMode: 'Automatic',
+      profitabilityInput: {
+        scooterUnitCost: 36000,
+        minProfitType: 'amount',
+        minProfitAmount: 18000, // Requires at least ₹18,000 profit
+      },
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const pp = res.profitProtection;
+
+    expect(pp.hasCostData).toBe(true);
+    // Discount scenarios fall below target
+    expect(pp.scenarios[0].meetsProfitTarget).toBe(false);
+    expect(pp.scenarios[1].meetsProfitTarget).toBe(false);
+    // No Discount (Scenario D) meets target with ₹20,000
+    expect(pp.scenarios[3].meetsProfitTarget).toBe(true);
+    expect(pp.scenarios[3].companyProfit).toBe(20000);
+    // Recommended is Scenario D
+    expect(pp.recommendedScenarioId).toBe('scenario-d');
+    expect(pp.recommendationReason).toContain('Discount not recommended: This order does not meet the configured profit requirement');
+  });
+
+  it('Battery discount reduces profit below the required threshold', () => {
+    // Scooters alone: 10 DL @ 40,000. Cost = 35,000. Gross profit = 50,000. Discount = 5,000. Net profit = 45,000.
+    // Batteries: 10 batteries @ 15,000. Cost = 14,800. Gross profit = 2,000.
+    // Battery discount: 10 * 500 = ₹5,000.
+    // Battery profit becomes 2,000 - 5,000 = -₹3,000!
+    // Total profit = 45,000 - 3,000 = ₹42,000.
+    // Target = ₹44,000.
+    const input: OrderInput = {
+      customerName: 'Battery Impact Dealership',
+      orderRef: 'XD-PP-BATT-IMPACT',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 10, unitPrice: 40000 },
+      ],
+      batteryIncluded: true,
+      batteryItems: [
+        { id: 'b1', variant: '60V 30Ah LFP', quantity: 10, unitPrice: 15000, eligibleDiscountQuantity: 10 },
+      ],
+      transportDistanceKm: 0,
+      truckAllocations: [],
+      allocationMode: 'Automatic',
+      profitabilityInput: {
+        scooterUnitCost: 35000,
+        batteryUnitCost: 14800,
+        minProfitType: 'amount',
+        minProfitAmount: 44000,
+      },
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const pp = res.profitProtection;
+
+    expect(pp.hasCostData).toBe(true);
+    // Battery discount of ₹5,000 reduces total profit below ₹44,000
+    expect(pp.scenarios[0].companyProfit).toBe(42000);
+    expect(pp.scenarios[0].meetsProfitTarget).toBe(false);
+    expect(pp.status).toBe('Below Target');
+  });
+
+  it('Discount allowances are never exceeded or double-counted across scenarios', () => {
+    const input: OrderInput = {
+      customerName: 'Integrity Check Dealership',
+      orderRef: 'XD-INTEGRITY',
+      orderDate: '2026-10-23',
+      scooterItems: [
+        { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 15, unitPrice: 50000 },
+      ],
+      batteryIncluded: true,
+      batteryItems: [
+        { id: 'b1', variant: '60V 30Ah LFP', quantity: 10, unitPrice: 20000, eligibleDiscountQuantity: 10 },
+      ],
+      transportDistanceKm: 500,
+      truckAllocations: [
+        { truckId: 'truck-32', truckName: '32-Scooter Truck', capacity: 32, ratePerKm: 55, count: 1 },
+      ],
+      allocationMode: 'Automatic',
+      profitabilityInput: {
+        scooterUnitCost: 38000,
+        batteryUnitCost: 16000,
+      },
+    };
+
+    const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+    const S = res.scooterDiscountAllowance; // 15 * 1000 = 15000
+    const B = res.batteryDiscountAllowance; // 10 * 500 = 5000
+    const totalBudget = S + B; // 20000
+
+    res.profitProtection.scenarios.forEach((scenario) => {
+      // Total customer discount benefit must NEVER exceed total budget
+      expect(scenario.totalDiscountBenefit).toBeLessThanOrEqual(totalBudget);
+      // Scooter discount + transport support must never exceed scooter allowance S
+      expect(scenario.scooterDiscountApplied + scenario.companyTransportSupport).toBeLessThanOrEqual(S);
+      // Battery discount must never exceed B
+      expect(scenario.batteryDiscountApplied).toBeLessThanOrEqual(B);
+    });
+  });
+});

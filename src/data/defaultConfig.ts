@@ -43,4 +43,11 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
     gstTreatment: 'None',
     gstRatePercent: 5,
   },
+  profitProtectionConfig: {
+    enabled: true,
+    defaultMinProfitType: 'margin_percent',
+    defaultMinProfitAmount: 30000,
+    defaultMinProfitMarginPercent: 10,
+    gstRecoverable: true,
+  },
 };

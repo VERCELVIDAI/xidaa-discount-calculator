@@ -9,6 +9,64 @@ export type TransportAllocationMode = 'Automatic' | 'Full Scooter Discount' | 'S
 
 export type GstTreatment = 'None' | 'Exclusive' | 'Inclusive';
 
+export type ProfitScenarioId = 'scenario-a' | 'scenario-b' | 'scenario-c' | 'scenario-d';
+
+export type ProfitabilityStatus = 'Verified' | 'Below Target' | 'Not Verified';
+
+export interface ProfitabilityInput {
+  scooterUnitCost?: number; // Company cost per scooter
+  totalScooterCost?: number; // Total scooter manufacturing/procurement cost override
+  defaultScooterSellingPrice?: number; // Default selling price per scooter (if not set on item rows)
+  batteryUnitCost?: number; // Company cost per battery
+  totalBatteryCost?: number; // Total battery manufacturing/procurement cost override
+  defaultBatterySellingPrice?: number; // Default selling price per battery
+  otherCompanyCosts?: number; // Any additional company-borne order costs
+  minProfitType?: 'amount' | 'margin_percent'; // Target metric
+  minProfitAmount?: number; // in ₹ (e.g. 50000)
+  minProfitMarginPercent?: number; // in % (e.g. 10%)
+}
+
+export interface ProfitScenario {
+  id: ProfitScenarioId;
+  name: string;
+  tagline: string;
+  description: string;
+  scooterDiscountApplied: number;
+  batteryDiscountApplied: number;
+  companyTransportSupport: number;
+  customerTransportPayment: number;
+  totalDiscountBenefit: number;
+  remainingScooterDiscount: number;
+  companyProfit: number | null;
+  profitMarginPercent: number | null;
+  isValid: boolean;
+  meetsProfitTarget: boolean | null;
+  profitShortfall?: number;
+  status: ProfitabilityStatus;
+  statusMessage: string;
+}
+
+export interface ProfitProtectionResult {
+  status: ProfitabilityStatus;
+  hasCostData: boolean;
+  missingDataReasons: string[];
+  scenarios: ProfitScenario[];
+  recommendedScenarioId: ProfitScenarioId;
+  recommendationReason: string;
+  selectedScenarioId: ProfitScenarioId;
+  activeScenario: ProfitScenario;
+  minProfitRequirementText: string;
+  targetProfitAmount: number | null;
+  targetProfitMarginPercent: number | null;
+  grossScooterRevenue: number | null;
+  grossBatteryRevenue: number | null;
+  totalScooterCost: number | null;
+  totalBatteryCost: number | null;
+  totalCompanyCost: number | null;
+  otherCompanyCosts: number;
+  gstTransportTreatment: 'recoverable' | 'cost';
+}
+
 export interface ScooterModel {
   id: string;
   name: string;
@@ -73,6 +131,13 @@ export interface AppConfig {
     gstTreatment: GstTreatment;
     gstRatePercent: number; // default 5 for EV
   };
+  profitProtectionConfig?: {
+    enabled: boolean;
+    defaultMinProfitType: 'amount' | 'margin_percent';
+    defaultMinProfitAmount: number; // default e.g. 50000
+    defaultMinProfitMarginPercent: number; // default e.g. 10
+    gstRecoverable: boolean; // default true
+  };
 }
 
 export interface OrderInput {
@@ -86,6 +151,8 @@ export interface OrderInput {
   truckAllocations: TruckAllocationItem[];
   allocationMode: TransportAllocationMode;
   notes?: string;
+  profitabilityInput?: ProfitabilityInput;
+  selectedScenarioId?: ProfitScenarioId;
 }
 
 export interface CalculationResult {
@@ -148,6 +215,9 @@ export interface CalculationResult {
     formula: string;
     amount?: number | null;
   }[];
+
+  // Smart Profit Protection Engine Result
+  profitProtection: ProfitProtectionResult;
 }
 
 export interface SavedOrder {

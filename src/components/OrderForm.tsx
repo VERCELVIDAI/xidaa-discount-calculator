@@ -13,7 +13,8 @@ import {
   RotateCw, 
   Sparkles,
   ArrowRight,
-  Loader2
+  Loader2,
+  ShieldCheck
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { generateOrderRef } from '../utils/orderDefaults';
@@ -43,6 +44,7 @@ export const OrderForm: React.FC = () => {
 
   // Collapsible state for Transport & Advanced details
   const [isTransportOpen, setIsTransportOpen] = useState(false);
+  const [isProfitProtectionOpen, setIsProfitProtectionOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const batteryVariants: BatteryVariant[] = [
@@ -704,6 +706,260 @@ export const OrderForm: React.FC = () => {
             >
               Switch to "Discount on Price" mode
             </button>
+          </div>
+        )}
+      </div>
+
+      {/* SECTION: PROFIT PROTECTION INPUTS (Cost & Margin Verification) */}
+      <div className="bg-white rounded-2xl border border-gray-200/80 shadow-xs overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsProfitProtectionOpen(!isProfitProtectionOpen)}
+          className="w-full p-5 sm:p-6 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center flex-shrink-0">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                <h2 className="text-base font-bold text-gray-900">Profit Protection Engine</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                  Optional
+                </span>
+                {calculationResult.profitProtection.status === 'Verified' ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    Verified
+                  </span>
+                ) : calculationResult.profitProtection.status === 'Below Target' ? (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-red-50 text-red-700 border border-red-200">
+                    Below Target
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200">
+                    Not Verified
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Verify actual company costs and safeguard minimum profit margins before applying discounts.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="text-xs font-semibold text-purple-600 hidden sm:inline">
+              {isProfitProtectionOpen ? 'Hide' : 'Configure'}
+            </span>
+            {isProfitProtectionOpen ? <ChevronUp className="w-5 h-5 text-gray-400" /> : <ChevronDown className="w-5 h-5 text-gray-400" />}
+          </div>
+        </button>
+
+        {isProfitProtectionOpen && (
+          <div className="p-5 sm:p-6 pt-0 border-t border-gray-100 space-y-4">
+            
+            <div className="p-3 bg-purple-50/60 rounded-xl border border-purple-100 text-xs text-purple-900">
+              <p>
+                <strong>Safeguard Policy:</strong> If manufacturing cost or approved selling price is not provided, profitability will be labeled <strong>"Profitability not verified"</strong> without inventing manufacturing numbers.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {/* Actual Company Cost per Scooter */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
+                  Company Cost per Scooter (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 35000"
+                  value={orderInput.profitabilityInput?.scooterUnitCost ?? ''}
+                  onChange={(e) => updateOrderInput({
+                    profitabilityInput: {
+                      ...orderInput.profitabilityInput,
+                      scooterUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
+                    }
+                  })}
+                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                />
+                <span className="text-[10px] text-gray-400 mt-0.5 block">
+                  Total Scooter Cost: {calculationResult.profitProtection.totalScooterCost ? formatINR(calculationResult.profitProtection.totalScooterCost) : 'Pending entry'}
+                </span>
+              </div>
+
+              {/* Approved Selling Price per Scooter */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
+                  Approved Scooter Selling Price (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 50000 (if not set per row)"
+                  value={orderInput.profitabilityInput?.defaultScooterSellingPrice ?? ''}
+                  onChange={(e) => updateOrderInput({
+                    profitabilityInput: {
+                      ...orderInput.profitabilityInput,
+                      defaultScooterSellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
+                    }
+                  })}
+                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                />
+                <span className="text-[10px] text-gray-400 mt-0.5 block">
+                  Applies to all scooters without individual item price
+                </span>
+              </div>
+
+              {/* Company Cost per Battery */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
+                  Company Cost per Battery (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 18000"
+                  value={orderInput.profitabilityInput?.batteryUnitCost ?? ''}
+                  onChange={(e) => updateOrderInput({
+                    profitabilityInput: {
+                      ...orderInput.profitabilityInput,
+                      batteryUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
+                    }
+                  })}
+                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                />
+                <span className="text-[10px] text-gray-400 mt-0.5 block">
+                  {orderInput.batteryIncluded ? 'Total Battery Cost: ' + (calculationResult.profitProtection.totalBatteryCost ? formatINR(calculationResult.profitProtection.totalBatteryCost) : 'Pending') : 'Batteries not included in order'}
+                </span>
+              </div>
+
+              {/* Approved Battery Selling Price */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
+                  Approved Battery Selling Price (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 24000"
+                  value={orderInput.profitabilityInput?.defaultBatterySellingPrice ?? ''}
+                  onChange={(e) => updateOrderInput({
+                    profitabilityInput: {
+                      ...orderInput.profitabilityInput,
+                      defaultBatterySellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
+                    }
+                  })}
+                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                />
+                <span className="text-[10px] text-gray-400 mt-0.5 block">
+                  Applies to all batteries without individual item price
+                </span>
+              </div>
+
+              {/* Other Company-Borne Costs */}
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider text-gray-700 block mb-1">
+                  Other Company-Borne Costs (₹)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="e.g. 2500 (packaging, transit insurance...)"
+                  value={orderInput.profitabilityInput?.otherCompanyCosts ?? ''}
+                  onChange={(e) => updateOrderInput({
+                    profitabilityInput: {
+                      ...orderInput.profitabilityInput,
+                      otherCompanyCosts: e.target.value === '' ? undefined : Number(e.target.value),
+                    }
+                  })}
+                  className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                />
+              </div>
+
+              {/* Minimum Profit Target Configuration */}
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold uppercase tracking-wider text-gray-700">
+                    Target Requirement
+                  </label>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      type="button"
+                      onClick={() => updateOrderInput({
+                        profitabilityInput: {
+                          ...orderInput.profitabilityInput,
+                          minProfitType: 'margin_percent',
+                        }
+                      })}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
+                        (orderInput.profitabilityInput?.minProfitType ?? 'margin_percent') === 'margin_percent'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      % Margin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateOrderInput({
+                        profitabilityInput: {
+                          ...orderInput.profitabilityInput,
+                          minProfitType: 'amount',
+                        }
+                      })}
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded transition-colors ${
+                        orderInput.profitabilityInput?.minProfitType === 'amount'
+                          ? 'bg-purple-600 text-white'
+                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      }`}
+                    >
+                      ₹ Amount
+                    </button>
+                  </div>
+                </div>
+
+                {(orderInput.profitabilityInput?.minProfitType ?? 'margin_percent') === 'margin_percent' ? (
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="0.5"
+                      placeholder="e.g. 10"
+                      value={orderInput.profitabilityInput?.minProfitMarginPercent ?? 10}
+                      onChange={(e) => updateOrderInput({
+                        profitabilityInput: {
+                          ...orderInput.profitabilityInput,
+                          minProfitMarginPercent: Number(e.target.value),
+                        }
+                      })}
+                      className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600 pr-8"
+                    />
+                    <span className="absolute right-3.5 top-2.5 text-xs font-bold text-gray-400">%</span>
+                  </div>
+                ) : (
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 30000"
+                    value={orderInput.profitabilityInput?.minProfitAmount ?? 30000}
+                    onChange={(e) => updateOrderInput({
+                      profitabilityInput: {
+                        ...orderInput.profitabilityInput,
+                        minProfitAmount: Number(e.target.value),
+                      }
+                    })}
+                    className="w-full bg-gray-50/60 border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:bg-white focus:outline-none focus:border-red-600"
+                  />
+                )}
+                <span className="text-[10px] text-gray-400 mt-0.5 block">
+                  Orders below this threshold trigger an automated profit protection alert
+                </span>
+              </div>
+
+            </div>
+
           </div>
         )}
       </div>

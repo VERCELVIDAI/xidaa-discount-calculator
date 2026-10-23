@@ -10,7 +10,8 @@ import {
   BatteryCharging, 
   Info, 
   Edit3, 
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { useApp } from '../context/AppContext';
@@ -19,6 +20,7 @@ import { formatINR, formatINRWords } from '../utils/currency';
 export const ResultsScreen: React.FC = () => {
   const { 
     orderInput, 
+    updateOrderInput,
     calculationResult, 
     editCurrentOrder, 
     startNewOrder, 
@@ -171,6 +173,264 @@ export const ResultsScreen: React.FC = () => {
             ))}
           </div>
         )}
+      </div>
+
+      {/* SMART PROFIT PROTECTION ENGINE RESULT CARD */}
+      <div className={`rounded-2xl p-5 sm:p-6 border shadow-xs space-y-4 transition-all ${
+        calculationResult.profitProtection.status === 'Verified'
+          ? 'bg-emerald-50/40 border-emerald-300'
+          : calculationResult.profitProtection.status === 'Below Target'
+          ? 'bg-red-50/40 border-red-300'
+          : 'bg-amber-50/40 border-amber-300'
+      }`}>
+        {/* Header with Title & Status Badge */}
+        <div className="flex items-center justify-between border-b border-gray-200/60 pb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${
+              calculationResult.profitProtection.status === 'Verified'
+                ? 'bg-emerald-100 text-emerald-800'
+                : calculationResult.profitProtection.status === 'Below Target'
+                ? 'bg-red-100 text-red-800'
+                : 'bg-amber-100 text-amber-800'
+            }`}>
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-extrabold text-gray-900 tracking-tight">
+                Smart Profit Protection Engine
+              </h3>
+              <p className="text-[11px] text-gray-500">
+                Automated multi-scenario discount analysis & profit margin safeguard
+              </p>
+            </div>
+          </div>
+
+          {/* Profitability Status Badge */}
+          <span className={`text-xs font-black uppercase tracking-wider px-3 py-1 rounded-full border ${
+            calculationResult.profitProtection.status === 'Verified'
+              ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+              : calculationResult.profitProtection.status === 'Below Target'
+              ? 'bg-red-100 text-red-900 border-red-300'
+              : 'bg-amber-100 text-amber-900 border-amber-300'
+          }`}>
+            ● {calculationResult.profitProtection.status}
+          </span>
+        </div>
+
+        {/* Profit Recommendation Alert Banner */}
+        <div className={`p-3.5 rounded-xl border text-xs space-y-1.5 ${
+          calculationResult.profitProtection.status === 'Verified'
+            ? 'bg-emerald-100/70 border-emerald-300 text-emerald-950'
+            : calculationResult.profitProtection.status === 'Below Target'
+            ? 'bg-red-100/70 border-red-300 text-red-950'
+            : 'bg-amber-100/70 border-amber-300 text-amber-950'
+        }`}>
+          <div className="flex items-start space-x-2">
+            {calculationResult.profitProtection.status === 'Below Target' ? (
+              <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+            ) : calculationResult.profitProtection.status === 'Verified' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+            ) : (
+              <Info className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            )}
+            <div className="text-xs leading-relaxed">
+              <strong className="block font-bold mb-0.5">
+                {calculationResult.profitProtection.hasCostData ? 'Executive Strategy Recommendation:' : 'Provisional Recommendation (Data Missing):'}
+              </strong>
+              <span>{calculationResult.profitProtection.recommendationReason}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 4-Scenario Selector Pills */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-xs">
+            <span className="font-bold text-gray-700 uppercase tracking-wider text-[11px]">
+              Compare & Select Strategy:
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium">
+              Rule: {calculationResult.profitProtection.minProfitRequirementText}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {calculationResult.profitProtection.scenarios.map((s) => {
+              const isSelected = calculationResult.profitProtection.selectedScenarioId === s.id;
+              const isRecommended = calculationResult.profitProtection.recommendedScenarioId === s.id;
+
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => updateOrderInput({ selectedScenarioId: s.id })}
+                  className={`p-2.5 rounded-xl border text-left transition-all relative ${
+                    isSelected
+                      ? 'bg-white border-purple-600 ring-2 ring-purple-600/20 shadow-xs'
+                      : 'bg-white/80 border-gray-200 hover:bg-white hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-[11px] font-black text-gray-900 truncate">
+                      {s.tagline}
+                    </span>
+                    {isRecommended && (
+                      <span className="text-[8px] uppercase tracking-wider font-extrabold bg-purple-600 text-white px-1.5 py-0.5 rounded">
+                        Best
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="text-[10px] text-gray-500 space-y-0.5">
+                    <div className="flex justify-between">
+                      <span>Disc Benefit:</span>
+                      <strong className="font-mono text-gray-800">{formatINR(s.totalDiscountBenefit)}</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Est. Profit:</span>
+                      <strong className={`font-mono ${
+                        s.companyProfit === null
+                          ? 'text-gray-400'
+                          : s.meetsProfitTarget
+                          ? 'text-emerald-700'
+                          : 'text-red-600'
+                      }`}>
+                        {s.companyProfit !== null ? formatINR(s.companyProfit) : 'Unverified'}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Status Indicator Dot */}
+                  <div className="mt-1.5 pt-1 border-t border-gray-100 flex items-center justify-between text-[9px]">
+                    <span className={`font-bold ${
+                      s.status === 'Verified' ? 'text-emerald-700' : s.status === 'Below Target' ? 'text-red-600' : 'text-amber-700'
+                    }`}>
+                      ● {s.status}
+                    </span>
+                    {s.profitMarginPercent !== null && (
+                      <span className="font-mono text-gray-600 font-semibold">{s.profitMarginPercent}%</span>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Selected Strategy Metrics Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+          {/* Estimated Company Profit */}
+          <div className="p-3 bg-white border border-gray-200 rounded-xl">
+            <span className="text-[10px] uppercase font-bold text-gray-500 block">
+              Estimated Company Profit
+            </span>
+            <span className={`text-lg font-black font-mono mt-1 block ${
+              calculationResult.profitProtection.activeScenario.companyProfit === null
+                ? 'text-gray-400'
+                : calculationResult.profitProtection.activeScenario.meetsProfitTarget
+                ? 'text-emerald-700'
+                : 'text-red-600'
+            }`}>
+              {calculationResult.profitProtection.activeScenario.companyProfit !== null
+                ? formatINR(calculationResult.profitProtection.activeScenario.companyProfit)
+                : 'Pending Cost'}
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium">
+              After discounts & freight
+            </span>
+          </div>
+
+          {/* Minimum Required Profit Target */}
+          <div className="p-3 bg-white border border-gray-200 rounded-xl">
+            <span className="text-[10px] uppercase font-bold text-gray-500 block">
+              Required Target
+            </span>
+            <span className="text-lg font-black font-mono text-gray-900 mt-1 block">
+              {calculationResult.profitProtection.targetProfitAmount !== null
+                ? formatINR(calculationResult.profitProtection.targetProfitAmount)
+                : `${calculationResult.profitProtection.targetProfitMarginPercent}% Margin`}
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium">
+              Configured threshold
+            </span>
+          </div>
+
+          {/* Estimated Profit Margin % */}
+          <div className="p-3 bg-white border border-gray-200 rounded-xl">
+            <span className="text-[10px] uppercase font-bold text-gray-500 block">
+              Estimated Margin
+            </span>
+            <span className={`text-lg font-black font-mono mt-1 block ${
+              calculationResult.profitProtection.activeScenario.profitMarginPercent === null
+                ? 'text-gray-400'
+                : calculationResult.profitProtection.activeScenario.meetsProfitTarget
+                ? 'text-emerald-700'
+                : 'text-red-600'
+            }`}>
+              {calculationResult.profitProtection.activeScenario.profitMarginPercent !== null
+                ? `${calculationResult.profitProtection.activeScenario.profitMarginPercent}%`
+                : 'Pending Cost'}
+            </span>
+            <span className="text-[10px] text-gray-500 font-medium">
+              Of net revenue (ex GST)
+            </span>
+          </div>
+
+          {/* Selected Strategy Status */}
+          <div className="p-3 bg-white border border-gray-200 rounded-xl">
+            <span className="text-[10px] uppercase font-bold text-gray-500 block">
+              Selected Strategy
+            </span>
+            <span className="text-xs font-black text-gray-900 mt-1 block truncate">
+              {calculationResult.profitProtection.activeScenario.name}
+            </span>
+            <span className="text-[10px] font-bold text-purple-700 block mt-0.5">
+              {calculationResult.profitProtection.activeScenario.tagline}
+            </span>
+          </div>
+        </div>
+
+        {/* Detailed Breakdown Rows for Active Scenario */}
+        <div className="p-3.5 bg-white/90 rounded-xl border border-gray-200 text-xs space-y-2">
+          <div className="font-bold text-gray-900 flex items-center justify-between border-b border-gray-100 pb-1.5">
+            <span>Profit & Discount Protection Audit</span>
+            <span className="text-[10px] font-mono font-normal text-gray-500">
+              GST on freight: {calculationResult.profitProtection.gstTransportTreatment === 'recoverable' ? 'Input Tax Credit (Recoverable)' : 'Expense'}
+            </span>
+          </div>
+
+          <div className="space-y-1 text-gray-700 font-medium">
+            <div className="flex justify-between">
+              <span className="text-gray-500">Scooter Discount Applied:</span>
+              <strong className="font-mono text-gray-900">− {formatINR(calculationResult.profitProtection.activeScenario.scooterDiscountApplied)}</strong>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-gray-500">Battery Discount Applied (Tracked Separately):</span>
+              <strong className="font-mono text-gray-900">− {formatINR(calculationResult.profitProtection.activeScenario.batteryDiscountApplied)}</strong>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-gray-500">Company Transport Freight Support:</span>
+              <strong className="font-mono text-blue-700">− {formatINR(calculationResult.profitProtection.activeScenario.companyTransportSupport)}</strong>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-gray-500">Customer Transport Freight Payment:</span>
+              <strong className="font-mono text-gray-900">+ {formatINR(calculationResult.profitProtection.activeScenario.customerTransportPayment)}</strong>
+            </div>
+
+            <div className="flex justify-between pt-1 border-t border-gray-100">
+              <span className="text-gray-500">Remaining Eligible Scooter Allowance:</span>
+              <strong className="font-mono text-gray-900">{formatINR(calculationResult.profitProtection.activeScenario.remainingScooterDiscount)}</strong>
+            </div>
+
+            <div className="flex justify-between pt-1 border-t border-gray-100 font-bold text-gray-900">
+              <span>Total Customer Discount Benefit:</span>
+              <strong className="font-mono text-emerald-700">{formatINR(calculationResult.profitProtection.activeScenario.totalDiscountBenefit)}</strong>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       {/* COMMERCIAL DISCOUNT & FREIGHT SUMMARY TABLE */}

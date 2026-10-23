@@ -47,5 +47,11 @@ export function createDefaultOrderInput(config: AppConfig): OrderInput {
     ],
     allocationMode: 'Automatic',
     notes: '',
+    profitabilityInput: {
+      minProfitType: config.profitProtectionConfig?.defaultMinProfitType ?? 'margin_percent',
+      minProfitAmount: config.profitProtectionConfig?.defaultMinProfitAmount ?? 30000,
+      minProfitMarginPercent: config.profitProtectionConfig?.defaultMinProfitMarginPercent ?? 10,
+    },
+    selectedScenarioId: 'scenario-a',
   };
 }
