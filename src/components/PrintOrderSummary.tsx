@@ -16,6 +16,7 @@ export const PrintOrderSummary: React.FC = () => {
       {/* Action Controls (Hidden when printing) */}
       <div className="no-print flex items-center justify-between pb-3 border-b border-gray-200">
         <button
+          type="button"
           onClick={() => setActiveView('results')}
           className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-red-600 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
         >
@@ -24,6 +25,7 @@ export const PrintOrderSummary: React.FC = () => {
         </button>
 
         <button
+          type="button"
           onClick={handlePrint}
           className="flex items-center space-x-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
         >

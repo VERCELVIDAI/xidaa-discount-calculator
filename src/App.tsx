@@ -7,6 +7,7 @@ import { OrderHistory } from './components/OrderHistory';
 import { PrintOrderSummary } from './components/PrintOrderSummary';
 import { AdminSettingsModal } from './components/AdminSettingsModal';
 import { ToastContainer } from './components/ToastContainer';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useApp } from './context/AppContext';
 
 export const MainContent: React.FC = () => {
@@ -14,12 +15,14 @@ export const MainContent: React.FC = () => {
 
   return (
     <main className="max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6 flex-1 w-full">
-      {activeView === 'home' && <HomeScreen />}
-      {activeView === 'order-form' && <OrderForm />}
-      {activeView === 'results' && <ResultsScreen />}
-      {activeView === 'history' && <OrderHistory />}
-      {activeView === 'print-summary' && <PrintOrderSummary />}
-      {activeView === 'admin-settings' && <AdminSettingsModal />}
+      <ErrorBoundary>
+        {activeView === 'home' && <HomeScreen />}
+        {activeView === 'order-form' && <OrderForm />}
+        {activeView === 'results' && <ResultsScreen />}
+        {activeView === 'history' && <OrderHistory />}
+        {activeView === 'print-summary' && <PrintOrderSummary />}
+        {activeView === 'admin-settings' && <AdminSettingsModal />}
+      </ErrorBoundary>
     </main>
   );
 };

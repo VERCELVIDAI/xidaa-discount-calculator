@@ -59,6 +59,7 @@ export const OrderHistory: React.FC = () => {
       {/* Top Header */}
       <div className="flex items-center justify-between pb-3 border-b border-gray-200">
         <button
+          type="button"
           onClick={() => setActiveView('home')}
           className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-red-600 transition-colors py-1"
         >
@@ -67,7 +68,8 @@ export const OrderHistory: React.FC = () => {
         </button>
 
         <button
-          onClick={startNewOrder}
+          type="button"
+          onClick={() => startNewOrder(false)}
           className="flex items-center space-x-1 text-xs font-bold text-red-600 hover:text-red-700"
         >
           <PlusCircle className="w-3.5 h-3.5" />
@@ -89,6 +91,7 @@ export const OrderHistory: React.FC = () => {
 
         <div className="flex items-center space-x-2">
           <button
+            type="button"
             onClick={exportOrdersToJSON}
             className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-lg flex items-center space-x-1"
             title="Export to JSON"
@@ -175,6 +178,7 @@ export const OrderHistory: React.FC = () => {
                 <div className="pt-2 flex items-center justify-between border-t border-gray-100">
                   <div className="flex items-center space-x-2">
                     <button
+                      type="button"
                       onClick={() => duplicateSavedOrder(order.id)}
                       className="text-xs font-semibold text-gray-600 hover:text-gray-900 flex items-center space-x-1"
                     >
@@ -183,6 +187,7 @@ export const OrderHistory: React.FC = () => {
                     </button>
                     <span>•</span>
                     <button
+                      type="button"
                       onClick={() => handleDeleteWithConfirm(order.id, inp.orderRef)}
                       className="text-xs font-semibold text-gray-400 hover:text-red-600 flex items-center space-x-1"
                     >
@@ -192,6 +197,7 @@ export const OrderHistory: React.FC = () => {
                   </div>
 
                   <button
+                    type="button"
                     onClick={() => loadSavedOrder(order.id)}
                     className="py-1.5 px-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold flex items-center space-x-1 shadow-2xs"
                   >

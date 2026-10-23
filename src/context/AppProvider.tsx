@@ -15,6 +15,8 @@ import { AppContext, type AppView, type ToastMessage } from './AppContext';
 
 const LOCAL_STORAGE_ORDERS_KEY = 'xidaa_discount_calculator_orders_v2';
 const LOCAL_STORAGE_CONFIG_KEY = 'xidaa_discount_calculator_config_v2';
+const LOCAL_STORAGE_DRAFT_ORDER_KEY = 'xidaa_discount_calculator_draft_order_v2';
+const LOCAL_STORAGE_ACTIVE_VIEW_KEY = 'xidaa_discount_calculator_active_view_v2';
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [appConfig, setAppConfig] = useState<AppConfig>(() => {
@@ -59,8 +61,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return [];
   });
 
-  const [orderInput, setOrderInput] = useState<OrderInput>(() => createDefaultOrderInput(appConfig));
-  const [activeView, setActiveView] = useState<AppView>('home');
+  const [orderInput, setOrderInput] = useState<OrderInput>(() => {
+    try {
+      const savedDraft = localStorage.getItem(LOCAL_STORAGE_DRAFT_ORDER_KEY);
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed && Array.isArray(parsed.scooterItems)) {
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to parse draft order', e);
+    }
+    return createDefaultOrderInput(appConfig);
+  });
+
+  const [activeView, setActiveView] = useState<AppView>(() => {
+    try {
+      const savedView = localStorage.getItem(LOCAL_STORAGE_ACTIVE_VIEW_KEY) as AppView;
+      if (
+        savedView &&
+        ['home', 'order-form', 'results', 'history', 'print-summary', 'admin-settings'].includes(savedView)
+      ) {
+        return savedView;
+      }
+    } catch (e) {
+      console.warn('Failed to parse active view', e);
+    }
+    return 'home';
+  });
+
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [calculationError, setCalculationError] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   const addToast = (type: 'success' | 'info' | 'warning' | 'error', message: string) => {
@@ -73,6 +105,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const clearCalculationError = () => {
+    setCalculationError(null);
   };
 
   // Persist config
@@ -93,6 +129,24 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [savedOrders]);
 
+  // Persist draft order
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_DRAFT_ORDER_KEY, JSON.stringify(orderInput));
+    } catch (e) {
+      console.warn('Failed to save draft order', e);
+    }
+  }, [orderInput]);
+
+  // Persist active view
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_ACTIVE_VIEW_KEY, activeView);
+    } catch (e) {
+      console.warn('Failed to save active view', e);
+    }
+  }, [activeView]);
+
   // Live calculation result
   const calculationResult = calculateOrderFinancials(orderInput, appConfig);
 
@@ -100,17 +154,76 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOrderInput((prev) => ({ ...prev, ...patch }));
   };
 
-  const startNewOrder = () => {
-    setOrderInput(createDefaultOrderInput(appConfig));
+  const startNewOrder = (skipConfirm = false) => {
+    const hasData =
+      (orderInput.customerName && orderInput.customerName.trim() !== '') ||
+      orderInput.scooterItems.some((s) => (Number(s.quantity) || 0) > 0) ||
+      (orderInput.batteryIncluded && orderInput.batteryItems.length > 0);
+
+    if (!skipConfirm && hasData && (activeView === 'results' || activeView === 'order-form')) {
+      const confirmed = window.confirm(
+        'Start a new order? This will reset the current order inputs.'
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+
+    const fresh = createDefaultOrderInput(appConfig);
+    setOrderInput(fresh);
+    setCalculationError(null);
     setActiveView('order-form');
+    addToast('info', 'Started new order calculation');
   };
 
   const editCurrentOrder = () => {
+    setCalculationError(null);
     setActiveView('order-form');
   };
 
   const calculateAndShowResults = () => {
-    setActiveView('results');
+    try {
+      setCalculationError(null);
+      setIsCalculating(true);
+
+      // Validation: At least one scooter or battery item with quantity > 0
+      const totalScooterQty = (orderInput.scooterItems || []).reduce(
+        (acc, item) => acc + Math.max(0, Math.floor(Number(item.quantity) || 0)),
+        0
+      );
+      const totalBatteryQty = orderInput.batteryIncluded
+        ? (orderInput.batteryItems || []).reduce(
+            (acc, b) => acc + Math.max(0, Math.floor(Number(b.quantity) || 0)),
+            0
+          )
+        : 0;
+
+      if (totalScooterQty === 0 && totalBatteryQty === 0) {
+        setIsCalculating(false);
+        addToast('warning', 'Please enter at least 1 scooter or battery quantity before calculating.');
+        return;
+      }
+
+      // Safe test calculation
+      const res = calculateOrderFinancials(orderInput, appConfig);
+      if (!res) {
+        throw new Error('Calculation returned empty result.');
+      }
+
+      // Smooth loading transition
+      setTimeout(() => {
+        setIsCalculating(false);
+        setActiveView('results');
+        addToast('success', 'Order calculated successfully');
+      }, 150);
+    } catch (err: any) {
+      console.error('Calculation error caught:', err);
+      setIsCalculating(false);
+      const message = err?.message || 'An unexpected error occurred during calculation.';
+      setCalculationError(message);
+      addToast('error', `Calculation failed: ${message}`);
+      // Do NOT navigate to home. Stay on order-form to preserve entered data.
+    }
   };
 
   // Scooter Item Actions
@@ -394,6 +507,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         savedOrders,
         activeView,
         toasts,
+        isCalculating,
+        calculationError,
+        clearCalculationError,
         setActiveView,
         updateOrderInput,
         startNewOrder,

@@ -24,7 +24,7 @@ export function calculateOrderFinancials(
   let hasMissingScooterPrice = false;
   let grossScooterPaise = 0;
 
-  input.scooterItems.forEach((item) => {
+  (input.scooterItems || []).forEach((item) => {
     const qty = Math.max(0, Math.floor(Number(item.quantity) || 0));
     if (qty > 0) {
       totalScooters += qty;

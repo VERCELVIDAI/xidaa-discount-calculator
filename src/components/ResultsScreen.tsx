@@ -46,6 +46,7 @@ export const ResultsScreen: React.FC = () => {
       {/* Header bar with Back / Edit */}
       <div className="flex items-center justify-between pb-3 border-b border-gray-200">
         <button
+          type="button"
           onClick={editCurrentOrder}
           className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-red-600 transition-colors py-1"
         >
@@ -96,6 +97,7 @@ export const ResultsScreen: React.FC = () => {
               </div>
             </div>
             <button
+              type="button"
               onClick={editCurrentOrder}
               className="text-xs font-bold text-amber-900 underline hover:text-black flex items-center space-x-1"
             >
@@ -322,6 +324,7 @@ export const ResultsScreen: React.FC = () => {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
         {/* Edit Order */}
         <button
+          type="button"
           onClick={editCurrentOrder}
           className="py-3 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors"
         >
@@ -331,6 +334,7 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Save Calculation */}
         <button
+          type="button"
           onClick={handleSaveOrder}
           className={`py-3 px-3 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all ${
             justSaved
@@ -353,7 +357,8 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Start New Order */}
         <button
-          onClick={startNewOrder}
+          type="button"
+          onClick={() => startNewOrder(false)}
           className="py-3 px-3 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors"
         >
           <RotateCcw className="w-3.5 h-3.5" />
@@ -362,6 +367,7 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Print / Download Summary */}
         <button
+          type="button"
           onClick={() => setActiveView('print-summary')}
           className="py-3 px-3 bg-gray-900 hover:bg-black text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors shadow-xs"
         >

@@ -43,7 +43,8 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-1.5 sm:space-x-2">
             {activeView !== 'order-form' && (
               <button
-                onClick={startNewOrder}
+                type="button"
+                onClick={() => startNewOrder(false)}
                 className="flex items-center space-x-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold shadow-xs transition-colors"
               >
                 <PlusCircle className="w-3.5 h-3.5" />
@@ -52,6 +53,7 @@ export const Header: React.FC = () => {
             )}
 
             <button
+              type="button"
               onClick={() => setActiveView('history')}
               className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 activeView === 'history'
@@ -69,6 +71,7 @@ export const Header: React.FC = () => {
             </button>
 
             <button
+              type="button"
               onClick={() => setActiveView('admin-settings')}
               title="Admin Settings"
               className={`p-2 rounded-lg text-xs transition-colors ${

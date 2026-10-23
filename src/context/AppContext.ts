@@ -29,11 +29,14 @@ export interface AppContextType {
   savedOrders: SavedOrder[];
   activeView: AppView;
   toasts: ToastMessage[];
+  isCalculating: boolean;
+  calculationError: string | null;
   setActiveView: (view: AppView) => void;
   updateOrderInput: (patch: Partial<OrderInput>) => void;
-  startNewOrder: () => void;
+  startNewOrder: (skipConfirm?: boolean) => void;
   editCurrentOrder: () => void;
   calculateAndShowResults: () => void;
+  clearCalculationError: () => void;
   // Scooter Item Actions
   addScooterItem: () => void;
   updateScooterItem: (id: string, patch: Partial<ScooterOrderItem>) => void;

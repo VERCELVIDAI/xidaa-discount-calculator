@@ -46,7 +46,8 @@ export const HomeScreen: React.FC = () => {
         {/* PROMINENT MAIN BUTTON: Create New Order */}
         <div className="pt-2">
           <button
-            onClick={startNewOrder}
+            type="button"
+            onClick={() => startNewOrder(true)}
             className="w-full py-4 px-6 bg-red-600 hover:bg-red-700 active:scale-[0.99] text-white font-extrabold text-base rounded-xl shadow-md shadow-red-600/25 flex items-center justify-center space-x-2.5 transition-all"
           >
             <PlusCircle className="w-5 h-5" />
@@ -91,6 +92,7 @@ export const HomeScreen: React.FC = () => {
               <h2 className="text-sm font-bold text-gray-900">Recent Calculations</h2>
             </div>
             <button
+              type="button"
               onClick={() => setActiveView('history')}
               className="text-xs font-semibold text-red-600 hover:text-red-700 flex items-center space-x-1"
             >
@@ -136,6 +138,7 @@ export const HomeScreen: React.FC = () => {
       {/* Quick Settings Link */}
       <div className="flex items-center justify-center space-x-4 text-xs text-gray-500 pt-2">
         <button
+          type="button"
           onClick={() => setActiveView('admin-settings')}
           className="hover:text-gray-800 flex items-center space-x-1 transition-colors"
         >
@@ -144,6 +147,7 @@ export const HomeScreen: React.FC = () => {
         </button>
         <span>•</span>
         <button
+          type="button"
           onClick={() => setActiveView('history')}
           className="hover:text-gray-800 flex items-center space-x-1 transition-colors"
         >

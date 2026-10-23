@@ -12,7 +12,8 @@ import {
   AlertCircle, 
   RotateCw, 
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { generateOrderRef } from '../utils/orderDefaults';
@@ -34,7 +35,10 @@ export const OrderForm: React.FC = () => {
     removeBatteryItem,
     setSingleTruck,
     autoOptimizeFleet,
-    calculateAndShowResults 
+    calculateAndShowResults,
+    isCalculating,
+    calculationError,
+    clearCalculationError
   } = useApp();
 
   // Collapsible state for Transport & Advanced details
@@ -51,6 +55,12 @@ export const OrderForm: React.FC = () => {
     updateOrderInput({ orderRef: generateOrderRef() });
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    calculateAndShowResults();
+  };
+
   const selectedPrimaryTruck = orderInput.truckAllocations[0] || {
     truckId: 'truck-12',
     truckName: '12-Scooter Truck',
@@ -60,8 +70,28 @@ export const OrderForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-5 pb-28 sm:pb-12">
+    <form onSubmit={handleSubmit} noValidate className="max-w-2xl mx-auto space-y-5 pb-28 sm:pb-12">
       
+      {/* Calculation Error Alert if any */}
+      {calculationError && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start justify-between text-xs text-red-800 shadow-xs">
+          <div className="flex items-start space-x-2.5">
+            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <strong className="block font-bold">Calculation Check:</strong>
+              <span>{calculationError}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={clearCalculationError}
+            className="text-red-500 hover:text-red-800 font-bold ml-2 text-base leading-none"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Top Card: Order & Customer Information */}
       <div className="bg-white rounded-2xl p-5 sm:p-6 border border-gray-200/80 shadow-xs space-y-4">
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -712,16 +742,27 @@ export const OrderForm: React.FC = () => {
           </div>
 
           <button
-            type="button"
-            onClick={calculateAndShowResults}
-            className="py-3 px-6 sm:px-8 bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-extrabold text-sm rounded-xl shadow-md shadow-red-600/30 flex items-center space-x-2 transition-all"
+            type="submit"
+            disabled={isCalculating}
+            className={`py-3 px-6 sm:px-8 bg-red-600 hover:bg-red-700 active:scale-[0.98] text-white font-extrabold text-sm rounded-xl shadow-md shadow-red-600/30 flex items-center space-x-2 transition-all ${
+              isCalculating ? 'opacity-70 cursor-not-allowed' : ''
+            }`}
           >
-            <span>Calculate Order</span>
-            <ArrowRight className="w-4 h-4" />
+            {isCalculating ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Calculating...</span>
+              </>
+            ) : (
+              <>
+                <span>Calculate Order</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </button>
         </div>
       </div>
 
-    </div>
+    </form>
   );
 };
