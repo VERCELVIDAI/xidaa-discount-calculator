@@ -22,6 +22,10 @@ export type ProfitScenarioId = 'scenario-a' | 'scenario-b' | 'scenario-c' | 'sce
 
 export type ProfitabilityStatus = 'Verified' | 'Below Target' | 'Not Verified';
 
+export type EligibilityBadge = 'ELIGIBLE' | 'NOT ELIGIBLE';
+
+export type ProfitBadge = 'PROFIT NOT VERIFIED' | 'BELOW PROFIT TARGET' | 'VERIFIED';
+
 export interface ProfitabilityInput {
   scooterUnitCost?: number; // Company cost per scooter
   totalScooterCost?: number; // Total scooter manufacturing/procurement cost override
@@ -49,6 +53,12 @@ export interface ProfitScenario {
   companyProfit: number | null;
   profitMarginPercent: number | null;
   isValid: boolean;
+  isEligible: boolean;
+  ineligibilityReason?: string;
+  eligibilityBadge: EligibilityBadge;
+  profitBadge: ProfitBadge;
+  isRecommended: boolean;
+  recommendationReason?: string;
   meetsProfitTarget: boolean | null;
   profitShortfall?: number;
   status: ProfitabilityStatus;
@@ -60,10 +70,13 @@ export interface ProfitProtectionResult {
   hasCostData: boolean;
   missingDataReasons: string[];
   scenarios: ProfitScenario[];
+  eligibleScenarios: ProfitScenario[];
+  ineligibleScenarios: ProfitScenario[];
   recommendedScenarioId: ProfitScenarioId;
+  recommendedScenario: ProfitScenario;
   recommendationReason: string;
-  bestOptionTitle?: string; // e.g. 'Best Option for Xidaa: Scooter Discount' | 'Best Option for Xidaa: 50% Transport Support'
-  profitDifference?: number | null; // Estimated company profit difference between Option A and Option B
+  bestOptionTitle?: string; // e.g. 'Option A: Scooter Price Discount'
+  profitDifference?: number | null; // Estimated company profit difference
   selectedScenarioId: ProfitScenarioId;
   activeScenario: ProfitScenario;
   minProfitRequirementText: string;

@@ -2,8 +2,10 @@ import type {
   AppConfig, 
   CalculationResult, 
   DiscountAllocationOption,
+  EligibilityBadge,
   OrderInput, 
   ProfitabilityStatus,
+  ProfitBadge,
   ProfitProtectionResult, 
   ProfitScenario, 
   ProfitScenarioId, 
@@ -180,22 +182,22 @@ export function calculateOrderFinancials(
   // The 50% company support or discount must apply to ONE component only, never both Scooter/Battery and Transport simultaneously.
   let allocationOption: DiscountAllocationOption = 'Scooty/Battery Discount';
 
-  if (input.allocationMode === 'Transport Support' || input.allocationMode === 'Share Transport') {
-    allocationOption = 'Transport Support';
+  if (input.selectedScenarioId) {
+    if (input.selectedScenarioId === 'scenario-b') {
+      allocationOption = isSharingEligible ? 'Transport Support' : 'Scooty/Battery Discount';
+    } else if (input.selectedScenarioId === 'scenario-c' || input.selectedScenarioId === 'scenario-d') {
+      allocationOption = 'No Discount / Support';
+    } else {
+      allocationOption = 'Scooty/Battery Discount';
+    }
+  } else if (input.allocationMode === 'Transport Support' || input.allocationMode === 'Share Transport') {
+    allocationOption = isSharingEligible ? 'Transport Support' : 'Scooty/Battery Discount';
   } else if (input.allocationMode === 'No Discount / Support') {
     allocationOption = 'No Discount / Support';
   } else if (input.allocationMode === 'Scooty/Battery Discount' || input.allocationMode === 'Full Scooter Discount') {
     allocationOption = 'Scooty/Battery Discount';
   } else if (input.allocationMode === 'Automatic') {
-    if (input.selectedScenarioId === 'scenario-b') {
-      allocationOption = 'Transport Support';
-    } else if (input.selectedScenarioId === 'scenario-c' || input.selectedScenarioId === 'scenario-d') {
-      allocationOption = 'No Discount / Support';
-    } else if (input.selectedScenarioId === 'scenario-a') {
-      allocationOption = 'Scooty/Battery Discount';
-    } else {
-      allocationOption = isSharingEligible ? 'Transport Support' : 'Scooty/Battery Discount';
-    }
+    allocationOption = isSharingEligible ? 'Transport Support' : 'Scooty/Battery Discount';
   }
 
   const supportPercent = config.transportSharing?.companySharePercent ?? 50;
@@ -500,6 +502,8 @@ export function evaluateProfitProtectionEngine(
     invalidReason?: string
   ): ProfitScenario => {
     const totalBenefit = scooterDiscount + batteryDiscount + compTransportSupport;
+    const isEligible = isValid;
+    const eligibilityBadge: EligibilityBadge = isEligible ? 'ELIGIBLE' : 'NOT ELIGIBLE';
 
     if (!hasCostData || grossScooterRevenue === null || totalScooterCost === null || (context.totalBatteries > 0 && (grossBatteryRevenue === null || totalBatteryCost === null))) {
       return {
@@ -516,6 +520,11 @@ export function evaluateProfitProtectionEngine(
         companyProfit: null,
         profitMarginPercent: null,
         isValid,
+        isEligible,
+        ineligibilityReason: invalidReason,
+        eligibilityBadge,
+        profitBadge: 'PROFIT NOT VERIFIED',
+        isRecommended: false,
         meetsProfitTarget: null,
         status: 'Not Verified',
         statusMessage: invalidReason || 'Profitability cannot be verified — enter approved costs to compare both options.',
@@ -580,6 +589,8 @@ export function evaluateProfitProtectionEngine(
       statusMsg = `Falls ${formatINR(shortfall)} short of ${minProfitRequirementText} (Profit: ${formatINR(companyProfit)}, Margin: ${profitMarginPercent}%).`;
     }
 
+    const profitBadge: ProfitBadge = meetsTarget ? 'VERIFIED' : 'BELOW PROFIT TARGET';
+
     return {
       id,
       name,
@@ -594,6 +605,11 @@ export function evaluateProfitProtectionEngine(
       companyProfit,
       profitMarginPercent,
       isValid,
+      isEligible,
+      ineligibilityReason: invalidReason,
+      eligibilityBadge,
+      profitBadge,
+      isRecommended: false,
       meetsProfitTarget: meetsTarget,
       profitShortfall: shortfall > 0 ? shortfall : undefined,
       status: scenarioStatus,
@@ -606,8 +622,7 @@ export function evaluateProfitProtectionEngine(
   const T = context.totalTransportCost;
   const H = context.halfTransportCost;
 
-  // Scenario A: Scooty/Battery Discount
-  // Apply approved discount only to scooter/battery invoice amount; customer pays 100% transport charges.
+  // OPTION A — Scooter Price Discount
   const scenarioA = calculateScenario(
     'scenario-a',
     'Scenario A: Scooty/Battery Discount',
@@ -620,8 +635,7 @@ export function evaluateProfitProtectionEngine(
     true
   );
 
-  // Scenario B: Transport Support
-  // Company absorbs configured support % (50%) of transport. Scooter/battery discount is strictly ₹0!
+  // OPTION B — 50% Transport Support
   const scenarioB = calculateScenario(
     'scenario-b',
     'Scenario B: Transport Support',
@@ -629,14 +643,15 @@ export function evaluateProfitProtectionEngine(
     'Apply 50% company support to final transport cost. Scooter/battery invoice discount is strictly ₹0.',
     0,
     0,
-    H,
-    T - H,
+    context.isSharingEligible ? H : 0,
+    context.isSharingEligible ? T - H : T,
     context.isSharingEligible,
-    !context.isSharingEligible ? `Transport support requires ${formatINR(H)}, which exceeds the ${formatINR(S)} scooter discount allowance.` : undefined
+    !context.isSharingEligible
+      ? `Not eligible: ${formatINR(H)} transport support is required, which exceeds the ${formatINR(S)} scooter discount allowance.`
+      : undefined
   );
 
-  // Scenario C: No Discount / Support
-  // Zero discount, zero company transport support
+  // OPTION C — No Discount / Full Transport
   const scenarioC = calculateScenario(
     'scenario-c',
     'Scenario C: No Discount / Support',
@@ -649,13 +664,18 @@ export function evaluateProfitProtectionEngine(
     true
   );
 
-  // Scenario D: Alias of Scenario C for backward compatibility
-  const scenarioD = {
-    ...scenarioC,
-    id: 'scenario-d' as ProfitScenarioId,
-    name: 'Scenario D: No Discount',
-    tagline: 'Zero Discount Baseline',
-  };
+  // OPTION D — Baseline No Discount
+  const scenarioD = calculateScenario(
+    'scenario-d',
+    'Scenario D: No Discount',
+    'Zero Discount Baseline',
+    'No scooter/battery discount and no company transport support. Customer pays full vehicle invoice and full transport.',
+    0,
+    0,
+    0,
+    T,
+    true
+  );
 
   const scenarios = [scenarioA, scenarioB, scenarioC, scenarioD];
 
@@ -717,6 +737,18 @@ export function evaluateProfitProtectionEngine(
     }
   }
 
+  // Update scenarios with isRecommended and recommendationReason
+  scenarios.forEach(s => {
+    s.isRecommended = (s.id === recommendedScenarioId);
+    if (s.isRecommended) {
+      s.recommendationReason = recommendationReason;
+    }
+  });
+
+  const eligibleScenarios = scenarios.filter(s => s.isEligible);
+  const ineligibleScenarios = scenarios.filter(s => !s.isEligible);
+  const recommendedScenario = scenarios.find(s => s.id === recommendedScenarioId) || scenarioA;
+
   // Active / Selected Scenario
   const selectedScenarioId = input.selectedScenarioId || recommendedScenarioId;
   const activeScenario = scenarios.find(s => s.id === selectedScenarioId) || scenarioA;
@@ -741,7 +773,10 @@ export function evaluateProfitProtectionEngine(
     hasCostData,
     missingDataReasons,
     scenarios,
+    eligibleScenarios,
+    ineligibleScenarios,
     recommendedScenarioId,
+    recommendedScenario,
     recommendationReason,
     bestOptionTitle,
     profitDifference,

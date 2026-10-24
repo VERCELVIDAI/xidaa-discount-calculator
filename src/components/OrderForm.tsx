@@ -1075,7 +1075,7 @@ export const OrderForm: React.FC = () => {
               </>
             ) : (
               <>
-                <span>Calculate Order</span>
+                <span>View Discount Options</span>
                 <ArrowRight className="w-4 h-4 text-white" />
               </>
             )}

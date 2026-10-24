@@ -282,18 +282,22 @@ export const PrintOrderSummary: React.FC = () => {
               </tr>
               <tr className="bg-gray-900 text-white font-black text-sm">
                 <td className="py-3 px-3 uppercase tracking-wider">Final Customer Payable Amount</td>
-                <td className="py-3 px-3 text-right font-mono text-base text-red-400">
+                <td className="py-3 px-3 text-right font-mono text-base text-pink-300">
                   {calculationResult.finalPayableAmount !== null
                     ? formatINR(calculationResult.finalPayableAmount)
-                    : 'Prices Pending'}
+                    : 'Pending Approved Pricing'}
                 </td>
               </tr>
             </tbody>
           </table>
 
-          {calculationResult.finalPayableAmount !== null && (
+          {calculationResult.finalPayableAmount !== null ? (
             <div className="text-right text-xs text-gray-600 font-medium pt-1">
               Amount in Words: <strong className="text-gray-900">{formatINRWords(calculationResult.finalPayableAmount)}</strong>
+            </div>
+          ) : (
+            <div className="text-right text-[11px] text-gray-500 font-medium pt-1">
+              Final scooter invoice amount requires approved pricing data. Dealer transport payable and vehicle discount allowance are finalized above.
             </div>
           )}
         </div>

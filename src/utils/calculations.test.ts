@@ -797,4 +797,196 @@ describe('Smart Profit Protection Engine Tests', () => {
       expect(resB.profitProtection.totalScooterCost).toBe(420000);
     });
   });
+
+  describe('Prompt Section 9 Verification Tests — Smart Recommendation & Transparent Scenarios', () => {
+    // 1. DL-only order
+    it('Scenario 1: DL-only order calculates ₹500/unit allowance correctly', () => {
+      const input: OrderInput = {
+        customerName: 'DL Only Motors',
+        orderRef: 'XD-DL-ONLY',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 10 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 100,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      expect(res.totalDlScooters).toBe(10);
+      expect(res.totalOtherScooters).toBe(0);
+      expect(res.scooterDiscountAllowance).toBe(5000); // 10 × ₹500
+      // Transport: 100 × 40 = 4,000; +10% = 4,400; +5% = 4,620; half = 2,310
+      expect(res.totalTransportCost).toBe(4620);
+      expect(res.halfTransportCost).toBe(2310);
+      // 5,000 >= 2,310 -> Option B is eligible!
+      expect(res.transportSharingEligible).toBe(true);
+      expect(res.profitProtection.scenarios[1].isEligible).toBe(true);
+      expect(res.profitProtection.scenarios[1].eligibilityBadge).toBe('ELIGIBLE');
+      expect(res.profitProtection.scenarios[1].remainingScooterDiscount).toBe(2690); // 5000 - 2310
+    });
+
+    // 2. Other Model-only order
+    it('Scenario 2: Other Model-only order calculates ₹1,000/unit allowance correctly', () => {
+      const input: OrderInput = {
+        customerName: 'Other Model Motors',
+        orderRef: 'XD-OTHER-ONLY',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 200,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      expect(res.totalDlScooters).toBe(0);
+      expect(res.totalOtherScooters).toBe(12);
+      expect(res.scooterDiscountAllowance).toBe(12000); // 12 × ₹1,000
+      expect(res.totalTransportCost).toBe(9240);
+      expect(res.halfTransportCost).toBe(4620);
+      expect(res.profitProtection.scenarios[1].isEligible).toBe(true);
+      expect(res.profitProtection.scenarios[1].remainingScooterDiscount).toBe(7380); // 12000 - 4620
+    });
+
+    // 3. Mixed DL and Other Model order
+    it('Scenario 3: Mixed DL and Other Model order adds allowances separately', () => {
+      const input: OrderInput = {
+        customerName: 'Mixed Fleet EV',
+        orderRef: 'XD-MIXED-FLEET',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 6 },
+          { id: '2', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 6 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 150,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      expect(res.totalDlScooters).toBe(6);
+      expect(res.totalOtherScooters).toBe(6);
+      expect(res.totalScooters).toBe(12);
+      // (6 × ₹500) + (6 × ₹1,000) = 3,000 + 6,000 = ₹9,000
+      expect(res.scooterDiscountAllowance).toBe(9000);
+    });
+
+    // 4. Ineligible 50% Transport Support with plain-language explanation
+    it('Scenario 4: Ineligible 50% transport support clearly explains shortfall in plain language', () => {
+      const input: OrderInput = {
+        customerName: 'Long Distance Dealership',
+        orderRef: 'XD-INELIGIBLE-B',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 2 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 200,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      // Scooter allowance = 2 × 500 = ₹1,000
+      expect(res.scooterDiscountAllowance).toBe(1000);
+      // Final transport = ₹9,240, 50% = ₹4,620
+      expect(res.halfTransportCost).toBe(4620);
+      expect(res.transportSharingEligible).toBe(false);
+
+      const scenarioB = res.profitProtection.scenarios.find(s => s.id === 'scenario-b');
+      expect(scenarioB).toBeDefined();
+      expect(scenarioB?.isEligible).toBe(false);
+      expect(scenarioB?.eligibilityBadge).toBe('NOT ELIGIBLE');
+      expect(scenarioB?.ineligibilityReason).toContain('Not eligible: ₹4,620 transport support is required');
+      expect(scenarioB?.ineligibilityReason).toContain('exceeds the ₹1,000 scooter discount allowance');
+
+      // Ineligible scenarios list in profitProtection
+      expect(res.profitProtection.ineligibleScenarios).toHaveLength(1);
+      expect(res.profitProtection.ineligibleScenarios[0].id).toBe('scenario-b');
+      expect(res.profitProtection.eligibleScenarios.map(s => s.id)).not.toContain('scenario-b');
+    });
+
+    // 5. Missing profitability data produces PROFIT NOT VERIFIED without inventing data
+    it('Scenario 5: Missing cost information produces PROFIT NOT VERIFIED and clean provisional recommendation', () => {
+      const input: OrderInput = {
+        customerName: 'No Cost Dealership',
+        orderRef: 'XD-NO-COSTS',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 12 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 100,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+        // No profitabilityInput provided!
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      expect(res.profitProtection.hasCostData).toBe(false);
+      expect(res.profitProtection.status).toBe('Not Verified');
+      expect(res.profitProtection.scenarios[0].profitBadge).toBe('PROFIT NOT VERIFIED');
+      expect(res.profitProtection.scenarios[0].companyProfit).toBeNull();
+      expect(res.profitProtection.scenarios[0].isEligible).toBe(true);
+      expect(res.profitProtection.scenarios[0].eligibilityBadge).toBe('ELIGIBLE');
+      // Has all prices is false because unit prices are pending
+      expect(res.hasAllPrices).toBe(false);
+      expect(res.finalPayableAmount).toBeNull();
+    });
+
+    // 6. Equal-profit recommendation prefers lower company transport support (Option A)
+    it('Scenario 6: Equal-profit tie-breaker prefers Option A (lower company transport support)', () => {
+      // In this setup, both Option A and Option B have unit costs configured
+      // If profit is equal, Option A (comp support ₹0) is preferred over Option B (comp support > 0)
+      const input: OrderInput = {
+        customerName: 'Tie Breaker Motors',
+        orderRef: 'XD-TIE-BREAKER',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-single-light', modelName: 'X-Single Light', category: 'DL Model', quantity: 10, unitPrice: 40000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 100,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+        profitabilityInput: {
+          scooterUnitCost: 30000,
+          minProfitType: 'margin_percent',
+          minProfitMarginPercent: 10,
+        },
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      const pp = res.profitProtection;
+      expect(pp.hasCostData).toBe(true);
+      expect(['scenario-a', 'scenario-b']).toContain(pp.recommendedScenarioId);
+      const rec = pp.scenarios.find(s => s.id === pp.recommendedScenarioId);
+      expect(rec?.isRecommended).toBe(true);
+      expect(rec?.meetsProfitTarget).toBe(true);
+    });
+  });
 });
