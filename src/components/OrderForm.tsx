@@ -669,6 +669,25 @@ export const OrderForm: React.FC = () => {
               />
             </div>
 
+            {/* Truck Capacity Notice for Larger Orders */}
+            {calculationResult.totalScooters > calculationResult.totalCapacity && (
+              <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-center justify-between gap-2">
+                <div className="flex items-center space-x-2">
+                  <AlertCircle className="w-4 h-4 text-amber-700 flex-shrink-0" />
+                  <span>
+                    Order contains <strong>{calculationResult.totalScooters} scooters</strong>, but current truck capacity is <strong>{calculationResult.totalCapacity}</strong>. Multiple trucks needed.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={autoOptimizeFleet}
+                  className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold text-[11px] rounded-lg whitespace-nowrap cursor-pointer shadow-2xs"
+                >
+                  Optimize Fleet
+                </button>
+              </div>
+            )}
+
             {/* Truck Selector Cards */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">

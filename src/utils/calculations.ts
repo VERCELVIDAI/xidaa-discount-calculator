@@ -28,6 +28,7 @@ export function calculateOrderFinancials(
   let totalScooters = 0;
   let hasMissingScooterPrice = false;
   let grossScooterPaise = 0;
+  const missingPriceItems: string[] = [];
 
   (input.scooterItems || []).forEach((item) => {
     const qty = Math.max(0, Math.floor(Number(item.quantity) || 0));
@@ -47,6 +48,7 @@ export function calculateOrderFinancials(
         grossScooterPaise += toPaise(qty * effectivePrice);
       } else {
         hasMissingScooterPrice = true;
+        missingPriceItems.push(item.modelName || 'Scooter');
       }
     }
   });
@@ -90,6 +92,7 @@ export function calculateOrderFinancials(
           grossBatteryPaise += toPaise(bQty * effectiveBattPrice);
         } else {
           hasMissingBatteryPrice = true;
+          missingPriceItems.push(b.variant || 'Battery');
         }
       }
     });
@@ -214,7 +217,7 @@ export function calculateOrderFinancials(
     companyTransportSupport = 0;
     customerTransportPayment = totalTransportCost;
     transportSharingApplied = false;
-    remainingScooterDiscount = scooterDiscountAllowance;
+    remainingScooterDiscount = 0; // Fully applied to vehicle invoice
     totalCustomerDiscountBenefit = scooterDiscountAllowance + batteryDiscountAllowance;
     eligibilityMessage = `Scooty/Battery Discount active: ${formatINR(totalCustomerDiscountBenefit)} applied to invoice. Transport charges remain at 100% customer payable (${formatINR(totalTransportCost)}). Company transport support is ₹0.`;
   } else if (allocationOption === 'Transport Support') {
@@ -222,12 +225,15 @@ export function calculateOrderFinancials(
     // Scooter/Battery Discount = ₹0 for this allocation!
     actualScooterDiscountApplied = 0;
     actualBatteryDiscountApplied = 0;
-    companyTransportSupport = halfTransportCost;
+    companyTransportSupport = isSharingEligible ? halfTransportCost : 0;
     customerTransportPayment = Math.round((totalTransportCost - companyTransportSupport) * 100) / 100;
     transportSharingApplied = companyTransportSupport > 0;
-    remainingScooterDiscount = 0;
+    // Unused scooter discount allowance (e.g. Test B: ₹12,000 - ₹10,000 = ₹2,000)
+    remainingScooterDiscount = Math.max(0, scooterDiscountAllowance - companyTransportSupport);
     totalCustomerDiscountBenefit = companyTransportSupport;
-    eligibilityMessage = `Transport Support active: Company absorbs ${supportPercent}% transport freight (${formatINR(companyTransportSupport)}). Scooter and battery invoice discounts are ₹0. Customer pays remaining transport (${formatINR(customerTransportPayment)}).`;
+    eligibilityMessage = isSharingEligible
+      ? `Transport Support active: Company absorbs ${supportPercent}% transport freight (${formatINR(companyTransportSupport)}). Scooter and battery invoice discounts are ₹0. Customer pays remaining transport (${formatINR(customerTransportPayment)}). Remaining unused scooter allowance: ${formatINR(remainingScooterDiscount)}.`
+      : `Transport Support ineligible: Required 50% support (${formatINR(halfTransportCost)}) exceeds scooter discount allowance (${formatINR(scooterDiscountAllowance)}).`;
   } else {
     // Option C: No Discount / Support
     // No scooter/battery discount, no company transport support.
@@ -236,7 +242,7 @@ export function calculateOrderFinancials(
     companyTransportSupport = 0;
     customerTransportPayment = totalTransportCost;
     transportSharingApplied = false;
-    remainingScooterDiscount = 0;
+    remainingScooterDiscount = scooterDiscountAllowance;
     totalCustomerDiscountBenefit = 0;
     eligibilityMessage = `No Discount / Support active: Customer pays full vehicle invoice and full 100% transport cost (${formatINR(totalTransportCost)}).`;
   }
@@ -294,7 +300,9 @@ export function calculateOrderFinancials(
   if (!hasItemsToPrice) {
     missingPriceReason = 'Add at least one scooter or battery item to calculate order.';
   } else if (!hasAllPrices) {
-    missingPriceReason = 'Enter prices to calculate final payable amount.';
+    missingPriceReason = missingPriceItems.length > 0
+      ? `Enter approved unit prices for: ${missingPriceItems.join(', ')} to calculate final customer payable.`
+      : 'Enter unit prices to calculate final customer payable.';
   } else {
     // All prices provided!
     grossScooterAmount = toRupees(grossScooterPaise);
@@ -372,6 +380,7 @@ export function calculateOrderFinancials(
     totalCustomerDiscountBenefit,
     hasAllPrices,
     missingPriceReason,
+    missingPriceItems,
     grossScooterAmount,
     grossBatteryAmount,
     totalProductInvoiceAmount,
@@ -503,13 +512,13 @@ export function evaluateProfitProtectionEngine(
         companyTransportSupport: compTransportSupport,
         customerTransportPayment: custTransportPay,
         totalDiscountBenefit: totalBenefit,
-        remainingScooterDiscount: scooterDiscount,
+        remainingScooterDiscount: id === 'scenario-b' ? Math.max(0, context.scooterDiscountAllowance - compTransportSupport) : (id === 'scenario-a' ? 0 : context.scooterDiscountAllowance),
         companyProfit: null,
         profitMarginPercent: null,
         isValid,
         meetsProfitTarget: null,
         status: 'Not Verified',
-        statusMessage: invalidReason || 'Profitability not verified (missing cost or selling price data).',
+        statusMessage: invalidReason || 'Profitability cannot be verified — enter approved costs to compare both options.',
       };
     }
 
@@ -581,7 +590,7 @@ export function evaluateProfitProtectionEngine(
       companyTransportSupport: compTransportSupport,
       customerTransportPayment: custTransportPay,
       totalDiscountBenefit: totalBenefit,
-      remainingScooterDiscount: scooterDiscount,
+      remainingScooterDiscount: id === 'scenario-b' ? Math.max(0, context.scooterDiscountAllowance - compTransportSupport) : (id === 'scenario-a' ? 0 : context.scooterDiscountAllowance),
       companyProfit,
       profitMarginPercent,
       isValid,
@@ -622,7 +631,8 @@ export function evaluateProfitProtectionEngine(
     0,
     H,
     T - H,
-    T > 0
+    context.isSharingEligible,
+    !context.isSharingEligible ? `Transport support requires ${formatINR(H)}, which exceeds the ${formatINR(S)} scooter discount allowance.` : undefined
   );
 
   // Scenario C: No Discount / Support
@@ -649,48 +659,56 @@ export function evaluateProfitProtectionEngine(
 
   const scenarios = [scenarioA, scenarioB, scenarioC, scenarioD];
 
-  // Recommendation Engine
+  // Recommendation Engine: Compare Option A (Scooter Discount) vs Option B (50% Transport Support)
   let recommendedScenarioId: ProfitScenarioId = 'scenario-a';
   let recommendationReason = '';
+  let bestOptionTitle = 'Best Option for Xidaa: Scooter Discount';
+  let profitDifference: number | null = null;
 
   if (!hasCostData) {
-    if (input.allocationMode === 'Transport Support' || input.allocationMode === 'Share Transport') {
-      recommendedScenarioId = 'scenario-b';
-      recommendationReason = 'Provisional recommendation: Transport Support (Scenario B). Profitability not verified — enter scooter procurement cost and selling price in Profit Protection to verify profit compliance.';
-    } else if (input.allocationMode === 'No Discount / Support') {
-      recommendedScenarioId = 'scenario-c';
-      recommendationReason = 'Provisional recommendation: No Discount / Support (Scenario C). Profitability not verified — enter scooter procurement cost and selling price in Profit Protection to verify profit compliance.';
-    } else {
-      recommendedScenarioId = 'scenario-a';
-      recommendationReason = 'Provisional recommendation: Scooty/Battery Discount (Scenario A). Profitability not verified — enter scooter procurement cost and selling price in Profit Protection to verify profit compliance.';
-    }
+    bestOptionTitle = 'Profitability Not Verified';
+    profitDifference = null;
+    recommendationReason = 'Profitability cannot be verified — enter approved costs to compare both options. (Provisional recommendation: Profitability not verified).';
+    recommendedScenarioId = input.allocationMode === 'Transport Support' && context.isSharingEligible ? 'scenario-b' : 'scenario-a';
   } else {
-    // Check valid discount options meeting profit target
+    // Both options evaluated using approved cost data
     const discountPool = [scenarioA, scenarioB];
     const validDiscountOptions = discountPool.filter(s => s.isValid && s.meetsProfitTarget === true);
 
-    if (validDiscountOptions.length > 0) {
-      // Pick the discount option that yields highest company profit
-      validDiscountOptions.sort((a, b) => (b.companyProfit || 0) - (a.companyProfit || 0));
-      const best = validDiscountOptions[0];
-      recommendedScenarioId = best.id;
-
-      if (best.id === 'scenario-a') {
-        if (scenarioB.isValid && scenarioB.companyProfit !== null && (best.companyProfit || 0) > scenarioB.companyProfit) {
-          recommendationReason = `Recommended: Scooty/Battery Discount (Scenario A) because this option preserves a higher company profit (${formatINR(best.companyProfit ?? 0)}) than transport sharing (${formatINR(scenarioB.companyProfit ?? 0)}).`;
-        } else {
-          recommendationReason = `Recommended: Scooty/Battery Discount (Scenario A) — achieves ${formatINR(best.companyProfit ?? 0)} company profit (${best.profitMarginPercent}% margin), satisfying the ${minProfitRequirementText}.`;
-        }
+    if (!scenarioB.isValid) {
+      if (scenarioA.meetsProfitTarget) {
+        recommendedScenarioId = 'scenario-a';
+        bestOptionTitle = 'Best Option for Xidaa: Scooter Discount';
+        profitDifference = null;
+        recommendationReason = `Recommended: Scooty/Battery Discount (Scenario A) — 50% Transport Support is ineligible (requires ${formatINR(H)}, which exceeds the ${formatINR(S)} scooter discount allowance).`;
       } else {
-        if (scenarioA.companyProfit !== null && (best.companyProfit || 0) > scenarioA.companyProfit) {
-          recommendationReason = `Recommended: Transport Support (Scenario B) because this option preserves a higher company profit (${formatINR(best.companyProfit ?? 0)}) than scooter discount (${formatINR(scenarioA.companyProfit ?? 0)}) while supporting dealer freight.`;
-        } else {
-          recommendationReason = `Recommended: Transport Support (Scenario B) — achieves ${formatINR(best.companyProfit ?? 0)} company profit (${best.profitMarginPercent}% margin), satisfying the ${minProfitRequirementText}.`;
-        }
+        recommendedScenarioId = 'scenario-d';
+        bestOptionTitle = 'Discount Not Recommended: Below Profit Target';
+        recommendationReason = `Discount not recommended: This order does not meet the configured profit requirement with discounts applied. Baseline no-discount option preserves ${formatINR(scenarioD.companyProfit ?? 0)} profit (${scenarioD.profitMarginPercent}% margin).`;
+      }
+    } else if (validDiscountOptions.length > 0) {
+      const profitA = scenarioA.companyProfit ?? 0;
+      const profitB = scenarioB.companyProfit ?? 0;
+      const diff = Math.abs(profitB - profitA);
+      profitDifference = diff;
+
+      if (profitB > profitA && scenarioB.meetsProfitTarget) {
+        recommendedScenarioId = 'scenario-b';
+        bestOptionTitle = 'Best Option for Xidaa: 50% Transport Support';
+        recommendationReason = `Recommended: Transport Support (Scenario B) — this option gives Xidaa ${formatINR(diff)} more estimated profit than the alternative.`;
+      } else if (scenarioA.meetsProfitTarget) {
+        recommendedScenarioId = 'scenario-a';
+        bestOptionTitle = 'Best Option for Xidaa: Scooter Discount';
+        recommendationReason = `Recommended: Scooty/Battery Discount (Scenario A) — this option gives Xidaa ${formatINR(diff)} more estimated profit than the alternative.`;
+      } else {
+        recommendedScenarioId = 'scenario-d';
+        bestOptionTitle = 'Discount Not Recommended: Below Profit Target';
+        recommendationReason = `Discount not recommended: This order does not meet the configured profit requirement with discounts applied. Baseline no-discount option preserves ${formatINR(scenarioD.companyProfit ?? 0)} profit (${scenarioD.profitMarginPercent}% margin).`;
       }
     } else {
-      // No discount option meets the target
+      // Neither discount option meets the minimum required profit target
       recommendedScenarioId = 'scenario-d';
+      bestOptionTitle = 'Discount Not Recommended: Below Profit Target';
       if (scenarioD.meetsProfitTarget) {
         recommendationReason = `Discount not recommended: This order does not meet the configured profit requirement with discounts applied. Baseline no-discount option preserves ${formatINR(scenarioD.companyProfit ?? 0)} profit (${scenarioD.profitMarginPercent}% margin).`;
       } else {
@@ -708,7 +726,7 @@ export function evaluateProfitProtectionEngine(
     overallStatus = 'Not Verified';
   } else if ((input.selectedScenarioId === 'scenario-c' || input.selectedScenarioId === 'scenario-d') && activeScenario.meetsProfitTarget) {
     overallStatus = 'Verified';
-  } else if (recommendedScenarioId === 'scenario-c' || recommendedScenarioId === 'scenario-d') {
+  } else if (recommendedScenarioId === 'scenario-d') {
     overallStatus = 'Below Target';
   } else if (activeScenario.meetsProfitTarget) {
     overallStatus = 'Verified';
@@ -725,6 +743,8 @@ export function evaluateProfitProtectionEngine(
     scenarios,
     recommendedScenarioId,
     recommendationReason,
+    bestOptionTitle,
+    profitDifference,
     selectedScenarioId,
     activeScenario,
     minProfitRequirementText,

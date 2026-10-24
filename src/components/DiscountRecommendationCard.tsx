@@ -69,7 +69,7 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
               </span>
             </div>
             <h3 className="text-sm sm:text-base font-black text-[#191A1D]">
-              {recScenario.name}
+              {profitProtection.bestOptionTitle || recScenario.name}
             </h3>
           </div>
         </div>

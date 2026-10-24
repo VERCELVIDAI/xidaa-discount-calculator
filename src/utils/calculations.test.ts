@@ -606,4 +606,195 @@ describe('Smart Profit Protection Engine Tests', () => {
       expect(scenario.batteryDiscountApplied).toBeLessThanOrEqual(B);
     });
   });
+
+  describe('Prompt Section 11 Final Regression Tests (Tests A - E)', () => {
+    // Test A: 12 Other Model scooters produce a ₹12,000 scooter discount allowance
+    it('Test A: 12 Other Model scooters produce a ₹12,000 scooter discount allowance', () => {
+      const input: OrderInput = {
+        customerName: 'Test A Dealership',
+        orderRef: 'XD-REG-A',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 100,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Scooty/Battery Discount',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      expect(res.totalOtherScooters).toBe(12);
+      expect(res.totalDlScooters).toBe(0);
+      expect(res.scooterDiscountAllowance).toBe(12000); // 12 * 1000
+    });
+
+    // Test B: Scooter discount ₹12,000, final transport ₹20,000 -> 50% support ₹10,000 is eligible
+    // Allocates ₹10,000 to transport support, leaving ₹2,000 unused allowance.
+    it('Test B: 50% transport support ₹10,000 is eligible, leaving ₹2,000 scooter allowance unused', () => {
+      // 12 Other Model scooters = ₹12,000 allowance
+      // To get final transport = ₹20,000:
+      // Base = ₹17,316.02, or test directly with distance that yields ~₹20,000 or custom config
+      // Notice: Base * 1.10 * 1.05 = Final -> Base = 20,000 / 1.155 = 17,316.017
+      // 12-truck @ ₹40/km: distance = 432.9 km -> Base = 17,316, Subtotal = 19,047.6, Final = 20,000!
+      // Or we can configure a custom truck rate: 500 km @ ₹34.632/km or test the formula directly:
+      // Allowance is 12,000
+      const input: OrderInput = {
+        customerName: 'Test B Dealership',
+        orderRef: 'XD-REG-B',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 200,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Transport Support',
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      // Allowance is 12,000
+      expect(res.scooterDiscountAllowance).toBe(12000);
+      // Final transport is 9,240 (which is <= 12000, so 50% = 4,620 is eligible)
+      expect(res.halfTransportCost).toBe(4620);
+      expect(res.companyTransportSupport).toBe(4620);
+      expect(res.remainingScooterDiscount).toBe(12000 - 4620); // 7,380 unused!
+      expect(res.actualScooterDiscountApplied).toBe(0); // ₹0 on invoice!
+
+      // Now with custom truck rate producing exactly 20,000 final transport:
+      // Base = 17316 -> 17316 + 1731.6 = 19047.6 -> 19047.6 + 952.38 = 20000
+      const exactConfig: AppConfig = {
+        ...DEFAULT_APP_CONFIG,
+        transportSettings: { extraChargePercent: 0, transportGstPercent: 0 },
+      };
+      const exactInput: OrderInput = {
+        ...input,
+        transportDistanceKm: 500,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ], // 500 * 40 = 20,000 base & final!
+      };
+      const exactRes = calculateOrderFinancials(exactInput, exactConfig);
+      expect(exactRes.scooterDiscountAllowance).toBe(12000);
+      expect(exactRes.totalTransportCost).toBe(20000);
+      expect(exactRes.halfTransportCost).toBe(10000);
+      expect(exactRes.transportSharingEligible).toBe(true);
+      expect(exactRes.companyTransportSupport).toBe(10000);
+      expect(exactRes.customerTransportPayment).toBe(10000);
+      expect(exactRes.remainingScooterDiscount).toBe(2000); // Exactly ₹2,000 unused!
+      expect(exactRes.actualScooterDiscountApplied).toBe(0); // Zero on scooter invoice!
+    });
+
+    // Test C: Scooter discount ₹12,000, final transport ₹30,000 -> 50% support is ₹15,000 (> 12,000), so ineligible
+    it('Test C: 50% transport support ₹15,000 exceeds ₹12,000 allowance, so transport support is ineligible', () => {
+      const exactConfig: AppConfig = {
+        ...DEFAULT_APP_CONFIG,
+        transportSettings: { extraChargePercent: 0, transportGstPercent: 0 },
+      };
+      const input: OrderInput = {
+        customerName: 'Test C Dealership',
+        orderRef: 'XD-REG-C',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 750,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ], // 750 * 40 = 30,000 final transport
+        allocationMode: 'Transport Support',
+      };
+
+      const res = calculateOrderFinancials(input, exactConfig);
+      expect(res.scooterDiscountAllowance).toBe(12000);
+      expect(res.totalTransportCost).toBe(30000);
+      expect(res.halfTransportCost).toBe(15000); // ₹15,000 > ₹12,000
+      expect(res.transportSharingEligible).toBe(false); // Ineligible!
+      expect(res.profitProtection.scenarios[1].isValid).toBe(false); // Option B invalid
+      expect(res.profitProtection.scenarios[1].statusMessage).toContain('exceeds');
+    });
+
+    // Test D: Missing cost information must never produce an invented profit recommendation
+    it('Test D: Missing cost information produces Not Verified and never invents profit numbers', () => {
+      const input: OrderInput = {
+        customerName: 'Test D Dealership',
+        orderRef: 'XD-REG-D',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 200,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+        profitabilityInput: {}, // Missing scooter costs!
+      };
+
+      const res = calculateOrderFinancials(input, DEFAULT_APP_CONFIG);
+      const pp = res.profitProtection;
+
+      expect(pp.hasCostData).toBe(false);
+      expect(pp.status).toBe('Not Verified');
+      expect(pp.scenarios[0].companyProfit).toBeNull();
+      expect(pp.scenarios[1].companyProfit).toBeNull();
+      expect(pp.profitDifference).toBeNull();
+      expect(pp.bestOptionTitle).toBe('Profitability Not Verified');
+      expect(pp.recommendationReason).toContain('Profitability cannot be verified — enter approved costs to compare both options.');
+    });
+
+    // Test E: Two options use the same approved cost basis, transport GST calculated exactly once, no double counting
+    it('Test E: Identical approved cost basis, transport GST calculated exactly once, mutual exclusivity guaranteed', () => {
+      const input: OrderInput = {
+        customerName: 'Test E Dealership',
+        orderRef: 'XD-REG-E',
+        orderDate: '2026-10-24',
+        scooterItems: [
+          { id: '1', modelId: 'x-torvo', modelName: 'X-Torvo', category: 'Other Model', quantity: 12, unitPrice: 50000 },
+        ],
+        batteryIncluded: false,
+        batteryItems: [],
+        transportDistanceKm: 200,
+        truckAllocations: [
+          { truckId: 'truck-12', truckName: '12-Scooter Truck', capacity: 12, ratePerKm: 40, count: 1 },
+        ],
+        allocationMode: 'Automatic',
+        profitabilityInput: {
+          scooterUnitCost: 35000,
+          minProfitType: 'margin_percent',
+          minProfitMarginPercent: 10,
+        },
+      };
+
+      const resA = calculateOrderFinancials({ ...input, allocationMode: 'Scooty/Battery Discount' }, DEFAULT_APP_CONFIG);
+      const resB = calculateOrderFinancials({ ...input, allocationMode: 'Transport Support' }, DEFAULT_APP_CONFIG);
+
+      // Verify same transport figures across both:
+      expect(resA.totalTransportCost).toBe(resB.totalTransportCost);
+      expect(resA.transportGstAmount).toBe(resB.transportGstAmount);
+      // In Option A: discount is on scooter, transport is 100% paid by customer
+      expect(resA.actualScooterDiscountApplied).toBe(12000);
+      expect(resA.companyTransportSupport).toBe(0);
+      expect(resA.customerTransportPayment).toBe(resA.totalTransportCost);
+
+      // In Option B: discount on scooter is 0, company supports 50% of transport
+      expect(resB.actualScooterDiscountApplied).toBe(0);
+      expect(resB.companyTransportSupport).toBe(resB.halfTransportCost);
+      expect(resB.customerTransportPayment).toBe(resB.totalTransportCost - resB.halfTransportCost);
+
+      // Both options evaluate from the same cost basis (12 * 35,000 = 420,000)
+      expect(resA.profitProtection.totalScooterCost).toBe(420000);
+      expect(resB.profitProtection.totalScooterCost).toBe(420000);
+    });
+  });
 });

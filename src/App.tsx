@@ -10,6 +10,7 @@ import { ToastContainer } from './components/ToastContainer';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LoginScreen } from './components/LoginScreen';
 import { ChangePasswordModal } from './components/ChangePasswordModal';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { useApp } from './context/AppContext';
 import { useAuth } from './context/AuthContext';
 
@@ -77,6 +78,7 @@ export const App: React.FC = () => {
       </footer>
 
       <ChangePasswordModal />
+      <MobileBottomNav />
       <ToastContainer />
     </div>
   );

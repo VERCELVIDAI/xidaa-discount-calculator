@@ -62,6 +62,8 @@ export interface ProfitProtectionResult {
   scenarios: ProfitScenario[];
   recommendedScenarioId: ProfitScenarioId;
   recommendationReason: string;
+  bestOptionTitle?: string; // e.g. 'Best Option for Xidaa: Scooter Discount' | 'Best Option for Xidaa: 50% Transport Support'
+  profitDifference?: number | null; // Estimated company profit difference between Option A and Option B
   selectedScenarioId: ProfitScenarioId;
   activeScenario: ProfitScenario;
   minProfitRequirementText: string;
@@ -206,6 +208,7 @@ export interface CalculationResult {
   // Pricing & Final Payable
   hasAllPrices: boolean;
   missingPriceReason?: string;
+  missingPriceItems?: string[]; // Specific model/battery names needing unit prices
   grossScooterAmount: number | null;
   grossBatteryAmount: number | null;
   totalProductInvoiceAmount: number | null; // Gross Scooter + Gross Battery Amount
