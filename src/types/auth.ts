@@ -19,3 +19,10 @@ export interface AuthState {
   isConfigured: boolean;
   error: string | null;
 }
+
+export interface PinAuthState {
+  failedAttempts: number;
+  lockoutUntil: number | null;
+  isLockedOut: boolean;
+  remainingLockoutSeconds: number;
+}

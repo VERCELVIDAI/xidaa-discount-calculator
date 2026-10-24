@@ -27,11 +27,11 @@ export const AdminSettingsModal: React.FC = () => {
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPin === '9999' || adminPin === 'admin' || adminPin === 'xidaa') {
+    if (adminPin === '2026' || adminPin === '9999' || adminPin === 'admin' || adminPin === 'xidaa') {
       setIsUnlocked(true);
       addToast('success', 'Admin settings unlocked');
     } else {
-      addToast('error', 'Invalid PIN. (Default: 9999)');
+      addToast('error', 'Invalid PIN. (Default Admin PIN: 2026)');
     }
   };
 
@@ -79,55 +79,55 @@ export const AdminSettingsModal: React.FC = () => {
       <div className="flex items-center justify-between pb-3 border-b border-gray-200">
         <button
           onClick={() => setActiveView('home')}
-          className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-[#E53935] transition-colors py-1 cursor-pointer active:scale-95"
+          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#12B8A6] transition-colors py-1 cursor-pointer active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>← Back to Home</span>
         </button>
 
-        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
           Admin Rules & Settings
         </span>
       </div>
 
       {!isUnlocked ? (
-        <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-xs text-center space-y-4">
-          <div className="w-12 h-12 bg-red-50 text-[#E53935] rounded-full flex items-center justify-center mx-auto border border-red-200">
+        <div className="glass-card p-6 sm:p-8 rounded-2xl shadow-xs text-center space-y-4 border border-slate-200">
+          <div className="w-12 h-12 bg-teal-50 text-[#12B8A6] rounded-full flex items-center justify-center mx-auto border border-teal-200">
             <Lock className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-gray-900">Admin Authorization Required</h3>
-            <p className="text-xs text-gray-500 mt-1">
-              Enter the manager PIN to configure discount limits, truck rates, and category mappings.
+            <h3 className="text-base font-bold text-slate-900">Admin Authorization Required</h3>
+            <p className="text-xs text-slate-500 mt-1">
+              Enter the admin PIN to configure discount limits, truck rates, and category mappings.
             </p>
           </div>
           <form onSubmit={handleUnlock} className="space-y-3 max-w-xs mx-auto">
             <input
               type="password"
-              placeholder="Enter PIN (e.g. 9999)"
+              placeholder="Enter PIN (e.g. 2026)"
               value={adminPin}
               onChange={(e) => setAdminPin(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded-xl px-4 py-2.5 text-center text-sm font-mono tracking-widest text-gray-900 focus:outline-none focus:border-[#E53935]"
+              className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-center text-sm font-mono tracking-widest text-slate-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
               autoFocus
             />
             <button
               type="submit"
-              className="w-full py-2.5 bg-[#E53935] hover:bg-[#D32F2F] text-white font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer"
+              className="w-full py-2.5 bg-[#101827] hover:bg-slate-900 text-white font-bold text-xs rounded-xl shadow-xs border border-[#12B8A6]/40 transition-colors cursor-pointer"
             >
               Unlock Settings
             </button>
-            <p className="text-[10px] text-gray-400">PIN: 9999 or admin</p>
+            <p className="text-[10px] text-slate-400">Default Admin PIN: 2026</p>
           </form>
         </div>
       ) : (
-        <div className="glass-card rounded-2xl shadow-xs overflow-hidden space-y-5 p-5 sm:p-6">
+        <div className="glass-card rounded-2xl shadow-xs overflow-hidden space-y-5 p-5 sm:p-6 border border-slate-200">
           
           {/* Sub Navigation */}
-          <div className="flex items-center border-b border-gray-200 overflow-x-auto text-xs font-bold pb-2 space-x-2">
+          <div className="flex items-center border-b border-slate-200 overflow-x-auto text-xs font-bold pb-2 space-x-2">
             <button
               onClick={() => setActiveTab('discounts')}
               className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
-                activeTab === 'discounts' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'discounts' ? 'bg-[#101827] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               Discount Ceilings
@@ -135,7 +135,7 @@ export const AdminSettingsModal: React.FC = () => {
             <button
               onClick={() => setActiveTab('models')}
               className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
-                activeTab === 'models' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'models' ? 'bg-[#101827] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               DL Category Mapping
@@ -143,7 +143,7 @@ export const AdminSettingsModal: React.FC = () => {
             <button
               onClick={() => setActiveTab('trucks')}
               className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
-                activeTab === 'trucks' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'trucks' ? 'bg-[#101827] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               Transport Rates
@@ -151,7 +151,7 @@ export const AdminSettingsModal: React.FC = () => {
             <button
               onClick={() => setActiveTab('taxes')}
               className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
-                activeTab === 'taxes' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'taxes' ? 'bg-[#101827] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               Tax & GST
@@ -159,7 +159,7 @@ export const AdminSettingsModal: React.FC = () => {
             <button
               onClick={() => setActiveTab('profit')}
               className={`py-1.5 px-3 rounded-lg transition-colors cursor-pointer ${
-                activeTab === 'profit' ? 'bg-[#E53935] text-white' : 'text-gray-600 hover:bg-gray-100'
+                activeTab === 'profit' ? 'bg-[#101827] text-white shadow-2xs' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               Profit Rules

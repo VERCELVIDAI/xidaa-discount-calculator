@@ -47,11 +47,11 @@ export const Header: React.FC = () => {
               />
             </div>
             
-            <div className="hidden sm:flex flex-col border-l border-gray-200/90 pl-3">
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#191A1D]">
+            <div className="hidden sm:flex flex-col border-l border-slate-200/90 pl-3">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#101827]">
                 Discount Calculator
               </span>
-              <span className="text-[9px] uppercase tracking-widest text-[#E53935] font-extrabold flex items-center space-x-1">
+              <span className="text-[9px] uppercase tracking-widest text-[#12B8A6] font-extrabold flex items-center space-x-1">
                 <span>RIDE THE ELECTRIC THUNDER</span>
               </span>
             </div>
@@ -74,11 +74,11 @@ export const Header: React.FC = () => {
               }}
               className={`flex items-center space-x-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-bold transition-all ${
                 activeView === 'order-form' || activeView === 'home'
-                  ? 'bg-[#E53935] text-white shadow-xs shadow-red-500/20 active:scale-[0.98]'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/80 active:scale-[0.98]'
+                  ? 'bg-[#101827] text-white shadow-xs active:scale-[0.98]'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 active:scale-[0.98]'
               }`}
             >
-              <PlusCircle className="w-3.5 h-3.5" />
+              <PlusCircle className={`w-3.5 h-3.5 ${activeView === 'order-form' || activeView === 'home' ? 'text-[#12B8A6]' : ''}`} />
               <span>{activeView === 'order-form' ? 'Order Form' : 'New Order'}</span>
             </button>
 
@@ -87,11 +87,11 @@ export const Header: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveView('results')}
-                className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-gray-900 text-white shadow-xs"
+                className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-[#101827] text-white shadow-xs border border-teal-500/30"
               >
-                <Calculator className="w-3.5 h-3.5 text-red-400" />
+                <Calculator className="w-3.5 h-3.5 text-[#12B8A6]" />
                 <span className="truncate max-w-[120px]">{orderInput.orderRef}</span>
-                <ChevronRight className="w-3 h-3 text-gray-400" />
+                <ChevronRight className="w-3 h-3 text-slate-400" />
               </button>
             )}
 
@@ -101,14 +101,14 @@ export const Header: React.FC = () => {
               onClick={() => setActiveView('history')}
               className={`flex items-center space-x-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold transition-all active:scale-[0.98] ${
                 activeView === 'history'
-                  ? 'bg-red-50 text-[#E53935] border border-red-200/80 font-bold'
-                  : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100/80'
+                  ? 'bg-teal-50 text-[#12B8A6] border border-teal-200/80 font-bold'
+                  : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100/80'
               }`}
             >
               <Bookmark className="w-3.5 h-3.5" />
               <span className="hidden xs:inline">Saved Orders</span>
               {savedOrders.length > 0 && (
-                <span className="px-1.5 py-0.2 bg-gray-200 text-gray-800 text-[10px] rounded-full font-bold ml-0.5">
+                <span className="px-1.5 py-0.2 bg-teal-100 text-teal-900 text-[10px] rounded-full font-bold ml-0.5">
                   {savedOrders.length}
                 </span>
               )}
@@ -121,8 +121,8 @@ export const Header: React.FC = () => {
               title="Application Settings"
               className={`p-2 rounded-xl text-xs transition-all active:scale-[0.98] ${
                 activeView === 'admin-settings'
-                  ? 'bg-red-50 text-[#E53935] border border-red-200/80 font-bold'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100/80'
+                  ? 'bg-teal-50 text-[#12B8A6] border border-teal-200/80 font-bold'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -130,19 +130,19 @@ export const Header: React.FC = () => {
 
             {/* User Session & Logout */}
             {user && (
-              <div className="flex items-center space-x-1 pl-1 border-l border-gray-200">
+              <div className="flex items-center space-x-1 pl-1 border-l border-slate-200">
                 <div 
                   title={`Signed in as ${user.email} (${user.role.toUpperCase()}) | Cloud: ${cloudSyncStatus}`}
-                  className="hidden lg:flex items-center space-x-1.5 py-1 px-2 bg-gray-50 rounded-xl border border-gray-200 text-xs"
+                  className="hidden lg:flex items-center space-x-1.5 py-1 px-2 bg-slate-50 rounded-xl border border-slate-200 text-xs"
                 >
-                  <User className="w-3.5 h-3.5 text-gray-500" />
-                  <span className="font-bold text-gray-800 text-[11px] truncate max-w-[90px]">
+                  <User className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="font-bold text-slate-800 text-[11px] truncate max-w-[90px]">
                     {user.username}
                   </span>
                   <span className={`text-[9px] uppercase font-black px-1.5 py-0.2 rounded ${
                     user.role === 'admin' 
-                      ? 'bg-red-100 text-[#E53935]' 
-                      : 'bg-blue-100 text-blue-700'
+                      ? 'bg-purple-100 text-purple-800' 
+                      : 'bg-teal-100 text-teal-800'
                   }`}>
                     {user.role}
                   </span>
@@ -161,7 +161,7 @@ export const Header: React.FC = () => {
                   type="button"
                   onClick={logout}
                   title="Sign Out of Commercial Portal"
-                  className="p-2 text-gray-400 hover:text-[#E53935] hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
                 >
                   <LogOut className="w-4 h-4" />
                 </button>

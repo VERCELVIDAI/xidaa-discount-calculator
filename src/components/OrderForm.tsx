@@ -55,6 +55,7 @@ export const OrderForm: React.FC = () => {
   // Collapsible state for advanced details
   const [isAdvancedTransportOpen, setIsAdvancedTransportOpen] = useState(false);
   const [isProfitProtectionOpen, setIsProfitProtectionOpen] = useState(false);
+  const [isManualOverrideOpen, setIsManualOverrideOpen] = useState(false);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   const batteryVariants: BatteryVariant[] = [
@@ -115,7 +116,7 @@ export const OrderForm: React.FC = () => {
           <button
             type="button"
             onClick={() => setShowAllSteps(!showAllSteps)}
-            className="text-[11px] font-semibold text-[#E53935] hover:underline cursor-pointer"
+            className="text-[11px] font-semibold text-[#12B8A6] hover:underline cursor-pointer"
           >
             {showAllSteps ? 'Switch to Step-by-Step' : 'View All Steps on One Page'}
           </button>
@@ -128,13 +129,13 @@ export const OrderForm: React.FC = () => {
             onClick={() => setCurrentStep(1)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 1 || showAllSteps
-                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
                 : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 1 || showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+                currentStep === 1 || showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
               }`}>
                 Step 1
               </span>
@@ -153,13 +154,13 @@ export const OrderForm: React.FC = () => {
             onClick={() => setCurrentStep(2)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 2 && !showAllSteps
-                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
                 : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 2 && !showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+                currentStep === 2 && !showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
               }`}>
                 Step 2
               </span>
@@ -178,13 +179,13 @@ export const OrderForm: React.FC = () => {
             onClick={() => setCurrentStep(3)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 3 && !showAllSteps
-                ? 'bg-white border border-[#E53935]/40 text-[#191A1D] shadow-xs'
+                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
                 : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 3 && !showAllSteps ? 'text-[#E53935]' : 'text-gray-400'
+                currentStep === 3 && !showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
               }`}>
                 Step 3
               </span>
@@ -224,7 +225,7 @@ export const OrderForm: React.FC = () => {
                   type="button"
                   onClick={handleRegenerateRef}
                   title="Generate New Reference"
-                  className="p-1 text-gray-400 hover:text-[#E53935] rounded transition-colors cursor-pointer"
+                  className="p-1 text-gray-400 hover:text-[#12B8A6] rounded transition-colors cursor-pointer"
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                 </button>
@@ -235,7 +236,7 @@ export const OrderForm: React.FC = () => {
               {/* Customer / Dealer Name */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-[#E53935]" />
+                  <Building2 className="w-3.5 h-3.5 text-[#12B8A6]" />
                   <span>Customer / Dealership Name</span>
                 </label>
                 <input
@@ -243,7 +244,7 @@ export const OrderForm: React.FC = () => {
                   placeholder="e.g. Aodn Motors Dealership"
                   value={orderInput.customerName}
                   onChange={(e) => updateOrderInput({ customerName: e.target.value })}
-                  className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#E53935] focus:ring-1 focus:ring-[#E53935] transition-all"
+                  className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] transition-all"
                 />
               </div>
 
@@ -258,7 +259,7 @@ export const OrderForm: React.FC = () => {
                     type="date"
                     value={orderInput.orderDate}
                     onChange={(e) => updateOrderInput({ orderDate: e.target.value })}
-                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:border-[#E53935] focus:ring-1 focus:ring-[#E53935] transition-all"
+                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] transition-all"
                   />
                 </div>
 
@@ -270,7 +271,7 @@ export const OrderForm: React.FC = () => {
                     type="text"
                     value={orderInput.orderRef}
                     onChange={(e) => updateOrderInput({ orderRef: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-gray-800 focus:outline-none focus:border-[#E53935] transition-all"
+                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-gray-800 focus:outline-none focus:border-[#12B8A6] transition-all"
                   />
                 </div>
               </div>
@@ -301,17 +302,16 @@ export const OrderForm: React.FC = () => {
             {/* List of Scooter Items */}
             <div className="space-y-3.5">
               {orderInput.scooterItems.map((item, index) => {
-                const rowTotal = item.quantity && item.unitPrice ? item.quantity * item.unitPrice : null;
                 const isDl = item.category === 'DL Model';
 
                 return (
                   <div
                     key={item.id}
-                    className="p-4 bg-white rounded-xl border border-gray-200/90 shadow-2xs space-y-3 transition-all hover:border-gray-300"
+                    className="p-4 bg-white rounded-xl border border-gray-200/90 shadow-2xs space-y-3.5 transition-all hover:border-[#12B8A6]/40"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-black uppercase tracking-wider text-gray-500">
-                        Item #{index + 1}
+                      <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                        Model #{index + 1}
                       </span>
                       {orderInput.scooterItems.length > 1 && (
                         <button
@@ -327,13 +327,13 @@ export const OrderForm: React.FC = () => {
 
                     {/* Model Dropdown */}
                     <div>
-                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
                         Scooter Model *
                       </label>
                       <select
                         value={item.modelId}
                         onChange={(e) => updateScooterItem(item.id, { modelId: e.target.value })}
-                        className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
                       >
                         {CATALOGUE_SCOOTER_MODELS.map((model) => (
                           <option key={model.id} value={model.id}>
@@ -345,7 +345,7 @@ export const OrderForm: React.FC = () => {
 
                     {/* Category Toggle: DL Model vs Other Model */}
                     <div>
-                      <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
                         Model Category (Discount Limit)
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -354,12 +354,12 @@ export const OrderForm: React.FC = () => {
                           onClick={() => updateScooterItem(item.id, { category: 'DL Model' })}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                             isDl
-                              ? 'bg-blue-50 border-blue-500 text-blue-900 shadow-2xs ring-1 ring-blue-500/20'
-                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                              ? 'bg-teal-50/80 border-[#12B8A6] text-teal-950 shadow-2xs ring-1 ring-[#12B8A6]/30'
+                              : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                           }`}
                         >
-                          <span className="block font-black">DL Model</span>
-                          <span className="block text-[10px] font-medium text-blue-700">₹500 / scooter discount</span>
+                          <span className="block font-black text-slate-900">DL Model</span>
+                          <span className="block text-[10px] font-semibold text-teal-700">₹500 / scooter allowance</span>
                         </button>
 
                         <button
@@ -367,60 +367,28 @@ export const OrderForm: React.FC = () => {
                           onClick={() => updateScooterItem(item.id, { category: 'Other Model' })}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                             !isDl
-                              ? 'bg-amber-50 border-amber-500 text-amber-950 shadow-2xs ring-1 ring-amber-500/20'
-                              : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                              ? 'bg-teal-50/80 border-[#12B8A6] text-teal-950 shadow-2xs ring-1 ring-[#12B8A6]/30'
+                              : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                           }`}
                         >
-                          <span className="block font-black">Other Model</span>
-                          <span className="block text-[10px] font-medium text-amber-700">₹1,000 / scooter discount</span>
+                          <span className="block font-black text-slate-900">Other Model</span>
+                          <span className="block text-[10px] font-semibold text-teal-700">₹1,000 / scooter allowance</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* Quantity & Unit Price */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      {/* Fast Touch Quantity Selector (No Keyboard Required) */}
-                      <div>
-                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                          Quantity (Units) *
-                        </label>
-                        <TouchQuantitySelector
-                          value={item.quantity}
-                          min={0}
-                          onChange={(newQty) => updateScooterItem(item.id, { quantity: newQty })}
-                          unitLabel="scooters"
-                        />
-                      </div>
-
-                      {/* Unit Price (Optional) */}
-                      <div>
-                        <div className="flex items-center justify-between mb-1">
-                          <label className="block text-[11px] font-semibold text-gray-700">
-                            Unit Price (₹)
-                          </label>
-                          <span className="text-[10px] text-gray-400">Optional</span>
-                        </div>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          min="0"
-                          placeholder="e.g. 48500"
-                          value={item.unitPrice ?? ''}
-                          onChange={(e) => updateScooterItem(item.id, {
-                            unitPrice: e.target.value === '' ? undefined : Number(e.target.value)
-                          })}
-                          className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-1.5 text-sm font-mono font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#E53935]"
-                        />
-                      </div>
+                    {/* Fast Touch Quantity Selector (No Keyboard Required) */}
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Quantity (Units) *
+                      </label>
+                      <TouchQuantitySelector
+                        value={item.quantity}
+                        min={0}
+                        onChange={(newQty) => updateScooterItem(item.id, { quantity: newQty })}
+                        unitLabel="scooters"
+                      />
                     </div>
-
-                    {/* Row subtotal preview if price provided */}
-                    {rowTotal !== null && (
-                      <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-600">
-                        <span>Row Subtotal ({item.quantity} × {formatINR(item.unitPrice ?? 0)}):</span>
-                        <strong className="font-mono text-gray-900">{formatINR(rowTotal)}</strong>
-                      </div>
-                    )}
                   </div>
                 );
               })}
@@ -430,7 +398,7 @@ export const OrderForm: React.FC = () => {
             <button
               type="button"
               onClick={addScooterItem}
-              className="w-full py-3 border-2 border-dashed border-gray-300 hover:border-[#E53935] hover:text-[#E53935] hover:bg-red-50/20 text-gray-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.99]"
+              className="w-full py-3 border-2 border-dashed border-slate-300 hover:border-[#12B8A6] hover:text-[#12B8A6] hover:bg-teal-50/20 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.99]"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Another Model</span>
@@ -538,16 +506,16 @@ export const OrderForm: React.FC = () => {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {/* Variant */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
                           Battery Variant *
                         </label>
                         <select
                           value={bItem.variant}
                           onChange={(e) => updateBatteryItem(bItem.id, { variant: e.target.value as BatteryVariant })}
-                          className="w-full bg-white border border-gray-300 rounded-xl px-2.5 py-1.5 text-xs font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                          className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
                         >
                           {batteryVariants.map((v) => (
                             <option key={v} value={v}>{v}</option>
@@ -557,7 +525,7 @@ export const OrderForm: React.FC = () => {
 
                       {/* Fast Touch Quantity Selector (No Keyboard Required) */}
                       <div>
-                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                        <label className="block text-[11px] font-bold text-slate-700 mb-1">
                           Quantity (Units) *
                         </label>
                         <TouchQuantitySelector
@@ -568,24 +536,6 @@ export const OrderForm: React.FC = () => {
                             eligibleDiscountQuantity: newQty,
                           })}
                           unitLabel="batteries"
-                        />
-                      </div>
-
-                      {/* Unit Price (Optional) */}
-                      <div>
-                        <label className="block text-[11px] font-semibold text-gray-700 mb-1">
-                          Unit Price (₹)
-                        </label>
-                        <input
-                          type="number"
-                          inputMode="decimal"
-                          min="0"
-                          placeholder="e.g. 24000"
-                          value={bItem.unitPrice ?? ''}
-                          onChange={(e) => updateBatteryItem(bItem.id, {
-                            unitPrice: e.target.value === '' ? undefined : Number(e.target.value)
-                          })}
-                          className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
                         />
                       </div>
                     </div>
@@ -665,7 +615,7 @@ export const OrderForm: React.FC = () => {
                 min="0"
                 value={orderInput.transportDistanceKm || ''}
                 onChange={(e) => updateOrderInput({ transportDistanceKm: Math.max(0, Number(e.target.value) || 0) })}
-                className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
               />
             </div>
 
@@ -852,88 +802,82 @@ export const OrderForm: React.FC = () => {
             }}
           />
 
-          {/* SECTION: STRICT SINGLE-COMPONENT DISCOUNT ALLOCATION */}
-          <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
-            <div>
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
-                  Discount & Freight Allocation Mode
+          {/* SECTION: PRIMARY DISCOUNT MODE: AUTOMATIC RECOMMENDATION */}
+          <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-teal-200/80 bg-teal-50/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#12B8A6] animate-pulse" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                  Primary Mode: Automatic — Recommend Best Discount
                 </h3>
-                <span className="text-[10px] uppercase font-bold text-[#E53935] bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
-                  Strict Rule
-                </span>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Company support applies to <strong>one component only</strong>, never both vehicle invoice and transport simultaneously.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              {/* Option A: Scooty/Battery Discount */}
-              <button
-                type="button"
-                onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  calculationResult.allocationOption === 'Scooty/Battery Discount'
-                    ? 'bg-blue-50 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/30'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold">Scooty/Battery Discount</span>
-                  <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded">Option A</span>
-                </div>
-                <p className="text-[11px] text-gray-500">
-                  Apply approved discount to vehicle invoice only. Customer pays 100% transport freight.
-                </p>
-              </button>
-
-              {/* Option B: Transport Support */}
-              <button
-                type="button"
-                onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  calculationResult.allocationOption === 'Transport Support'
-                    ? 'bg-emerald-50 border-emerald-500 text-emerald-950 shadow-2xs ring-1 ring-emerald-500/30'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold">Transport Support (50%)</span>
-                  <span className="text-[9px] bg-emerald-600 text-white font-bold px-1.5 py-0.2 rounded">Option B</span>
-                </div>
-                <p className="text-[11px] text-gray-500">
-                  Company absorbs 50% of final transport cost. Vehicle & battery invoice discounts are strictly ₹0.
-                </p>
-              </button>
-
-              {/* Option C: No Discount / Support */}
-              <button
-                type="button"
-                onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
-                className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
-                  calculationResult.allocationOption === 'No Discount / Support'
-                    ? 'bg-gray-100 border-gray-500 text-gray-950 shadow-2xs ring-1 ring-gray-400'
-                    : 'bg-white border-gray-200 text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-xs font-bold">No Discount / Support</span>
-                  <span className="text-[9px] bg-gray-600 text-white font-bold px-1.5 py-0.2 rounded">Option C</span>
-                </div>
-                <p className="text-[11px] text-gray-500">
-                  Customer pays full vehicle invoice and 100% transport cost. No company support applied.
-                </p>
-              </button>
-            </div>
-
-            {/* Active Allocation Bar */}
-            <div className="p-3 bg-gray-50/80 rounded-xl border border-gray-200 text-xs text-gray-700 flex items-center justify-between">
-              <span className="font-medium text-gray-600">Active Allocation:</span>
-              <span className="font-bold text-gray-900 bg-white px-2.5 py-1 rounded-md border border-gray-200 shadow-2xs">
-                {calculationResult.allocationOption}
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#12B8A6] bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                Active System
               </span>
             </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              The engine automatically evaluates and applies the single most profitable discount strategy for Xidaa Moto: Scooter Discount vs. 50% Transport Freight Support.
+            </p>
+
+            {/* Subtle Manual Override Option */}
+            <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500 text-[11px]">
+                Active Allocation: <strong className="text-slate-900 font-mono">{calculationResult.allocationOption}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsManualOverrideOpen(!isManualOverrideOpen)}
+                className="text-[11px] font-bold text-slate-600 hover:text-slate-900 cursor-pointer flex items-center space-x-1"
+              >
+                <span>{isManualOverrideOpen ? 'Hide Manual Override' : 'Manual Override (Optional)'}</span>
+                {isManualOverrideOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+            </div>
+
+            {isManualOverrideOpen && (
+              <div className="pt-2 space-y-2 animate-fade-in border-t border-slate-100">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      calculationResult.allocationOption === 'Scooty/Battery Discount'
+                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
+                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">Option A</div>
+                    <div className="text-[10px] text-slate-500">Scooty Discount Only</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      calculationResult.allocationOption === 'Transport Support'
+                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
+                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">Option B</div>
+                    <div className="text-[10px] text-slate-500">50% Transport Support</div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
+                    className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      calculationResult.allocationOption === 'No Discount / Support'
+                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
+                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="text-xs font-bold">Option C</div>
+                    <div className="text-[10px] text-slate-500">No Support</div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* SECTION: PROFIT PROTECTION ENGINE (Optional) */}
@@ -982,7 +926,7 @@ export const OrderForm: React.FC = () => {
                           scooterUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
                         }
                       })}
-                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
                     />
                   </div>
 
@@ -1002,7 +946,7 @@ export const OrderForm: React.FC = () => {
                           defaultScooterSellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
                         }
                       })}
-                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
                     />
                   </div>
                 </div>
@@ -1027,7 +971,7 @@ export const OrderForm: React.FC = () => {
                 value={orderInput.notes || ''}
                 onChange={(e) => updateOrderInput({ notes: e.target.value })}
                 placeholder="Special dealership remarks, delivery instructions, billing notes..."
-                className="w-full mt-2 bg-white border border-gray-300 rounded-xl p-3 text-xs text-gray-900 focus:outline-none focus:border-[#E53935]"
+                className="w-full mt-2 bg-white border border-gray-300 rounded-xl p-3 text-xs text-gray-900 focus:outline-none focus:border-[#12B8A6]"
               />
             )}
           </div>
@@ -1120,19 +1064,19 @@ export const OrderForm: React.FC = () => {
           <button
             type="submit"
             disabled={isCalculating}
-            className={`py-3.5 px-6 sm:px-9 bg-[#E53935] hover:bg-[#D32F2F] active:scale-[0.98] text-white font-black text-sm rounded-xl shadow-lg shadow-red-600/30 flex items-center space-x-2 transition-all cursor-pointer ${
+            className={`py-3.5 px-6 sm:px-9 bg-[#101827] hover:bg-slate-900 active:scale-[0.98] text-white font-black text-sm rounded-xl shadow-lg shadow-slate-900/30 flex items-center space-x-2 transition-all cursor-pointer border border-[#12B8A6]/30 ${
               isCalculating ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
             {isCalculating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin text-[#12B8A6]" />
                 <span>Calculating...</span>
               </>
             ) : (
               <>
                 <span>Calculate Order</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 text-[#12B8A6]" />
               </>
             )}
           </button>

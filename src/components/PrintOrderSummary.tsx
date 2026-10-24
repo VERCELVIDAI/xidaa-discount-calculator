@@ -14,11 +14,11 @@ export const PrintOrderSummary: React.FC = () => {
     <div className="max-w-4xl mx-auto space-y-6 pb-12 animate-fade-in">
       
       {/* Action Controls (Hidden when printing) */}
-      <div className="no-print flex items-center justify-between pb-3 border-b border-gray-200">
+      <div className="no-print flex items-center justify-between pb-3 border-b border-slate-200">
         <button
           type="button"
           onClick={() => setActiveView('results')}
-          className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-[#E53935] px-3.5 py-2 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
+          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#12B8A6] px-3.5 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all cursor-pointer shadow-2xs active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Results Screen</span>
@@ -27,21 +27,21 @@ export const PrintOrderSummary: React.FC = () => {
         <button
           type="button"
           onClick={handlePrint}
-          className="flex items-center space-x-2 px-5 py-2.5 bg-[#E53935] hover:bg-[#D32F2F] text-white font-extrabold text-xs rounded-xl shadow-md shadow-red-600/20 transition-all cursor-pointer active:scale-95"
+          className="flex items-center space-x-2 px-5 py-2.5 bg-[#101827] hover:bg-slate-900 text-white font-extrabold text-xs rounded-xl shadow-md border border-[#12B8A6]/40 transition-all cursor-pointer active:scale-95"
         >
-          <Printer className="w-4 h-4" />
+          <Printer className="w-4 h-4 text-[#12B8A6]" />
           <span>Print / Save as PDF</span>
         </button>
       </div>
 
       {/* Printable Sheet Card (A4 Portrait Layout) */}
-      <div className="print-page bg-white text-[#191A1D] rounded-2xl p-8 sm:p-11 shadow-sm border border-gray-200 space-y-6 font-sans">
+      <div className="print-page bg-white text-[#101827] rounded-2xl p-8 sm:p-11 shadow-sm border border-slate-200 space-y-6 font-sans">
         
         {/* Tricolour Accent Line */}
         <div className="h-1 w-full bg-gradient-to-r from-[#FF9933] via-[#FFFFFF] to-[#128807] rounded-full" />
 
         {/* Document Header & Official Xidaa Branding */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-gray-200 gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-5 border-b border-slate-200 gap-4">
           <div className="flex items-center space-x-4">
             <img 
               src="/assets/xidaa-logo-dark.png" 
@@ -49,13 +49,13 @@ export const PrintOrderSummary: React.FC = () => {
               className="h-11 sm:h-12 w-auto object-contain"
             />
             <div>
-              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#191A1D]">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#101827]">
                 XIDAA MOTO PRIVATE LIMITED
               </h1>
-              <p className="text-[11px] uppercase font-black tracking-widest text-[#E53935]">
+              <p className="text-[11px] uppercase font-black tracking-widest text-[#12B8A6]">
                 ORDER CALCULATION SUMMARY
               </p>
-              <p className="text-[10px] text-gray-500 mt-0.5">
+              <p className="text-[10px] text-slate-500 mt-0.5">
                 B2B Commercial Quotation & Transport Freight Settlement
               </p>
             </div>
@@ -75,8 +75,8 @@ export const PrintOrderSummary: React.FC = () => {
         </div>
 
         {/* Notice Box */}
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-3 text-[10px] sm:text-[11px] text-gray-700 flex items-start space-x-2">
-          <ShieldAlert className="w-4 h-4 text-[#E53935] flex-shrink-0 mt-0.5" />
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[10px] sm:text-[11px] text-slate-700 flex items-start space-x-2">
+          <ShieldAlert className="w-4 h-4 text-[#12B8A6] flex-shrink-0 mt-0.5" />
           <p className="leading-relaxed">
             <strong>OFFICIAL COMMERCIAL NOTICE:</strong> This calculation summary represents an internal commercial discount authorization and freight settlement assessment for Xidaa Moto Pvt. Ltd. authorized dealerships. <strong>Subject to administrative approval — Not a tax invoice.</strong>
           </p>
@@ -302,7 +302,7 @@ export const PrintOrderSummary: React.FC = () => {
         <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200 text-[11px] text-gray-700 space-y-1.5 print-avoid-break">
           <div className="flex items-center justify-between">
             <span className="font-bold text-gray-900">Commercial Recommendation Strategy:</span>
-            <span className="font-mono font-bold text-[#E53935]">
+            <span className="font-mono font-bold text-[#12B8A6]">
               {calculationResult.profitProtection.scenarios.find(s => s.id === calculationResult.profitProtection.recommendedScenarioId)?.name || 'Standard Baseline'}
             </span>
           </div>

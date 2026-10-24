@@ -164,7 +164,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
             
             <div className="flex items-center justify-between border-b border-gray-100 pb-2">
               <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider flex items-center space-x-1">
-                <Sliders className="w-3.5 h-3.5 text-[#E53935]" />
+                <Sliders className="w-3.5 h-3.5 text-[#12B8A6]" />
                 <span>Quantity Selector (1–32)</span>
               </span>
               <span className="text-[10px] text-gray-400">
@@ -183,7 +183,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
                     onClick={() => handlePresetSelect(preset)}
                     className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center space-x-1 ${
                       isSelected
-                        ? 'bg-[#E53935] text-white shadow-2xs'
+                        ? 'bg-[#12B8A6] text-white shadow-2xs font-black'
                         : 'bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-200'
                     }`}
                   >
@@ -202,7 +202,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
               <select
                 value={currentVal <= 32 ? currentVal : 'custom'}
                 onChange={handleSelectChange}
-                className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-gray-800 focus:outline-none focus:border-[#E53935]"
+                className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-gray-800 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
               >
                 <option value={0}>0 units</option>
                 {SEQUENTIAL_1_TO_32.map((n) => (
@@ -232,11 +232,11 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
                     placeholder="e.g. 50"
                     value={customVal}
                     onChange={(e) => setCustomVal(e.target.value)}
-                    className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#E53935]"
+                    className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
                   />
                   <button
                     type="submit"
-                    className="py-1 px-3 bg-[#E53935] text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer"
+                    className="py-1 px-3 bg-[#101827] text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer hover:bg-slate-900"
                   >
                     Set
                   </button>

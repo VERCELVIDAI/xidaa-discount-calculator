@@ -47,20 +47,20 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
         : 'bg-gradient-to-br from-blue-500/10 via-gray-500/5 to-transparent border border-blue-200 shadow-sm'
     } ${className}`}>
 
-      {/* Ambient Red/Green Glow Accent */}
+      {/* Ambient Teal/Green Glow Accent */}
       <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl pointer-events-none ${
-        isProfitVerified ? 'bg-emerald-400/15' : 'bg-[#E53935]/10'
+        isProfitVerified ? 'bg-emerald-400/15' : 'bg-[#12B8A6]/10'
       }`} />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200/80 pb-3 gap-2">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white shadow-2xs border border-gray-200 flex items-center justify-center text-[#E53935]">
+          <div className="w-8 h-8 rounded-xl bg-white shadow-2xs border border-gray-200 flex items-center justify-center text-[#12B8A6]">
             <Sparkles className="w-4 h-4 fill-current" />
           </div>
           <div>
             <div className="flex items-center space-x-1.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#E53935]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#12B8A6]">
                 Smart Commercial Engine
               </span>
               <span className="text-gray-300">•</span>
@@ -68,7 +68,7 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
                 Automatic Recommendation
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-[#191A1D]">
+            <h3 className="text-sm sm:text-base font-black text-[#101827]">
               {profitProtection.bestOptionTitle || recScenario.name}
             </h3>
           </div>

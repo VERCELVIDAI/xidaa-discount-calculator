@@ -70,7 +70,7 @@ export const OrderHistory: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveView('home')}
-          className="flex items-center space-x-1.5 text-xs font-bold text-gray-700 hover:text-[#E53935] transition-colors py-1 cursor-pointer active:scale-95"
+          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#12B8A6] transition-colors py-1 cursor-pointer active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>← Back to Home</span>
@@ -79,7 +79,7 @@ export const OrderHistory: React.FC = () => {
         <button
           type="button"
           onClick={() => startNewOrder(false)}
-          className="flex items-center space-x-1 text-xs font-bold text-[#E53935] hover:underline cursor-pointer"
+          className="flex items-center space-x-1 text-xs font-bold text-[#12B8A6] hover:underline cursor-pointer"
         >
           <PlusCircle className="w-3.5 h-3.5" />
           <span>New Order</span>
@@ -90,8 +90,8 @@ export const OrderHistory: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center space-x-2">
-            <h1 className="text-base sm:text-lg font-black text-[#191A1D] flex items-center space-x-2">
-              <Bookmark className="w-5 h-5 text-[#E53935]" />
+            <h1 className="text-base sm:text-lg font-black text-[#101827] flex items-center space-x-2">
+              <Bookmark className="w-5 h-5 text-[#12B8A6]" />
               <span>Saved Order Calculations</span>
             </h1>
 
@@ -159,18 +159,18 @@ export const OrderHistory: React.FC = () => {
           placeholder="Search by customer, quotation reference, or model..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-white border border-gray-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-[#E53935] shadow-2xs"
+          className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] shadow-2xs"
         />
       </div>
 
       {/* Orders List / Empty State */}
       {filteredOrders.length === 0 ? (
-        <div className="glass-card p-8 rounded-2xl text-center space-y-3">
-          <div className="w-11 h-11 bg-gray-100 text-gray-400 rounded-full flex items-center justify-center mx-auto">
+        <div className="glass-card p-8 rounded-2xl text-center space-y-3 border border-slate-200">
+          <div className="w-11 h-11 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto">
             <Bookmark className="w-5 h-5" />
           </div>
-          <h2 className="text-sm font-bold text-gray-800">No Saved Calculations Found</h2>
-          <p className="text-xs text-gray-500 max-w-xs mx-auto">
+          <h2 className="text-sm font-bold text-slate-800">No Saved Calculations Found</h2>
+          <p className="text-xs text-slate-500 max-w-xs mx-auto">
             {savedOrders.length === 0
               ? 'Calculate an order and tap "Save Order" on the results screen to keep it in history.'
               : 'No orders match your search keyword.'}
@@ -179,7 +179,7 @@ export const OrderHistory: React.FC = () => {
             <button
               type="button"
               onClick={() => startNewOrder(true)}
-              className="mt-2 py-2 px-4 bg-[#E53935] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-[#D32F2F] cursor-pointer"
+              className="mt-2 py-2 px-4 bg-[#101827] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-900 border border-[#12B8A6]/40 cursor-pointer"
             >
               Create First Order
             </button>
@@ -193,62 +193,62 @@ export const OrderHistory: React.FC = () => {
             return (
               <div
                 key={order.id}
-                className="glass-card p-4 sm:p-5 rounded-2xl space-y-3 hover:border-gray-300 transition-all"
+                className="glass-card p-4 sm:p-5 rounded-2xl space-y-3 hover:border-slate-300 transition-all border border-slate-200/90"
               >
                 <div className="flex items-start justify-between">
                   <div className="space-y-0.5">
-                    <div className="text-sm font-bold text-gray-900">
+                    <div className="text-sm font-bold text-slate-900">
                       {inp.customerName || 'Direct B2B Dealer'}
                     </div>
-                    <div className="text-[11px] font-mono text-gray-500 flex items-center space-x-2">
-                      <span className="bg-gray-100 text-gray-700 px-1.5 py-0.2 rounded font-semibold">
+                    <div className="text-[11px] font-mono text-slate-500 flex items-center space-x-2">
+                      <span className="bg-slate-100 text-slate-700 px-1.5 py-0.2 rounded font-semibold">
                         {inp.orderRef}
                       </span>
                       <span>•</span>
                       <span className="flex items-center space-x-1">
-                        <Calendar className="w-3 h-3 text-gray-400" />
+                        <Calendar className="w-3 h-3 text-slate-400" />
                         <span>{inp.orderDate}</span>
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-sm font-mono font-black text-gray-900">
+                    <div className="text-sm font-mono font-black text-slate-900">
                       {res.finalPayableAmount !== null ? formatINR(res.finalPayableAmount) : 'Pending Prices'}
                     </div>
-                    <div className="text-[10px] text-emerald-700 font-bold">
+                    <div className="text-[10px] text-teal-700 font-bold">
                       Benefit: {formatINR(res.totalCustomerDiscountBenefit)}
                     </div>
                   </div>
                 </div>
 
                 {/* Scooter & Battery breakdown */}
-                <div className="p-3 bg-gray-50/80 rounded-xl text-xs text-gray-700 space-y-1">
+                <div className="p-3 bg-slate-50/80 rounded-xl text-xs text-slate-700 space-y-1">
                   <div className="font-semibold flex items-center justify-between text-[11px]">
-                    <span className="text-gray-900 font-bold">{res.totalScooters} Scooters ({res.totalDlScooters} DL) • {inp.transportDistanceKm} km</span>
-                    <span className="font-mono text-emerald-800 font-bold">Disc Quota: {formatINR(res.scooterDiscountAllowance)}</span>
+                    <span className="text-slate-900 font-bold">{res.totalScooters} Scooters ({res.totalDlScooters} DL) • {inp.transportDistanceKm} km</span>
+                    <span className="font-mono text-teal-800 font-bold">Disc Quota: {formatINR(res.scooterDiscountAllowance)}</span>
                   </div>
-                  <div className="text-[10px] text-gray-500 truncate">
+                  <div className="text-[10px] text-slate-500 truncate">
                     {inp.scooterItems.map((s) => `${s.quantity}x ${s.modelName} (${s.category})`).join(', ')}
                   </div>
                 </div>
 
                 {/* Card Actions */}
-                <div className="pt-2 flex items-center justify-between border-t border-gray-100">
+                <div className="pt-2 flex items-center justify-between border-t border-slate-100">
                   <div className="flex items-center space-x-2 text-xs">
                     <button
                       type="button"
                       onClick={() => duplicateSavedOrder(order.id)}
-                      className="font-semibold text-gray-600 hover:text-gray-900 flex items-center space-x-1 cursor-pointer"
+                      className="font-semibold text-slate-600 hover:text-slate-900 flex items-center space-x-1 cursor-pointer"
                     >
-                      <Copy className="w-3.5 h-3.5 text-gray-400" />
+                      <Copy className="w-3.5 h-3.5 text-slate-400" />
                       <span>Duplicate</span>
                     </button>
-                    <span className="text-gray-300">•</span>
+                    <span className="text-slate-300">•</span>
                     <button
                       type="button"
                       onClick={() => setOrderToDelete({ id: order.id, ref: inp.orderRef })}
-                      className="font-semibold text-gray-400 hover:text-red-600 flex items-center space-x-1 cursor-pointer"
+                      className="font-semibold text-slate-400 hover:text-red-600 flex items-center space-x-1 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>Delete</span>
@@ -258,10 +258,10 @@ export const OrderHistory: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => loadSavedOrder(order.id)}
-                    className="py-1.5 px-3.5 bg-[#E53935] hover:bg-[#D32F2F] text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95"
+                    className="py-1.5 px-3.5 bg-[#101827] hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95 border border-[#12B8A6]/30"
                   >
                     <span>Open Order</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                    <ChevronRight className="w-3.5 h-3.5 text-[#12B8A6]" />
                   </button>
                 </div>
               </div>
