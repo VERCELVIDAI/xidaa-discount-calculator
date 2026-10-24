@@ -66,11 +66,11 @@ export const OrderHistory: React.FC = () => {
     <div className="max-w-2xl mx-auto space-y-5 pb-24 animate-fade-in">
       
       {/* Top Header */}
-      <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200">
         <button
           type="button"
           onClick={() => setActiveView('home')}
-          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#12B8A6] transition-colors py-1 cursor-pointer active:scale-95"
+          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-pink-600 transition-colors py-1 cursor-pointer active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>← Back to Home</span>
@@ -79,7 +79,7 @@ export const OrderHistory: React.FC = () => {
         <button
           type="button"
           onClick={() => startNewOrder(false)}
-          className="flex items-center space-x-1 text-xs font-bold text-[#12B8A6] hover:underline cursor-pointer"
+          className="flex items-center space-x-1 text-xs font-bold text-pink-600 hover:underline cursor-pointer"
         >
           <PlusCircle className="w-3.5 h-3.5" />
           <span>New Order</span>
@@ -91,7 +91,7 @@ export const OrderHistory: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <h1 className="text-base sm:text-lg font-black text-[#101827] flex items-center space-x-2">
-              <Bookmark className="w-5 h-5 text-[#12B8A6]" />
+              <Bookmark className="w-5 h-5 text-blue-600" />
               <span>Saved Order Calculations</span>
             </h1>
 
@@ -114,7 +114,7 @@ export const OrderHistory: React.FC = () => {
             </span>
           </div>
 
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             {savedOrders.length} quotation records in database.
           </p>
         </div>
@@ -136,15 +136,15 @@ export const OrderHistory: React.FC = () => {
           <button
             type="button"
             onClick={exportOrdersToJSON}
-            className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95"
+            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95"
             title="Export to JSON file"
           >
-            <Download className="w-3.5 h-3.5 text-gray-500" />
+            <Download className="w-3.5 h-3.5 text-slate-500" />
             <span>Export</span>
           </button>
 
-          <label className="px-3 py-1.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95">
-            <Upload className="w-3.5 h-3.5 text-gray-500" />
+          <label className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95">
+            <Upload className="w-3.5 h-3.5 text-slate-500" />
             <span>Import</span>
             <input type="file" accept=".json" onChange={handleImportFile} className="hidden" />
           </label>
@@ -153,13 +153,13 @@ export const OrderHistory: React.FC = () => {
 
       {/* Search Input */}
       <div className="relative">
-        <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         <input
           type="text"
           placeholder="Search by customer, quotation reference, or model..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] shadow-2xs"
+          className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 shadow-2xs"
         />
       </div>
 
@@ -179,7 +179,7 @@ export const OrderHistory: React.FC = () => {
             <button
               type="button"
               onClick={() => startNewOrder(true)}
-              className="mt-2 py-2 px-4 bg-[#101827] text-white text-xs font-bold rounded-xl shadow-xs hover:bg-slate-900 border border-[#12B8A6]/40 cursor-pointer"
+              className="mt-2 py-2 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-xs cursor-pointer"
             >
               Create First Order
             </button>
@@ -258,10 +258,10 @@ export const OrderHistory: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => loadSavedOrder(order.id)}
-                    className="py-1.5 px-3.5 bg-[#101827] hover:bg-slate-900 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95 border border-[#12B8A6]/30"
+                    className="py-1.5 px-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center space-x-1 shadow-2xs cursor-pointer active:scale-95"
                   >
                     <span>Open Order</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-[#12B8A6]" />
+                    <ChevronRight className="w-3.5 h-3.5 text-white" />
                   </button>
                 </div>
               </div>

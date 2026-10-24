@@ -22,15 +22,15 @@ export const MobileBottomNav: React.FC = () => {
           onClick={() => setActiveView('home')}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-all active:scale-95 cursor-pointer ${
             activeView === 'home'
-              ? 'text-[#12B8A6] font-extrabold'
-              : 'text-slate-500 hover:text-slate-900 font-medium'
+              ? 'text-slate-900 font-extrabold'
+              : 'text-slate-400 hover:text-slate-800 font-medium'
           }`}
         >
-          <Home className={`w-5 h-5 transition-transform ${activeView === 'home' ? 'scale-110 stroke-[2.5]' : ''}`} />
+          <Home className={`w-5 h-5 transition-transform ${activeView === 'home' ? 'scale-110 stroke-[2.5] text-slate-900' : ''}`} />
           <span className="text-[10px] mt-0.5 tracking-tight">Home</span>
         </button>
 
-        {/* 2. New Order */}
+        {/* 2. New Order - Pink */}
         <button
           type="button"
           onClick={() => {
@@ -42,28 +42,28 @@ export const MobileBottomNav: React.FC = () => {
           }}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-all active:scale-95 cursor-pointer ${
             activeView === 'order-form'
-              ? 'text-[#12B8A6] font-extrabold'
-              : 'text-slate-500 hover:text-slate-900 font-medium'
+              ? 'text-pink-600 font-extrabold'
+              : 'text-slate-400 hover:text-pink-600 font-medium'
           }`}
         >
-          <PlusCircle className={`w-5 h-5 transition-transform ${activeView === 'order-form' ? 'scale-110 stroke-[2.5]' : ''}`} />
+          <PlusCircle className={`w-5 h-5 transition-transform ${activeView === 'order-form' ? 'scale-110 stroke-[2.5] text-pink-600' : ''}`} />
           <span className="text-[10px] mt-0.5 tracking-tight">New Order</span>
         </button>
 
-        {/* 3. Saved Orders */}
+        {/* 3. Saved Orders - Blue */}
         <button
           type="button"
           onClick={() => setActiveView('history')}
           className={`flex flex-col items-center justify-center flex-1 py-1 relative transition-all active:scale-95 cursor-pointer ${
             activeView === 'history'
-              ? 'text-[#12B8A6] font-extrabold'
-              : 'text-slate-500 hover:text-slate-900 font-medium'
+              ? 'text-blue-600 font-extrabold'
+              : 'text-slate-400 hover:text-blue-600 font-medium'
           }`}
         >
           <div className="relative">
-            <Bookmark className={`w-5 h-5 transition-transform ${activeView === 'history' ? 'scale-110 stroke-[2.5]' : ''}`} />
+            <Bookmark className={`w-5 h-5 transition-transform ${activeView === 'history' ? 'scale-110 stroke-[2.5] text-blue-600' : ''}`} />
             {savedOrders.length > 0 && (
-              <span className="absolute -top-1 -right-2 bg-[#12B8A6] text-white text-[9px] font-mono font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-2xs">
+              <span className="absolute -top-1 -right-2 bg-blue-600 text-white text-[9px] font-mono font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-2xs">
                 {savedOrders.length > 99 ? '99+' : savedOrders.length}
               </span>
             )}
@@ -71,17 +71,17 @@ export const MobileBottomNav: React.FC = () => {
           <span className="text-[10px] mt-0.5 tracking-tight">Saved Orders</span>
         </button>
 
-        {/* 4. Settings */}
+        {/* 4. Settings - Green */}
         <button
           type="button"
           onClick={() => setActiveView('admin-settings')}
           className={`flex flex-col items-center justify-center flex-1 py-1 transition-all active:scale-95 cursor-pointer ${
             activeView === 'admin-settings'
-              ? 'text-[#12B8A6] font-extrabold'
-              : 'text-slate-500 hover:text-slate-900 font-medium'
+              ? 'text-emerald-600 font-extrabold'
+              : 'text-slate-400 hover:text-emerald-600 font-medium'
           }`}
         >
-          <Settings className={`w-5 h-5 transition-transform ${activeView === 'admin-settings' ? 'scale-110 stroke-[2.5]' : ''}`} />
+          <Settings className={`w-5 h-5 transition-transform ${activeView === 'admin-settings' ? 'scale-110 stroke-[2.5] text-emerald-600' : ''}`} />
           <span className="text-[10px] mt-0.5 tracking-tight">Settings</span>
         </button>
 

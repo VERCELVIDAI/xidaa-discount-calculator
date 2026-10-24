@@ -39,36 +39,37 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
   const isNotVerified = profitProtection.status === 'Not Verified';
 
   return (
-    <div className={`rounded-2xl p-4 sm:p-5 transition-all relative overflow-hidden ${
+    <div className={`rounded-2xl p-4 sm:p-5 transition-all relative overflow-hidden bg-white/95 border shadow-sm ${
       isProfitVerified
-        ? 'bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-300 shadow-sm'
+        ? 'border-emerald-300 ring-1 ring-emerald-200/50'
         : isBelowTarget
-        ? 'bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-transparent border border-amber-300 shadow-sm'
-        : 'bg-gradient-to-br from-blue-500/10 via-gray-500/5 to-transparent border border-blue-200 shadow-sm'
+        ? 'border-amber-300 ring-1 ring-amber-200/50'
+        : 'border-slate-200 ring-1 ring-slate-100'
     } ${className}`}>
 
-      {/* Ambient Teal/Green Glow Accent */}
-      <div className={`absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl pointer-events-none ${
-        isProfitVerified ? 'bg-emerald-400/15' : 'bg-[#12B8A6]/10'
+      {/* Ambient Tri-Color Glow Accent */}
+      <div className={`absolute top-0 right-0 w-44 h-44 rounded-full blur-3xl pointer-events-none opacity-40 ${
+        isProfitVerified ? 'bg-emerald-300' : 'bg-pink-300'
       }`} />
+      <div className="absolute bottom-0 left-0 w-32 h-32 rounded-full blur-2xl pointer-events-none opacity-20 bg-blue-300" />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-200/80 pb-3 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-3 gap-2 relative z-10">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-xl bg-white shadow-2xs border border-gray-200 flex items-center justify-center text-[#12B8A6]">
+          <div className="w-8 h-8 rounded-xl bg-pink-50 border border-pink-200 shadow-2xs flex items-center justify-center text-pink-600">
             <Sparkles className="w-4 h-4 fill-current" />
           </div>
           <div>
             <div className="flex items-center space-x-1.5">
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#12B8A6]">
+              <span className="text-[10px] font-black uppercase tracking-wider text-pink-600">
                 Smart Commercial Engine
               </span>
-              <span className="text-gray-300">•</span>
-              <span className="text-[10px] font-bold text-gray-500">
+              <span className="text-slate-300">•</span>
+              <span className="text-[10px] font-bold text-slate-500">
                 Automatic Recommendation
               </span>
             </div>
-            <h3 className="text-sm sm:text-base font-black text-[#101827]">
+            <h3 className="text-sm sm:text-base font-black text-slate-900">
               {profitProtection.bestOptionTitle || recScenario.name}
             </h3>
           </div>
@@ -78,24 +79,24 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
         <div className="flex items-center space-x-1.5 self-start sm:self-auto">
           <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border flex items-center space-x-1 ${
             isProfitVerified
-              ? 'bg-emerald-100 text-emerald-900 border-emerald-300'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
               : isBelowTarget
-              ? 'bg-amber-100 text-amber-900 border-amber-300'
-              : 'bg-gray-100 text-gray-800 border-gray-300'
+              ? 'bg-amber-50 text-amber-800 border-amber-300'
+              : 'bg-slate-100 text-slate-700 border-slate-200'
           }`}>
             {isProfitVerified ? (
               <>
-                <ShieldCheck className="w-3 h-3 text-emerald-700" />
+                <ShieldCheck className="w-3 h-3 text-emerald-600" />
                 <span>Profitability Verified</span>
               </>
             ) : isBelowTarget ? (
               <>
-                <AlertCircle className="w-3 h-3 text-amber-700" />
+                <AlertCircle className="w-3 h-3 text-amber-600" />
                 <span>Target Shortfall</span>
               </>
             ) : (
               <>
-                <HelpCircle className="w-3 h-3 text-gray-500" />
+                <HelpCircle className="w-3 h-3 text-slate-500" />
                 <span>Profitability Not Verified</span>
               </>
             )}
@@ -104,56 +105,56 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
       </div>
 
       {/* 4-Stat Comparison Matrix */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3.5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3.5 relative z-10">
         
-        {/* Recommended Discount */}
-        <div className="p-2.5 bg-white/90 rounded-xl border border-gray-200/80 shadow-2xs">
-          <span className="text-[10px] font-bold text-gray-500 uppercase block tracking-wider">
+        {/* Recommended Discount - Pink */}
+        <div className="p-2.5 bg-pink-50/50 rounded-xl border border-pink-200/70 shadow-2xs">
+          <span className="text-[10px] font-bold text-pink-700 uppercase block tracking-wider">
             Vehicle Discount
           </span>
-          <strong className="text-sm font-mono font-black text-gray-900 block mt-0.5">
+          <strong className="text-sm font-mono font-black text-pink-900 block mt-0.5">
             {formatINR(totalRecommendedDiscount)}
           </strong>
-          <span className="text-[9px] text-gray-400">
+          <span className="text-[9px] text-pink-600/80">
             DL + Other + Battery
           </span>
         </div>
 
-        {/* Company Transport Support */}
-        <div className="p-2.5 bg-white/90 rounded-xl border border-gray-200/80 shadow-2xs">
-          <span className="text-[10px] font-bold text-gray-500 uppercase block tracking-wider">
+        {/* Company Transport Support - Green */}
+        <div className="p-2.5 bg-emerald-50/50 rounded-xl border border-emerald-200/70 shadow-2xs">
+          <span className="text-[10px] font-bold text-emerald-700 uppercase block tracking-wider">
             Company Freight Support
           </span>
-          <strong className="text-sm font-mono font-black text-emerald-800 block mt-0.5">
+          <strong className="text-sm font-mono font-black text-emerald-900 block mt-0.5">
             {formatINR(recScenario.companyTransportSupport)}
           </strong>
-          <span className="text-[9px] text-gray-400">
+          <span className="text-[9px] text-emerald-600/80">
             Borne by Xidaa Moto
           </span>
         </div>
 
-        {/* Customer Transport Payment */}
-        <div className="p-2.5 bg-white/90 rounded-xl border border-gray-200/80 shadow-2xs">
-          <span className="text-[10px] font-bold text-gray-500 uppercase block tracking-wider">
+        {/* Customer Transport Payment - Blue */}
+        <div className="p-2.5 bg-blue-50/50 rounded-xl border border-blue-200/70 shadow-2xs">
+          <span className="text-[10px] font-bold text-blue-700 uppercase block tracking-wider">
             Customer Freight
           </span>
           <strong className="text-sm font-mono font-black text-blue-900 block mt-0.5">
             {formatINR(recScenario.customerTransportPayment)}
           </strong>
-          <span className="text-[9px] text-gray-400">
+          <span className="text-[9px] text-blue-600/80">
             Payable by Dealer
           </span>
         </div>
 
         {/* Estimated Company Profit / Status */}
-        <div className="p-2.5 bg-white/90 rounded-xl border border-gray-200/80 shadow-2xs">
-          <span className="text-[10px] font-bold text-gray-500 uppercase block tracking-wider">
+        <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">
             Company Profit
           </span>
           {recScenario.companyProfit !== null ? (
             <div>
               <strong className={`text-sm font-mono font-black block mt-0.5 ${
-                recScenario.companyProfit >= 0 ? 'text-gray-900' : 'text-red-600'
+                recScenario.companyProfit >= 0 ? 'text-slate-900' : 'text-rose-600'
               }`}>
                 {formatINR(recScenario.companyProfit)}
               </strong>
@@ -163,7 +164,7 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
             </div>
           ) : (
             <div>
-              <strong className="text-xs font-bold text-gray-400 block mt-0.5">
+              <strong className="text-xs font-bold text-slate-400 block mt-0.5">
                 Provisional
               </strong>
               <span className="text-[9px] text-amber-700 font-medium">
@@ -176,9 +177,9 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
       </div>
 
       {/* Recommendation Reason */}
-      <div className="pt-3 text-xs text-gray-700 space-y-1">
-        <p className="leading-relaxed bg-white/70 p-2.5 rounded-xl border border-gray-200/70 text-[11px] text-gray-800">
-          <strong>Strategic Financial Rationale:</strong> {profitProtection.recommendationReason || recScenario.description}
+      <div className="pt-3 text-xs text-slate-700 space-y-1 relative z-10">
+        <p className="leading-relaxed bg-slate-50/80 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-800">
+          <strong className="text-pink-600">Strategic Financial Rationale:</strong> {profitProtection.recommendationReason || recScenario.description}
         </p>
 
         {isNotVerified && (
@@ -190,9 +191,9 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
 
       {/* Action: One-Click Apply */}
       {onApplyRecommendation && !compact && (
-        <div className="pt-3 flex items-center justify-between border-t border-gray-200/70 mt-3">
-          <div className="text-[11px] text-gray-600">
-            Current Active Settlement: <strong>{allocationOption}</strong>
+        <div className="pt-3 flex items-center justify-between border-t border-slate-100 mt-3 relative z-10">
+          <div className="text-[11px] text-slate-600">
+            Current Active Settlement: <strong className="text-slate-900 font-bold">{allocationOption}</strong>
           </div>
 
           {isAlreadyActive ? (
@@ -204,7 +205,7 @@ export const DiscountRecommendationCard: React.FC<DiscountRecommendationCardProp
             <button
               type="button"
               onClick={() => onApplyRecommendation(targetAllocation, recommendedScenarioId)}
-              className="py-1.5 px-3.5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer flex items-center space-x-1.5 active:scale-95"
+              className="py-1.5 px-3.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-xs transition-all cursor-pointer flex items-center space-x-1.5 active:scale-95"
             >
               <span>Apply Recommended Strategy</span>
               <ArrowRight className="w-3.5 h-3.5" />

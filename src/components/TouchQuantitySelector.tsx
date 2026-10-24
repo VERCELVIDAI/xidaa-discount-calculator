@@ -80,7 +80,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
     <div className="relative inline-block text-left w-full sm:w-auto">
       
       {/* Primary Touch Bar: Minus | Sequential Dropdown & Counter | Plus */}
-      <div className="flex items-center bg-gray-50/90 hover:bg-gray-100/70 border border-gray-300 rounded-xl p-1 shadow-2xs transition-all">
+      <div className="flex items-center bg-white/95 hover:bg-slate-50/90 border border-slate-200 rounded-xl p-1 shadow-2xs transition-all ring-1 ring-slate-100">
         
         {/* Decrement Button */}
         <button
@@ -88,7 +88,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
           onClick={handleDecrement}
           disabled={currentVal <= min}
           title="Decrease Quantity (-1)"
-          className={`w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${
+          className={`w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${
             isSmall ? 'w-8 h-8' : ''
           }`}
         >
@@ -124,15 +124,15 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
             type="button"
             onClick={() => setShowPresets(!showPresets)}
             title="Click to select quantity from presets or enter custom"
-            className="w-full px-2 py-1 text-center hover:bg-white/90 rounded-lg transition-colors cursor-pointer group flex items-center justify-center space-x-1"
+            className="w-full px-2 py-1 text-center hover:bg-pink-50/50 rounded-lg transition-colors cursor-pointer group flex items-center justify-center space-x-1"
           >
-            <span className="font-mono font-black text-sm sm:text-base text-gray-900 tracking-tight">
+            <span className="font-mono font-black text-sm sm:text-base text-slate-900 tracking-tight group-hover:text-pink-600 transition-colors">
               {currentVal}
             </span>
-            <span className="text-[10px] text-gray-400 font-medium hidden sm:inline">
+            <span className="text-[10px] text-slate-400 font-medium hidden sm:inline">
               {unitLabel}
             </span>
-            <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition-transform pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-pink-600 transition-transform pointer-events-none" />
           </button>
         </div>
 
@@ -142,7 +142,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
           onClick={handleIncrement}
           disabled={currentVal >= max}
           title="Increase Quantity (+1)"
-          className={`w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 hover:text-black transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${
+          className={`w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-slate-50 border border-slate-200 text-slate-700 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed ${
             isSmall ? 'w-8 h-8' : ''
           }`}
         >
@@ -156,18 +156,18 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
         <>
           {/* Backdrop click dismiss */}
           <div 
-            className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[0.5px]" 
+            className="fixed inset-0 z-40 bg-slate-900/10 backdrop-blur-[1px]" 
             onClick={() => setShowPresets(false)} 
           />
 
-          <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-72 bg-white rounded-2xl shadow-xl border border-gray-200 p-3.5 space-y-3 animate-fade-in">
+          <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-1.5 z-50 w-72 bg-white rounded-2xl shadow-xl border border-slate-200 p-3.5 space-y-3 animate-fade-in">
             
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <span className="text-[11px] font-bold text-gray-700 uppercase tracking-wider flex items-center space-x-1">
-                <Sliders className="w-3.5 h-3.5 text-[#12B8A6]" />
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center space-x-1.5">
+                <Sliders className="w-3.5 h-3.5 text-pink-500" />
                 <span>Quantity Selector (1–32)</span>
               </span>
-              <span className="text-[10px] text-gray-400">
+              <span className="text-[10px] text-slate-400 font-medium">
                 Touch-Friendly
               </span>
             </div>
@@ -183,8 +183,8 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
                     onClick={() => handlePresetSelect(preset)}
                     className={`py-1.5 px-2 rounded-lg text-xs font-mono font-bold transition-all cursor-pointer flex items-center justify-center space-x-1 ${
                       isSelected
-                        ? 'bg-[#12B8A6] text-white shadow-2xs font-black'
-                        : 'bg-gray-50 hover:bg-gray-100 text-gray-800 border border-gray-200'
+                        ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-xs font-black'
+                        : 'bg-slate-50 hover:bg-slate-100 text-slate-800 border border-slate-200'
                     }`}
                   >
                     <span>{preset}</span>
@@ -195,14 +195,14 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
             </div>
 
             {/* Sequential 1 to 32 Dropdown Picker */}
-            <div className="pt-2 border-t border-gray-100 space-y-1">
-              <label className="text-[10px] font-bold text-gray-500 uppercase block">
+            <div className="pt-2 border-t border-slate-100 space-y-1">
+              <label className="text-[10px] font-bold text-slate-500 uppercase block">
                 Select Any Exact Quantity (1 through 32):
               </label>
               <select
                 value={currentVal <= 32 ? currentVal : 'custom'}
                 onChange={handleSelectChange}
-                className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-gray-800 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
+                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-mono font-bold text-slate-800 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
               >
                 <option value={0}>0 units</option>
                 {SEQUENTIAL_1_TO_32.map((n) => (
@@ -220,7 +220,7 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
             </div>
 
             {/* Custom Quantity Option for values > 32 */}
-            <div className="pt-2 border-t border-gray-100">
+            <div className="pt-2 border-t border-slate-100">
               {isCustomInputOpen ? (
                 <form onSubmit={handleCustomSubmit} className="flex items-center space-x-2">
                   <input
@@ -232,11 +232,11 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
                     placeholder="e.g. 50"
                     value={customVal}
                     onChange={(e) => setCustomVal(e.target.value)}
-                    className="w-full bg-white border border-gray-300 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
+                    className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
                   />
                   <button
                     type="submit"
-                    className="py-1 px-3 bg-[#101827] text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer hover:bg-slate-900"
+                    className="py-1 px-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg text-xs font-bold whitespace-nowrap cursor-pointer hover:from-pink-600 hover:to-rose-600 shadow-2xs"
                   >
                     Set
                   </button>
@@ -248,9 +248,9 @@ export const TouchQuantitySelector: React.FC<TouchQuantitySelectorProps> = ({
                     setCustomVal(String(currentVal > 32 ? currentVal : ''));
                     setIsCustomInputOpen(true);
                   }}
-                  className="w-full py-1.5 px-2 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer"
+                  className="w-full py-1.5 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg text-xs font-semibold flex items-center justify-center space-x-1.5 transition-colors cursor-pointer hover:text-pink-600"
                 >
-                  <Hash className="w-3.5 h-3.5 text-gray-500" />
+                  <Hash className="w-3.5 h-3.5 text-slate-500" />
                   <span>Enter Custom Large Quantity (&gt;32)...</span>
                 </button>
               )}

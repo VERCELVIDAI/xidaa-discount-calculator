@@ -45,7 +45,7 @@ export const ResultsScreen: React.FC = () => {
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#12B8A6', '#101827', '#16a34a', '#ffffff'],
+        colors: ['#EC4899', '#2563EB', '#10B981', '#ffffff'],
       });
       setTimeout(() => setJustSaved(false), 2500);
     }
@@ -71,7 +71,7 @@ export const ResultsScreen: React.FC = () => {
         <button
           type="button"
           onClick={editCurrentOrder}
-          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-[#12B8A6] transition-colors py-1 cursor-pointer active:scale-95"
+          className="flex items-center space-x-1.5 text-xs font-bold text-slate-700 hover:text-pink-600 transition-colors py-1 cursor-pointer active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>← Back to Edit Order</span>
@@ -83,9 +83,9 @@ export const ResultsScreen: React.FC = () => {
           </span>
           <span className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${
             isOptionASelected
-              ? 'bg-blue-50 text-blue-900 border-blue-200'
+              ? 'bg-pink-50 text-pink-900 border-pink-200'
               : isOptionBSelected
-              ? 'bg-teal-50 text-teal-900 border-teal-200'
+              ? 'bg-blue-50 text-blue-900 border-blue-200'
               : 'bg-slate-100 text-slate-800 border-slate-300'
           }`}>
             ● Active: {calculationResult.allocationOption}
@@ -119,7 +119,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Quantities 4-Pill Grid */}
+        {/* Quantities 4-Pill Grid - Tri-Color Harmony (Blue / Pink / Slate / Green) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div className="p-3 bg-blue-50/70 border border-blue-200/80 rounded-xl text-center">
             <span className="text-[10px] uppercase font-bold text-blue-700 block">DL Scooters</span>
@@ -129,12 +129,12 @@ export const ResultsScreen: React.FC = () => {
             <span className="text-[10px] text-blue-600 font-medium">₹500 / unit allowance</span>
           </div>
 
-          <div className="p-3 bg-teal-50/70 border border-teal-200/80 rounded-xl text-center">
-            <span className="text-[10px] uppercase font-bold text-teal-800 block">Other Scooters</span>
-            <span className="text-xl font-black font-mono text-teal-950 mt-1 block">
+          <div className="p-3 bg-pink-50/70 border border-pink-200/80 rounded-xl text-center">
+            <span className="text-[10px] uppercase font-bold text-pink-700 block">Other Scooters</span>
+            <span className="text-xl font-black font-mono text-pink-950 mt-1 block">
               <AnimatedNumber value={calculationResult.totalOtherScooters} formatFn={(n) => `${n}`} />
             </span>
-            <span className="text-[10px] text-teal-700 font-medium">₹1,000 / unit allowance</span>
+            <span className="text-[10px] text-pink-600 font-medium">₹1,000 / unit allowance</span>
           </div>
 
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
@@ -175,11 +175,11 @@ export const ResultsScreen: React.FC = () => {
       <section className="glass-card rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm border border-slate-200/90">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center space-x-2.5">
-            <div className="w-8 h-8 rounded-xl bg-teal-50 border border-teal-200 text-[#12B8A6] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-pink-50 border border-pink-200 text-pink-600 flex items-center justify-center">
               <Sparkles className="w-4 h-4 fill-current" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-bold text-teal-700 block tracking-wider">
+              <span className="text-[10px] uppercase font-bold text-pink-600 block tracking-wider">
                 Section 2 • Recommendation
               </span>
               <h2 className="text-sm sm:text-base font-black text-[#101827]">
@@ -188,61 +188,61 @@ export const ResultsScreen: React.FC = () => {
             </div>
           </div>
 
-          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-teal-50 border border-teal-200 text-[#12B8A6]">
+          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-pink-50 border border-pink-200 text-pink-600">
             {calculationResult.profitProtection.bestOptionTitle || recScenario?.name || 'Commercial Best'}
           </span>
         </div>
 
         {/* 4-Metric Commercial Impact Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-          <div className="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">
+          <div className="p-3 bg-pink-50/50 rounded-xl border border-pink-200/70 shadow-2xs">
+            <span className="text-[10px] font-bold text-pink-700 uppercase block tracking-wider">
               Scooter Allowance
             </span>
-            <strong className="text-sm font-mono font-black text-slate-900 block mt-1">
+            <strong className="text-sm font-mono font-black text-pink-950 block mt-1">
               {formatINR(calculationResult.scooterDiscountAllowance)}
             </strong>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-pink-600/80">
               Max eligible discount
             </span>
           </div>
 
-          <div className="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">
+          <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200/70 shadow-2xs">
+            <span className="text-[10px] font-bold text-emerald-700 uppercase block tracking-wider">
               Company Freight Support
             </span>
-            <strong className="text-sm font-mono font-black text-teal-800 block mt-1">
+            <strong className="text-sm font-mono font-black text-emerald-950 block mt-1">
               {formatINR(recScenario?.companyTransportSupport ?? 0)}
             </strong>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-emerald-600/80">
               Borne by Xidaa Moto
             </span>
           </div>
 
-          <div className="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
-            <span className="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">
+          <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200/70 shadow-2xs">
+            <span className="text-[10px] font-bold text-blue-700 uppercase block tracking-wider">
               Dealer Freight
             </span>
-            <strong className="text-sm font-mono font-black text-blue-900 block mt-1">
+            <strong className="text-sm font-mono font-black text-blue-950 block mt-1">
               {formatINR(recScenario?.customerTransportPayment ?? calculationResult.totalTransportCost)}
             </strong>
-            <span className="text-[10px] text-slate-400">
+            <span className="text-[10px] text-blue-600/80">
               Payable by Dealership
             </span>
           </div>
 
-          <div className="p-3 bg-white rounded-xl border border-slate-200/90 shadow-2xs">
+          <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 shadow-2xs">
             <span className="text-[10px] font-bold text-slate-500 uppercase block tracking-wider">
               Estimated Profit
             </span>
             {recScenario?.companyProfit !== null && recScenario?.companyProfit !== undefined ? (
               <div>
                 <strong className={`text-sm font-mono font-black block mt-1 ${
-                  recScenario.companyProfit >= 0 ? 'text-slate-900' : 'text-red-600'
+                  recScenario.companyProfit >= 0 ? 'text-slate-900' : 'text-rose-600'
                 }`}>
                   {formatINR(recScenario.companyProfit)}
                 </strong>
-                <span className="text-[10px] font-bold text-teal-700">
+                <span className="text-[10px] font-bold text-emerald-700">
                   {recScenario.profitMarginPercent}% Margin
                 </span>
               </div>
@@ -262,7 +262,7 @@ export const ResultsScreen: React.FC = () => {
         {/* Plain-Language Financial Reason */}
         <div className="p-3 bg-slate-50/90 rounded-xl border border-slate-200 text-xs space-y-1">
           <div className="flex items-center space-x-1.5 text-slate-800 font-bold">
-            <Info className="w-3.5 h-3.5 text-[#12B8A6]" />
+            <Info className="w-3.5 h-3.5 text-pink-600" />
             <span>Plain-Language Rationale:</span>
           </div>
           <p className="text-slate-600 leading-relaxed text-[11px] pl-5">
@@ -281,7 +281,7 @@ export const ResultsScreen: React.FC = () => {
               onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                 isOptionASelected
-                  ? 'bg-[#101827] text-white shadow-2xs'
+                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-2xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -299,7 +299,7 @@ export const ResultsScreen: React.FC = () => {
                 !isOptionBEligible
                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed opacity-60'
                   : isOptionBSelected
-                  ? 'bg-[#12B8A6] text-white shadow-2xs cursor-pointer'
+                  ? 'bg-blue-600 text-white shadow-2xs cursor-pointer'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer'
               }`}
             >
@@ -315,7 +315,7 @@ export const ResultsScreen: React.FC = () => {
       <section className="glass-card rounded-2xl p-5 sm:p-6 space-y-3.5 shadow-sm border border-slate-200/90">
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center space-x-2">
-            <Truck className="w-4 h-4 text-[#12B8A6]" />
+            <Truck className="w-4 h-4 text-blue-600" />
             <div>
               <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">
                 Section 3 • Freight Logistics
@@ -332,13 +332,13 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Route Details Chips */}
         <div className="text-[11px] text-slate-500 flex items-center space-x-2 flex-wrap">
-          <span>Delivery Distance: <strong>{orderInput.transportDistanceKm} km</strong></span>
+          <span>Delivery Distance: <strong className="text-blue-700">{orderInput.transportDistanceKm} km</strong></span>
           <span>•</span>
           <span>Fleet: <strong>{calculationResult.truckSummary}</strong></span>
           {calculationResult.transportCostPerScooter !== null && (
             <>
               <span>•</span>
-              <span>Freight Rate: <strong className="text-teal-700">{formatINR(calculationResult.transportCostPerScooter)} / scooty</strong></span>
+              <span>Freight Rate: <strong className="text-blue-600">{formatINR(calculationResult.transportCostPerScooter)} / scooty</strong></span>
             </>
           )}
         </div>
@@ -359,7 +359,7 @@ export const ResultsScreen: React.FC = () => {
           </div>
           <div className="flex items-center justify-between text-slate-700">
             <span>4. Transport GST ({calculationResult.transportGstPercent}%):</span>
-            <span className="font-mono font-semibold text-teal-700">+ {formatINR(calculationResult.transportGstAmount)}</span>
+            <span className="font-mono font-semibold text-blue-600">+ {formatINR(calculationResult.transportGstAmount)}</span>
           </div>
           <div className="flex items-center justify-between text-slate-950 font-black pt-1.5 border-t border-slate-300">
             <span>5. Final Transport Cost:</span>
@@ -369,15 +369,15 @@ export const ResultsScreen: React.FC = () => {
 
         {/* Freight Sharing Summary */}
         <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
-            <span className="text-[10px] text-slate-500 block uppercase font-bold">Xidaa Support</span>
-            <strong className="text-sm font-mono font-black text-teal-700 block mt-0.5">
+          <div className="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-200">
+            <span className="text-[10px] text-emerald-700 block uppercase font-bold">Xidaa Support</span>
+            <strong className="text-sm font-mono font-black text-emerald-950 block mt-0.5">
               {formatINR(calculationResult.companyTransportSupport)}
             </strong>
           </div>
-          <div className="p-2.5 bg-white rounded-xl border border-slate-200">
-            <span className="text-[10px] text-slate-500 block uppercase font-bold">Dealer Payable</span>
-            <strong className="text-sm font-mono font-black text-slate-900 block mt-0.5">
+          <div className="p-2.5 bg-blue-50/60 rounded-xl border border-blue-200">
+            <span className="text-[10px] text-blue-700 block uppercase font-bold">Dealer Payable</span>
+            <strong className="text-sm font-mono font-black text-blue-950 block mt-0.5">
               {formatINR(calculationResult.customerTransportPayment)}
             </strong>
           </div>
@@ -538,7 +538,7 @@ export const ResultsScreen: React.FC = () => {
         ) : (
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
             <div className="flex items-start space-x-2.5">
-              <Info className="w-4 h-4 text-[#12B8A6] flex-shrink-0 mt-0.5" />
+              <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <h3 className="text-xs font-bold text-slate-900">
                   Final scooter invoice amount is not calculated because approved prices are not configured.
@@ -574,25 +574,25 @@ export const ResultsScreen: React.FC = () => {
 
       {/* Primary Action Buttons Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-        {/* Edit Order */}
+        {/* Edit Order - Azure Blue Accent */}
         <button
           type="button"
           onClick={editCurrentOrder}
-          className="py-3 px-3 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors cursor-pointer active:scale-95 shadow-2xs"
+          className="py-3 px-3 bg-white hover:bg-blue-50/50 hover:border-blue-300 text-slate-800 hover:text-blue-700 border border-slate-200 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors cursor-pointer active:scale-95 shadow-2xs"
         >
-          <Edit3 className="w-3.5 h-3.5 text-slate-500" />
+          <Edit3 className="w-3.5 h-3.5 text-blue-600" />
           <span>Edit Order</span>
         </button>
 
-        {/* Save Calculation */}
+        {/* Save Calculation - Emerald Green Accent */}
         <button
           type="button"
           onClick={handleSaveOrder}
           disabled={isSaving}
           className={`py-3 px-3 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95 disabled:opacity-50 ${
             justSaved
-              ? 'bg-emerald-600 text-white'
-              : 'bg-[#12B8A6] hover:bg-teal-600 text-white shadow-xs'
+              ? 'bg-emerald-700 text-white shadow-xs'
+              : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
           }`}
         >
           {isSaving ? (
@@ -623,13 +623,13 @@ export const ResultsScreen: React.FC = () => {
           <span>Start New</span>
         </button>
 
-        {/* Generate PDF (Print / PDF) */}
+        {/* Generate PDF (Print / PDF) - Electric Pink Gradient Accent */}
         <button
           type="button"
           onClick={() => setActiveView('print-summary')}
-          className="py-3 px-3 bg-[#101827] hover:bg-slate-900 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-colors cursor-pointer active:scale-95 shadow-xs"
+          className="py-3 px-3 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 transition-all cursor-pointer active:scale-95 shadow-xs"
         >
-          <Printer className="w-3.5 h-3.5 text-[#12B8A6]" />
+          <Printer className="w-3.5 h-3.5 text-white" />
           <span>Generate PDF</span>
         </button>
       </div>

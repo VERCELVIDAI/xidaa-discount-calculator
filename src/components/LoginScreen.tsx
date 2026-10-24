@@ -98,7 +98,7 @@ export const LoginScreen: React.FC = () => {
   }, [isLocked, isVerifying, handleVerifyPin]);
 
   return (
-    <div className="min-h-screen bg-[#F7FAFC] flex flex-col justify-center items-center px-4 py-8 select-none">
+    <div className="min-h-screen bg-[#F8FAFC] aura-trio flex flex-col justify-center items-center px-4 py-8 select-none relative overflow-hidden">
       
       {/* Brand Header */}
       <div className="max-w-xs w-full text-center space-y-4 mb-6">
@@ -113,7 +113,11 @@ export const LoginScreen: React.FC = () => {
         </div>
 
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#101827] tracking-tight">
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-50 via-blue-50 to-emerald-50 border border-slate-200 text-[10px] font-black uppercase tracking-wider mb-2">
+            <span className="w-2 h-2 rounded-full bg-pink-500 animate-pulse" />
+            <span className="text-slate-800">Commercial Sales Terminal</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Xidaa Discount Calculator
           </h1>
           <p className="text-xs font-medium text-slate-500 mt-1">
@@ -123,14 +127,17 @@ export const LoginScreen: React.FC = () => {
       </div>
 
       {/* PIN Card */}
-      <div className="max-w-xs w-full bg-white rounded-3xl p-6 sm:p-7 shadow-sm border border-slate-200/90 space-y-5 text-center">
+      <div className="max-w-xs w-full bg-white/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 shadow-xl shadow-slate-200/50 border border-slate-200/90 space-y-5 text-center relative">
         
+        {/* Trio Accent Bar on Top */}
+        <div className="h-1 w-20 mx-auto rounded-full bg-gradient-to-r from-pink-500 via-blue-500 to-emerald-500 -mt-1" />
+
         {/* Title & Instructions */}
         <div className="space-y-1">
-          <div className="w-9 h-9 rounded-full bg-teal-50 text-[#12B8A6] flex items-center justify-center mx-auto border border-teal-100">
-            <KeyRound className="w-4 h-4" />
+          <div className="w-10 h-10 rounded-2xl bg-pink-50 text-pink-600 flex items-center justify-center mx-auto border border-pink-100 shadow-2xs">
+            <KeyRound className="w-5 h-5" />
           </div>
-          <h2 className="text-sm font-bold text-[#101827]">
+          <h2 className="text-sm font-bold text-slate-900">
             Enter Security PIN
           </h2>
           <p className="text-xs text-slate-400">
@@ -148,7 +155,7 @@ export const LoginScreen: React.FC = () => {
                 data-testid="pin-dot"
                 className={`w-4 h-4 rounded-full transition-all duration-150 ${
                   isFilled
-                    ? 'bg-[#12B8A6] scale-110 shadow-xs ring-4 ring-teal-100'
+                    ? 'bg-gradient-to-br from-pink-500 to-rose-600 scale-115 shadow-sm shadow-pink-500/30 ring-4 ring-pink-100'
                     : 'bg-slate-200 border border-slate-300'
                 }`}
               />
@@ -170,7 +177,7 @@ export const LoginScreen: React.FC = () => {
         ) : (
           <div className="h-7 text-xs text-slate-400 flex items-center justify-center">
             {isVerifying ? (
-              <span className="text-[#12B8A6] font-semibold flex items-center space-x-1">
+              <span className="text-pink-600 font-semibold flex items-center space-x-1">
                 <Sparkles className="w-3 h-3 animate-spin" />
                 <span>Verifying credentials...</span>
               </span>
@@ -188,7 +195,7 @@ export const LoginScreen: React.FC = () => {
               type="button"
               disabled={isLocked || isVerifying}
               onClick={() => handleDigitPress(digit)}
-              className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 text-lg font-bold font-mono text-[#101827] flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+              className="h-12 sm:h-13 rounded-2xl bg-slate-50/80 hover:bg-pink-50/60 active:bg-pink-100/70 border border-slate-200/90 text-lg font-bold font-mono text-slate-900 hover:text-pink-700 hover:border-pink-200 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
             >
               {digit}
             </button>
@@ -199,7 +206,7 @@ export const LoginScreen: React.FC = () => {
             type="button"
             disabled={isLocked || isVerifying || pin.length === 0}
             onClick={handleClear}
-            className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-500 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 text-xs font-bold text-slate-500 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-200/70"
           >
             Clear
           </button>
@@ -209,7 +216,7 @@ export const LoginScreen: React.FC = () => {
             type="button"
             disabled={isLocked || isVerifying}
             onClick={() => handleDigitPress('0')}
-            className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 active:bg-slate-200 border border-slate-200 text-lg font-bold font-mono text-[#101827] flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
+            className="h-12 sm:h-13 rounded-2xl bg-slate-50/80 hover:bg-pink-50/60 active:bg-pink-100/70 border border-slate-200/90 text-lg font-bold font-mono text-slate-900 hover:text-pink-700 hover:border-pink-200 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed shadow-2xs"
           >
             0
           </button>
@@ -220,7 +227,7 @@ export const LoginScreen: React.FC = () => {
             disabled={isLocked || isVerifying || pin.length === 0}
             onClick={handleBackspace}
             aria-label="Backspace"
-            className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="h-12 sm:h-13 rounded-2xl bg-slate-50 hover:bg-slate-100 text-slate-700 flex items-center justify-center transition-all cursor-pointer active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed border border-slate-200/70"
           >
             <Delete className="w-5 h-5 text-slate-600" />
           </button>
@@ -235,14 +242,14 @@ export const LoginScreen: React.FC = () => {
             <button
               type="button"
               onClick={() => handleQuickFill('9999')}
-              className="py-1 px-2.5 rounded-lg text-[11px] font-bold text-[#12B8A6] bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors cursor-pointer"
+              className="py-1 px-3 rounded-xl text-[11px] font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 border border-blue-200 transition-all cursor-pointer active:scale-95"
             >
               Standard (9999)
             </button>
             <button
               type="button"
               onClick={() => handleQuickFill('2026')}
-              className="py-1 px-2.5 rounded-lg text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition-colors cursor-pointer"
+              className="py-1 px-3 rounded-xl text-[11px] font-bold text-pink-700 bg-pink-50 hover:bg-pink-100 border border-pink-200 transition-all cursor-pointer active:scale-95"
             >
               Admin (2026)
             </button>
@@ -254,7 +261,7 @@ export const LoginScreen: React.FC = () => {
       {/* Security Footer Note */}
       <div className="mt-6 text-center text-xs text-slate-400 space-y-1">
         <div className="flex items-center justify-center space-x-1.5">
-          <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Encrypted cryptographic session authentication</span>
         </div>
         <p className="text-[10px] text-slate-400">

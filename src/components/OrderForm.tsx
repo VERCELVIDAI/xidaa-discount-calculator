@@ -110,36 +110,36 @@ export const OrderForm: React.FC = () => {
       {/* 3-STEP INTERACTIVE WORKFLOW HEADER */}
       <div className="glass-card rounded-2xl p-2.5 sm:p-3 space-y-2">
         <div className="flex items-center justify-between px-1">
-          <span className="text-[10px] font-extrabold uppercase tracking-widest text-gray-500">
+          <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
             Order Entry Workflow
           </span>
           <button
             type="button"
             onClick={() => setShowAllSteps(!showAllSteps)}
-            className="text-[11px] font-semibold text-[#12B8A6] hover:underline cursor-pointer"
+            className="text-[11px] font-bold text-pink-600 hover:text-pink-700 hover:underline cursor-pointer"
           >
             {showAllSteps ? 'Switch to Step-by-Step' : 'View All Steps on One Page'}
           </button>
         </div>
 
         <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
-          {/* Step 1 Pill */}
+          {/* Step 1 Pill - Pink */}
           <button
             type="button"
             onClick={() => setCurrentStep(1)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 1 || showAllSteps
-                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
-                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+                ? 'bg-pink-50/80 border border-pink-500 text-slate-900 shadow-2xs ring-1 ring-pink-500/30'
+                : 'bg-slate-50/80 border border-transparent text-slate-500 hover:bg-slate-100/80'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 1 || showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
+                currentStep === 1 || showAllSteps ? 'text-pink-600' : 'text-slate-400'
               }`}>
                 Step 1
               </span>
-              <span className="text-[10px] font-mono font-bold text-gray-800">
+              <span className="text-[10px] font-mono font-bold text-slate-800">
                 {calculationResult.totalScooters} units
               </span>
             </div>
@@ -148,23 +148,23 @@ export const OrderForm: React.FC = () => {
             </div>
           </button>
 
-          {/* Step 2 Pill */}
+          {/* Step 2 Pill - Green */}
           <button
             type="button"
             onClick={() => setCurrentStep(2)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 2 && !showAllSteps
-                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
-                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+                ? 'bg-emerald-50/80 border border-emerald-500 text-slate-900 shadow-2xs ring-1 ring-emerald-500/30'
+                : 'bg-slate-50/80 border border-transparent text-slate-500 hover:bg-slate-100/80'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 2 && !showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
+                currentStep === 2 && !showAllSteps ? 'text-emerald-600' : 'text-slate-400'
               }`}>
                 Step 2
               </span>
-              <span className="text-[10px] font-mono font-bold text-gray-800">
+              <span className="text-[10px] font-mono font-bold text-slate-800">
                 {orderInput.transportDistanceKm} km
               </span>
             </div>
@@ -173,23 +173,23 @@ export const OrderForm: React.FC = () => {
             </div>
           </button>
 
-          {/* Step 3 Pill */}
+          {/* Step 3 Pill - Blue */}
           <button
             type="button"
             onClick={() => setCurrentStep(3)}
             className={`py-2 px-2 sm:px-3 rounded-xl text-left transition-all cursor-pointer ${
               currentStep === 3 && !showAllSteps
-                ? 'bg-white border border-[#12B8A6]/60 text-slate-900 shadow-xs ring-1 ring-[#12B8A6]/20'
-                : 'bg-gray-50/70 border border-transparent text-gray-500 hover:bg-gray-100/70'
+                ? 'bg-blue-50/80 border border-blue-500 text-slate-900 shadow-2xs ring-1 ring-blue-500/30'
+                : 'bg-slate-50/80 border border-transparent text-slate-500 hover:bg-slate-100/80'
             }`}
           >
             <div className="flex items-center justify-between mb-0.5">
               <span className={`text-[10px] font-black uppercase tracking-wider ${
-                currentStep === 3 && !showAllSteps ? 'text-[#12B8A6]' : 'text-gray-400'
+                currentStep === 3 && !showAllSteps ? 'text-blue-600' : 'text-slate-400'
               }`}>
                 Step 3
               </span>
-              <span className="text-[10px] font-bold text-emerald-700">
+              <span className="text-[10px] font-bold text-emerald-600">
                 Ready
               </span>
             </div>
@@ -225,7 +225,7 @@ export const OrderForm: React.FC = () => {
                   type="button"
                   onClick={handleRegenerateRef}
                   title="Generate New Reference"
-                  className="p-1 text-gray-400 hover:text-[#12B8A6] rounded transition-colors cursor-pointer"
+                  className="p-1 text-slate-400 hover:text-pink-600 rounded transition-colors cursor-pointer"
                 >
                   <RotateCw className="w-3.5 h-3.5" />
                 </button>
@@ -235,8 +235,8 @@ export const OrderForm: React.FC = () => {
             <div className="space-y-3.5">
               {/* Customer / Dealer Name */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-[#12B8A6]" />
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center space-x-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-pink-500" />
                   <span>Customer / Dealership Name</span>
                 </label>
                 <input
@@ -244,34 +244,34 @@ export const OrderForm: React.FC = () => {
                   placeholder="e.g. Aodn Motors Dealership"
                   value={orderInput.customerName}
                   onChange={(e) => updateOrderInput({ customerName: e.target.value })}
-                  className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] transition-all"
+                  className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
                 />
               </div>
 
               {/* Order Date */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5 flex items-center space-x-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-gray-500" />
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center space-x-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-slate-500" />
                     <span>Order Date</span>
                   </label>
                   <input
                     type="date"
                     value={orderInput.orderDate}
                     onChange={(e) => updateOrderInput({ orderDate: e.target.value })}
-                    className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-medium text-gray-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6] transition-all"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
                     Commercial Reference
                   </label>
                   <input
                     type="text"
                     value={orderInput.orderRef}
                     onChange={(e) => updateOrderInput({ orderRef: e.target.value })}
-                    className="w-full bg-gray-50 border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-gray-800 focus:outline-none focus:border-[#12B8A6] transition-all"
+                    className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-mono font-bold text-slate-800 focus:outline-none focus:border-pink-500 transition-all"
                   />
                 </div>
               </div>
@@ -280,20 +280,20 @@ export const OrderForm: React.FC = () => {
 
           {/* Scooter Order Items Card */}
           <div className="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div>
-                <h3 className="text-sm sm:text-base font-bold text-[#191A1D]">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900">
                   Scooter Model Order Items
                 </h3>
-                <p className="text-[11px] text-gray-500 mt-0.5">
+                <p className="text-[11px] text-slate-500 mt-0.5">
                   Add multiple catalogue models with DL / Other limits
                 </p>
               </div>
 
               {/* Live Scooter Counter Badge */}
               <div className="text-right">
-                <span className="text-[10px] uppercase font-bold text-gray-500 block">Total Scooters</span>
-                <span className="text-sm font-black font-mono text-[#191A1D]">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block">Total Scooters</span>
+                <span className="text-sm font-black font-mono text-slate-900">
                   <AnimatedNumber value={calculationResult.totalScooters} formatFn={(n) => `${n}`} /> units
                 </span>
               </div>
@@ -307,7 +307,7 @@ export const OrderForm: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="p-4 bg-white rounded-xl border border-gray-200/90 shadow-2xs space-y-3.5 transition-all hover:border-[#12B8A6]/40"
+                    className="p-4 bg-white rounded-xl border border-slate-200/90 shadow-2xs space-y-3.5 transition-all hover:border-pink-300"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-black uppercase tracking-wider text-slate-500">
@@ -318,7 +318,7 @@ export const OrderForm: React.FC = () => {
                           type="button"
                           onClick={() => removeScooterItem(item.id)}
                           title="Remove item"
-                          className="text-gray-400 hover:text-red-600 p-1 rounded transition-colors cursor-pointer"
+                          className="text-slate-400 hover:text-red-600 p-1 rounded transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -333,7 +333,7 @@ export const OrderForm: React.FC = () => {
                       <select
                         value={item.modelId}
                         onChange={(e) => updateScooterItem(item.id, { modelId: e.target.value })}
-                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
+                        className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
                       >
                         {CATALOGUE_SCOOTER_MODELS.map((model) => (
                           <option key={model.id} value={model.id}>
@@ -343,7 +343,7 @@ export const OrderForm: React.FC = () => {
                       </select>
                     </div>
 
-                    {/* Category Toggle: DL Model vs Other Model */}
+                    {/* Category Toggle: DL Model (Blue) vs Other Model (Pink) */}
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
                         Model Category (Discount Limit)
@@ -354,12 +354,12 @@ export const OrderForm: React.FC = () => {
                           onClick={() => updateScooterItem(item.id, { category: 'DL Model' })}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                             isDl
-                              ? 'bg-teal-50/80 border-[#12B8A6] text-teal-950 shadow-2xs ring-1 ring-[#12B8A6]/30'
+                              ? 'bg-blue-50/90 border-blue-500 text-blue-950 shadow-2xs ring-1 ring-blue-500/30'
                               : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                           }`}
                         >
                           <span className="block font-black text-slate-900">DL Model</span>
-                          <span className="block text-[10px] font-semibold text-teal-700">₹500 / scooter allowance</span>
+                          <span className="block text-[10px] font-semibold text-blue-700">₹500 / scooter allowance</span>
                         </button>
 
                         <button
@@ -367,12 +367,12 @@ export const OrderForm: React.FC = () => {
                           onClick={() => updateScooterItem(item.id, { category: 'Other Model' })}
                           className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
                             !isDl
-                              ? 'bg-teal-50/80 border-[#12B8A6] text-teal-950 shadow-2xs ring-1 ring-[#12B8A6]/30'
+                              ? 'bg-pink-50/90 border-pink-500 text-pink-950 shadow-2xs ring-1 ring-pink-500/30'
                               : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'
                           }`}
                         >
                           <span className="block font-black text-slate-900">Other Model</span>
-                          <span className="block text-[10px] font-semibold text-teal-700">₹1,000 / scooter allowance</span>
+                          <span className="block text-[10px] font-semibold text-pink-700">₹1,000 / scooter allowance</span>
                         </button>
                       </div>
                     </div>
@@ -398,15 +398,15 @@ export const OrderForm: React.FC = () => {
             <button
               type="button"
               onClick={addScooterItem}
-              className="w-full py-3 border-2 border-dashed border-slate-300 hover:border-[#12B8A6] hover:text-[#12B8A6] hover:bg-teal-50/20 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.99]"
+              className="w-full py-3 border-2 border-dashed border-slate-300 hover:border-pink-500 hover:text-pink-600 hover:bg-pink-50/30 text-slate-700 font-bold text-xs rounded-xl flex items-center justify-center space-x-2 transition-all cursor-pointer active:scale-[0.99]"
             >
               <Plus className="w-4 h-4" />
               <span>+ Add Another Model</span>
             </button>
 
-            {/* Step 1 Scooter Live Summary Card */}
-            <div className="bg-gray-50/80 rounded-xl p-3.5 border border-gray-200/80 grid grid-cols-3 gap-2 text-center text-xs">
-              <div>
+            {/* Step 1 Scooter Live Summary Card - Tri-Color Theme (Blue / Pink / Green) */}
+            <div className="bg-slate-50/90 rounded-xl p-3.5 border border-slate-200/80 grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="bg-blue-50/60 p-2 rounded-lg border border-blue-100">
                 <span className="text-[10px] uppercase font-bold text-blue-700 block">DL Models</span>
                 <span className="text-base font-black font-mono text-blue-950 mt-0.5 block">
                   <AnimatedNumber value={calculationResult.totalDlScooters} formatFn={(n) => `${n}`} />
@@ -414,15 +414,15 @@ export const OrderForm: React.FC = () => {
                 <span className="text-[10px] text-blue-600 font-medium">₹500 limit</span>
               </div>
 
-              <div>
-                <span className="text-[10px] uppercase font-bold text-amber-700 block">Other Models</span>
-                <span className="text-base font-black font-mono text-amber-950 mt-0.5 block">
+              <div className="bg-pink-50/60 p-2 rounded-lg border border-pink-100">
+                <span className="text-[10px] uppercase font-bold text-pink-700 block">Other Models</span>
+                <span className="text-base font-black font-mono text-pink-950 mt-0.5 block">
                   <AnimatedNumber value={calculationResult.totalOtherScooters} formatFn={(n) => `${n}`} />
                 </span>
-                <span className="text-[10px] text-amber-600 font-medium">₹1,000 limit</span>
+                <span className="text-[10px] text-pink-600 font-medium">₹1,000 limit</span>
               </div>
 
-              <div>
+              <div className="bg-emerald-50/60 p-2 rounded-lg border border-emerald-100">
                 <span className="text-[10px] uppercase font-bold text-emerald-700 block">Scooter Allowance</span>
                 <span className="text-base font-black font-mono text-emerald-950 mt-0.5 block">
                   <AnimatedNumber value={calculationResult.scooterDiscountAllowance} />
@@ -436,7 +436,7 @@ export const OrderForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(2)}
-                  className="py-2.5 px-5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="py-2.5 px-5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
                 >
                   <span>Continue to Step 2: Batteries & Transport</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -515,7 +515,7 @@ export const OrderForm: React.FC = () => {
                         <select
                           value={bItem.variant}
                           onChange={(e) => updateBatteryItem(bItem.id, { variant: e.target.value as BatteryVariant })}
-                          className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#12B8A6] focus:ring-1 focus:ring-[#12B8A6]"
+                          className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                         >
                           {batteryVariants.map((v) => (
                             <option key={v} value={v}>{v}</option>
@@ -615,7 +615,7 @@ export const OrderForm: React.FC = () => {
                 min="0"
                 value={orderInput.transportDistanceKm || ''}
                 onChange={(e) => updateOrderInput({ transportDistanceKm: Math.max(0, Number(e.target.value) || 0) })}
-                className="w-full bg-white border border-gray-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-sm font-mono font-bold text-slate-900 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               />
             </div>
 
@@ -768,7 +768,7 @@ export const OrderForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(1)}
-                  className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer"
+                  className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer transition-colors"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Back to Step 1</span>
@@ -777,7 +777,7 @@ export const OrderForm: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setCurrentStep(3)}
-                  className="py-2.5 px-5 bg-gray-900 hover:bg-black text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs"
+                  className="py-2.5 px-5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
                 >
                   <span>Continue to Step 3: Review</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -803,15 +803,15 @@ export const OrderForm: React.FC = () => {
           />
 
           {/* SECTION: PRIMARY DISCOUNT MODE: AUTOMATIC RECOMMENDATION */}
-          <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-teal-200/80 bg-teal-50/20">
+          <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3 border border-pink-200/80 bg-gradient-to-r from-pink-50/30 via-white to-blue-50/30">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#12B8A6] animate-pulse" />
+                <span className="w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
                   Primary Mode: Automatic — Recommend Best Discount
                 </h3>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-[#12B8A6] bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+              <span className="text-[10px] font-black uppercase tracking-wider text-pink-600 bg-pink-50 px-2.5 py-0.5 rounded-full border border-pink-200">
                 Active System
               </span>
             </div>
@@ -842,11 +842,11 @@ export const OrderForm: React.FC = () => {
                     onClick={() => updateOrderInput({ allocationMode: 'Scooty/Battery Discount', selectedScenarioId: 'scenario-a' })}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       calculationResult.allocationOption === 'Scooty/Battery Discount'
-                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
-                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-pink-50 border-pink-500 text-slate-900 ring-1 ring-pink-500/40 shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold">Option A</div>
+                    <div className="text-xs font-bold text-pink-700">Option A</div>
                     <div className="text-[10px] text-slate-500">Scooty Discount Only</div>
                   </button>
 
@@ -855,11 +855,11 @@ export const OrderForm: React.FC = () => {
                     onClick={() => updateOrderInput({ allocationMode: 'Transport Support', selectedScenarioId: 'scenario-b' })}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       calculationResult.allocationOption === 'Transport Support'
-                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
-                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-blue-50 border-blue-500 text-slate-900 ring-1 ring-blue-500/40 shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold">Option B</div>
+                    <div className="text-xs font-bold text-blue-700">Option B</div>
                     <div className="text-[10px] text-slate-500">50% Transport Support</div>
                   </button>
 
@@ -868,11 +868,11 @@ export const OrderForm: React.FC = () => {
                     onClick={() => updateOrderInput({ allocationMode: 'No Discount / Support', selectedScenarioId: 'scenario-c' })}
                     className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
                       calculationResult.allocationOption === 'No Discount / Support'
-                        ? 'bg-white border-[#12B8A6] text-slate-900 ring-1 ring-[#12B8A6]/40 shadow-xs'
-                        : 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                        ? 'bg-slate-100 border-slate-400 text-slate-900 ring-1 ring-slate-400/40 shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300'
                     }`}
                   >
-                    <div className="text-xs font-bold">Option C</div>
+                    <div className="text-xs font-bold text-slate-700">Option C</div>
                     <div className="text-[10px] text-slate-500">No Support</div>
                   </button>
                 </div>
@@ -881,37 +881,37 @@ export const OrderForm: React.FC = () => {
           </div>
 
           {/* SECTION: PROFIT PROTECTION ENGINE (Optional) */}
-          <div className="glass-card rounded-2xl border border-gray-200/90 shadow-xs overflow-hidden">
+          <div className="glass-card rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <button
               type="button"
               onClick={() => setIsProfitProtectionOpen(!isProfitProtectionOpen)}
-              className="w-full p-4 sm:p-5 text-left flex items-center justify-between hover:bg-gray-50/50 transition-colors cursor-pointer"
+              className="w-full p-4 sm:p-5 text-left flex items-center justify-between hover:bg-slate-50/50 transition-colors cursor-pointer"
             >
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 rounded-xl bg-purple-50 border border-purple-200 text-purple-700 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center flex-shrink-0">
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <h4 className="text-sm font-bold text-gray-900">Profit Protection Engine</h4>
-                    <span className="text-[10px] font-bold px-2 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                    <h4 className="text-sm font-bold text-slate-900">Profit Protection Engine</h4>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Optional Safeguard
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] text-slate-500">
                     Verify company procurement costs & minimum margin compliance
                   </p>
                 </div>
               </div>
 
-              {isProfitProtectionOpen ? <ChevronUp className="w-4 h-4 text-gray-400" /> : <ChevronDown className="w-4 h-4 text-gray-400" />}
+              {isProfitProtectionOpen ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
             </button>
 
             {isProfitProtectionOpen && (
-              <div className="p-4 sm:p-5 pt-0 border-t border-gray-100 space-y-3.5 text-xs">
+              <div className="p-4 sm:p-5 pt-0 border-t border-slate-100 space-y-3.5 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                       Company Cost per Scooter (₹)
                     </label>
                     <input
@@ -926,12 +926,12 @@ export const OrderForm: React.FC = () => {
                           scooterUnitCost: e.target.value === '' ? undefined : Number(e.target.value),
                         }
                       })}
-                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-pink-500"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                    <label className="block text-[11px] font-semibold text-slate-700 mb-1">
                       Approved Scooter Selling Price (₹)
                     </label>
                     <input
@@ -946,7 +946,7 @@ export const OrderForm: React.FC = () => {
                           defaultScooterSellingPrice: e.target.value === '' ? undefined : Number(e.target.value),
                         }
                       })}
-                      className="w-full bg-white border border-gray-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-gray-900 focus:outline-none focus:border-[#12B8A6]"
+                      className="w-full bg-white border border-slate-300 rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-slate-900 focus:outline-none focus:border-pink-500"
                     />
                   </div>
                 </div>
@@ -955,11 +955,11 @@ export const OrderForm: React.FC = () => {
           </div>
 
           {/* Delivery Notes (Optional) */}
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-slate-500">
             <button
               type="button"
               onClick={() => setIsNotesOpen(!isNotesOpen)}
-              className="text-gray-600 hover:text-gray-900 font-semibold flex items-center space-x-1 cursor-pointer"
+              className="text-slate-600 hover:text-slate-900 font-semibold flex items-center space-x-1 cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5" />
               <span>{isNotesOpen ? 'Hide Delivery Remarks' : '+ Add Optional Delivery Remarks'}</span>
@@ -971,15 +971,15 @@ export const OrderForm: React.FC = () => {
                 value={orderInput.notes || ''}
                 onChange={(e) => updateOrderInput({ notes: e.target.value })}
                 placeholder="Special dealership remarks, delivery instructions, billing notes..."
-                className="w-full mt-2 bg-white border border-gray-300 rounded-xl p-3 text-xs text-gray-900 focus:outline-none focus:border-[#12B8A6]"
+                className="w-full mt-2 bg-white border border-slate-300 rounded-xl p-3 text-xs text-slate-900 focus:outline-none focus:border-pink-500"
               />
             )}
           </div>
 
           {/* Pre-Calculation Review Summary */}
           <div className="glass-card rounded-2xl p-4 sm:p-5 space-y-3">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-700">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Live Order Pre-Check
               </span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 ${
@@ -1002,30 +1002,30 @@ export const OrderForm: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <span className="text-[10px] text-gray-500 block">Total Scooters</span>
-                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+              <div className="p-2 bg-pink-50/50 border border-pink-100 rounded-lg">
+                <span className="text-[10px] text-pink-700 font-bold block">Total Scooters</span>
+                <strong className="font-mono text-pink-950 text-sm block mt-0.5">
                   {calculationResult.totalScooters}
                 </strong>
               </div>
 
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <span className="text-[10px] text-gray-500 block">Batteries</span>
-                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+              <div className="p-2 bg-emerald-50/50 border border-emerald-100 rounded-lg">
+                <span className="text-[10px] text-emerald-700 font-bold block">Batteries</span>
+                <strong className="font-mono text-emerald-950 text-sm block mt-0.5">
                   {calculationResult.totalBatteries}
                 </strong>
               </div>
 
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <span className="text-[10px] text-gray-500 block">Final Freight</span>
-                <strong className="font-mono text-gray-900 text-sm block mt-0.5">
+              <div className="p-2 bg-blue-50/50 border border-blue-100 rounded-lg">
+                <span className="text-[10px] text-blue-700 font-bold block">Final Freight</span>
+                <strong className="font-mono text-blue-950 text-sm block mt-0.5">
                   {formatINR(calculationResult.totalTransportCost)}
                 </strong>
               </div>
 
-              <div className="p-2 bg-gray-50 rounded-lg">
-                <span className="text-[10px] text-gray-500 block">Freight / Scooty</span>
-                <strong className="font-mono text-blue-900 text-sm block mt-0.5">
+              <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg">
+                <span className="text-[10px] text-slate-500 font-bold block">Freight / Scooty</span>
+                <strong className="font-mono text-slate-900 text-sm block mt-0.5">
                   {calculationResult.transportCostPerScooter !== null ? formatINR(calculationResult.transportCostPerScooter) : '—'}
                 </strong>
               </div>
@@ -1037,7 +1037,7 @@ export const OrderForm: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setCurrentStep(2)}
-                className="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer"
+                className="py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl flex items-center space-x-1.5 cursor-pointer transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back to Step 2</span>
@@ -1050,33 +1050,33 @@ export const OrderForm: React.FC = () => {
       {/* ========================================================================= */}
       {/* STICKY BOTTOM ACTION BAR (Mobile-First, Always Accessible)               */}
       {/* ========================================================================= */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 glass-floating z-30 safe-bottom">
+      <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 shadow-[0_-4px_25px_rgba(0,0,0,0.06)] z-30 safe-bottom">
         <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
           <div className="flex flex-col">
-            <span className="text-[10px] uppercase font-bold text-gray-500 tracking-wider">
+            <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">
               {calculationResult.totalScooters} Scooters • {orderInput.transportDistanceKm} km
             </span>
-            <span className="text-xs font-bold text-gray-900">
-              Eligible Discount: <strong className="text-emerald-700 font-mono"><AnimatedNumber value={calculationResult.totalDiscountAllowance} /></strong>
+            <span className="text-xs font-bold text-slate-900">
+              Eligible Discount: <strong className="text-emerald-600 font-mono"><AnimatedNumber value={calculationResult.totalDiscountAllowance} /></strong>
             </span>
           </div>
 
           <button
             type="submit"
             disabled={isCalculating}
-            className={`py-3.5 px-6 sm:px-9 bg-[#101827] hover:bg-slate-900 active:scale-[0.98] text-white font-black text-sm rounded-xl shadow-lg shadow-slate-900/30 flex items-center space-x-2 transition-all cursor-pointer border border-[#12B8A6]/30 ${
+            className={`py-3.5 px-6 sm:px-9 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:to-rose-600 active:scale-[0.98] text-white font-black text-sm rounded-xl shadow-lg shadow-pink-500/25 flex items-center space-x-2 transition-all cursor-pointer ${
               isCalculating ? 'opacity-70 cursor-not-allowed' : ''
             }`}
           >
             {isCalculating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin text-[#12B8A6]" />
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 <span>Calculating...</span>
               </>
             ) : (
               <>
                 <span>Calculate Order</span>
-                <ArrowRight className="w-4 h-4 text-[#12B8A6]" />
+                <ArrowRight className="w-4 h-4 text-white" />
               </>
             )}
           </button>

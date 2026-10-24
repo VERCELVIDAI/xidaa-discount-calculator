@@ -7,7 +7,8 @@ import {
   Truck, 
   BatteryCharging,
   Zap,
-  Calendar
+  Calendar,
+  Sparkles
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { formatINR } from '../utils/currency';
@@ -23,15 +24,15 @@ export const HomeScreen: React.FC = () => {
   return (
     <div className="max-w-xl mx-auto space-y-6 sm:space-y-7 py-2 sm:py-6 animate-fade-in">
       
-      {/* Brand Hero Card with Glass Styling */}
-      <div className="glass-card rounded-2xl p-6 sm:p-8 text-center space-y-6 relative overflow-hidden border border-slate-200/90 shadow-sm">
+      {/* Brand Hero Card with Glass Styling & Ambient Glow */}
+      <div className="glass-card rounded-3xl p-6 sm:p-8 text-center space-y-6 relative overflow-hidden border border-slate-200/90 shadow-lg shadow-slate-200/40">
         
-        {/* Subtle Decorative Background Aura */}
-        <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-72 h-32 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Subtle Decorative Background Aura (Pink, Blue, Green) */}
+        <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-96 h-40 bg-gradient-to-r from-pink-400/15 via-blue-400/15 to-emerald-400/15 rounded-full blur-3xl pointer-events-none" />
 
         {/* Logo Presentation */}
-        <div className="flex flex-col items-center justify-center pt-1">
-          <div className="p-3 bg-white/95 rounded-2xl shadow-xs border border-slate-100 mb-3 inline-block">
+        <div className="flex flex-col items-center justify-center pt-1 relative">
+          <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 mb-3 inline-block">
             <img 
               src="/assets/xidaa-logo-dark.png" 
               alt="Xidaa Moto" 
@@ -39,16 +40,18 @@ export const HomeScreen: React.FC = () => {
             />
           </div>
 
-          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-teal-50 border border-teal-200/80 text-[10px] font-extrabold text-[#12B8A6] uppercase tracking-wider mb-2">
-            <Zap className="w-3 h-3 text-[#12B8A6]" />
-            <span>Commercial Calculation Engine</span>
+          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-pink-50 via-blue-50 to-emerald-50 border border-slate-200/80 text-[10px] font-extrabold uppercase tracking-wider mb-2 shadow-2xs">
+            <Sparkles className="w-3 h-3 text-pink-500 fill-current" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 via-blue-600 to-emerald-600 font-black">
+              Commercial Calculation Engine
+            </span>
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#101827]">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
             Xidaa Discount Calculator
           </h1>
           
-          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#12B8A6] mt-1">
+          <p className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-pink-600 mt-1">
             Ride The Electric Thunder
           </p>
           
@@ -57,53 +60,56 @@ export const HomeScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* PROMINENT MAIN ACTION: Create New Order */}
+        {/* PROMINENT MAIN ACTION: Create New Order (Hero Pink Gradient) */}
         <div className="pt-1">
           <button
             type="button"
             onClick={() => startNewOrder(true)}
-            className="w-full py-4 px-6 bg-[#101827] hover:bg-slate-900 active:scale-[0.98] text-white font-black text-base rounded-xl shadow-lg shadow-slate-900/25 border border-[#12B8A6]/40 flex items-center justify-center space-x-2.5 transition-all cursor-pointer group"
+            className="w-full py-4 px-6 bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 hover:from-pink-600 hover:via-rose-600 hover:to-pink-700 active:scale-[0.98] text-white font-black text-base rounded-2xl shadow-xl shadow-pink-500/25 flex items-center justify-center space-x-2.5 transition-all cursor-pointer group"
           >
-            <PlusCircle className="w-5 h-5 text-[#12B8A6] transition-transform duration-200 group-hover:rotate-90" />
+            <PlusCircle className="w-5 h-5 text-white transition-transform duration-200 group-hover:rotate-90" />
             <span className="tracking-wide">Create New Order</span>
-            <ArrowRight className="w-4 h-4 ml-1 text-[#12B8A6] opacity-80 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-4 h-4 ml-1 opacity-90 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       </div>
 
-      {/* 3 Core Architecture Pillars */}
+      {/* 3 Core Architecture Pillars (Pink, Green, Blue) */}
       <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
-        <div className="glass-card p-3 sm:p-3.5 rounded-xl text-center border border-slate-200/90">
-          <div className="w-8 h-8 rounded-xl bg-teal-50 text-[#12B8A6] flex items-center justify-center mx-auto mb-1.5 border border-teal-100">
+        {/* Pillar 1: Pink */}
+        <div className="glass-card p-3 sm:p-3.5 rounded-2xl text-center border border-pink-100 hover:border-pink-300 transition-all shadow-2xs bg-gradient-to-b from-pink-50/40 to-white">
+          <div className="w-8 h-8 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mx-auto mb-1.5 border border-pink-200 shadow-2xs">
             <Zap className="w-4 h-4" />
           </div>
           <div className="text-[11px] font-bold text-slate-900">Multi-Model</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">DL & Other Quota</div>
+          <div className="text-[10px] text-pink-700 font-semibold mt-0.5">DL & Other Quota</div>
         </div>
 
-        <div className="glass-card p-3 sm:p-3.5 rounded-xl text-center border border-slate-200/90">
-          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-1.5 border border-emerald-100">
+        {/* Pillar 2: Green */}
+        <div className="glass-card p-3 sm:p-3.5 rounded-2xl text-center border border-emerald-100 hover:border-emerald-300 transition-all shadow-2xs bg-gradient-to-b from-emerald-50/40 to-white">
+          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-1.5 border border-emerald-200 shadow-2xs">
             <BatteryCharging className="w-4 h-4" />
           </div>
           <div className="text-[11px] font-bold text-slate-900">Separate Quota</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">₹500 / Battery Unit</div>
+          <div className="text-[10px] text-emerald-700 font-semibold mt-0.5">₹500 / Battery Unit</div>
         </div>
 
-        <div className="glass-card p-3 sm:p-3.5 rounded-xl text-center border border-slate-200/90">
-          <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-1.5 border border-blue-100">
+        {/* Pillar 3: Blue */}
+        <div className="glass-card p-3 sm:p-3.5 rounded-2xl text-center border border-blue-100 hover:border-blue-300 transition-all shadow-2xs bg-gradient-to-b from-blue-50/40 to-white">
+          <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mx-auto mb-1.5 border border-blue-200 shadow-2xs">
             <Truck className="w-4 h-4" />
           </div>
           <div className="text-[11px] font-bold text-slate-900">5-Step Logistics</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">10% Extra + GST</div>
+          <div className="text-[10px] text-blue-700 font-semibold mt-0.5">10% Extra + GST</div>
         </div>
       </div>
 
       {/* Recent Calculations Section (Only shown if history exists) */}
       {savedOrders.length > 0 && (
-        <div className="glass-card rounded-2xl p-5 space-y-3.5 border border-slate-200/90">
+        <div className="glass-card rounded-3xl p-5 space-y-3.5 border border-slate-200/90 shadow-sm">
           <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
             <div className="flex items-center space-x-2">
-              <Bookmark className="w-4 h-4 text-[#12B8A6]" />
+              <Bookmark className="w-4 h-4 text-blue-600" />
               <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
                 Recent Calculations
               </h2>
@@ -111,7 +117,7 @@ export const HomeScreen: React.FC = () => {
             <button
               type="button"
               onClick={() => setActiveView('history')}
-              className="text-xs font-bold text-[#12B8A6] hover:underline flex items-center space-x-1 transition-colors"
+              className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline flex items-center space-x-1 transition-colors cursor-pointer"
             >
               <span>View All ({savedOrders.length})</span>
               <ArrowRight className="w-3 h-3" />
@@ -129,7 +135,7 @@ export const HomeScreen: React.FC = () => {
                   className="py-3 flex items-center justify-between cursor-pointer hover:bg-slate-50/80 rounded-xl px-2.5 -mx-2.5 transition-all group active:scale-[0.99]"
                 >
                   <div className="space-y-0.5">
-                    <div className="text-xs font-bold text-slate-900 group-hover:text-[#12B8A6] transition-colors flex items-center space-x-1.5">
+                    <div className="text-xs font-bold text-slate-900 group-hover:text-pink-600 transition-colors flex items-center space-x-1.5">
                       <span>{inp.customerName || 'Direct B2B Dealer'}</span>
                       <span className="text-[9px] font-mono px-1.5 py-0.2 bg-slate-100 text-slate-600 rounded">
                         {inp.orderRef}
@@ -149,7 +155,7 @@ export const HomeScreen: React.FC = () => {
                     <div className="text-xs font-mono font-black text-slate-900">
                       {res.finalPayableAmount !== null ? formatINR(res.finalPayableAmount) : 'Pending Prices'}
                     </div>
-                    <div className="text-[10px] text-teal-700 font-semibold">
+                    <div className="text-[10px] text-emerald-700 font-bold">
                       Allowance: {formatINR(res.scooterDiscountAllowance)}
                     </div>
                   </div>
@@ -165,7 +171,7 @@ export const HomeScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveView('admin-settings')}
-          className="hover:text-slate-900 flex items-center space-x-1.5 transition-colors font-medium cursor-pointer"
+          className="hover:text-emerald-700 flex items-center space-x-1.5 transition-colors font-semibold cursor-pointer"
         >
           <Settings className="w-3.5 h-3.5 text-slate-400" />
           <span>Config & Rates</span>
@@ -174,7 +180,7 @@ export const HomeScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveView('history')}
-          className="hover:text-slate-900 flex items-center space-x-1.5 transition-colors font-medium cursor-pointer"
+          className="hover:text-blue-700 flex items-center space-x-1.5 transition-colors font-semibold cursor-pointer"
         >
           <Bookmark className="w-3.5 h-3.5 text-slate-400" />
           <span>Saved Orders ({savedOrders.length})</span>
